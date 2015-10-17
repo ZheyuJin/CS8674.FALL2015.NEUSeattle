@@ -15,5 +15,6 @@
 @if .%fileerr%. == .1. @echo Could not find %cfgdir%\schema.xml or %cfgdir%\solrconfig.xml
 @echo.
 
-@rem to do - add a small wait and then hit this url to reset the index of the collection?
+@rem to do - add a small wait and then delete all (first url) then reload (second url - maybe not necessary after a delete?)
+@rem http://localhost:8983/solr/csvtest/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E&commit=true
 @rem http://localhost:8983/solr/admin/collections?action=RELOAD&name=csvtest&reindex=true&deleteAll=true
