@@ -173,7 +173,7 @@
   <field name="NPI" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPPES_PROVIDER_LAST_ORG_NAME" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPPES_PROVIDER_FIRST_NAME" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_CREDENTIALS" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_CREDENTIALS" type="lowercase_creds" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPPES_ENTITY_CODE" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPPES_PROVIDER_CITY" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPPES_PROVIDER_ZIP" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
@@ -536,6 +536,17 @@
     <fieldType name="lowercase" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory" />
+      </analyzer>
+    </fieldType>
+
+    <!-- strips out periods, lowercases the entire field value, split on other punctuation 
+         for example, "DNP, FNP" and "D.N.P, F.N.P" will both turn into two tokens = dnp, fnp
+    -->
+    <fieldType name="lowercase_creds" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping_stripdots.txt"/> 
+        <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory" />
       </analyzer>
     </fieldType>
