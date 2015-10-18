@@ -1,0 +1,5 @@
+http://localhost:8983/solr/csvtest/select?q=inpatient%20AND%20NPPES_PROVIDER_STATE:FL&wt=json&indent=true&rows=10&sort=BENE_UNIQUE_CNT+desc
+
+http://localhost:8983/solr/csvtest/select?q=HCPCS_CODE:99232%20AND%20NPPES_PROVIDER_STATE:FL&wt=json&indent=true&rows=10&sort=BENE_UNIQUE_CNT+desc
+
+http://localhost:8983/solr/csvtest/select?q=knee%20AND%20NPPES_PROVIDER_STATE:GA&wt=json&indent=true&rows=10&sort=BENE_UNIQUE_CNT+desc

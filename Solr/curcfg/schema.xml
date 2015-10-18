@@ -229,6 +229,7 @@
     <copyField source="NPPES_PROVIDER_COUNTRY" dest="text" />
     <copyField source="NPPES_CREDENTIALS" dest="text" />
     <copyField source="HCPCS_CODE" dest="text" />
+    <copyField source="PROVIDER_TYPE" dest="text" />
     
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
