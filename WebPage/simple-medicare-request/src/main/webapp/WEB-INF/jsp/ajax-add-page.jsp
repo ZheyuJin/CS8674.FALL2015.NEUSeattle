@@ -10,17 +10,14 @@
 	    var jq = jQuery.noConflict();
 	</script>
 	
-	<title>Spring MVC - jQuery Integration Tutorial</title>
+	<title>Top Doctors - Ajax Style</title>
 
 </head>
 <body>
 
-<h3>Spring MVC - jQuery Integration Tutorial</h3>
-<h4>AJAX version</h4>
-
-Demo 1
+Demo Request:
 <div style="border: 1px solid #ccc; width: 250px;">
-	Add Two Numbers: <br/>
+	Request Doctors: <br/>
 	<input id="gender" type="text" size="5"> +
 	<input id="state" type="text" size="5">
 	<input type="submit" value="Add" onclick="add()" /> <br/>

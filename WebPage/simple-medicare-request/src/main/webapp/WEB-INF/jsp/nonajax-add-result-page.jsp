@@ -6,16 +6,14 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	
-	<title>Spring MVC - jQuery Integration Tutorial</title>
+	<title>Get Top Ten Doctors Results</title>
 </head>
 <body>
 
-<h3>Spring MVC - jQuery Integration Tutorial</h3>
-<h4>Non-AJAX version</h4>
 
-Demo 1 Result
+These are the best doctors:
 <div style="border: 1px solid #ccc; width: 250px;">
-	appendedString: ${appendedString}
+	${appendedString}
 </div>
 
 </body>
