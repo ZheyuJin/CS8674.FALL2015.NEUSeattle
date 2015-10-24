@@ -147,16 +147,82 @@ public class SolrQueryResponse {
   }
   
   // Key = code, value = description
-  public static HashMap<String, String> getProcedures(int numRows) throws IOException
+  public static HashMap<String, String> getProcedures(int numRows, boolean sortByCount) throws IOException, SolrServerException
   {
-    HashMap<String,String> codes = new HashMap<String,String>();
+    HashMap<String,String> codesWithDescriptions = new HashMap<String,String>();
+
+    // This isn't perfect - we query "all" to get all codes/descriptions and then chop the top "x" from that result 
+    // http://localhost:8983/solr/csvtest/select?q=HCPCS_CODE%3A*&fl=HCPCS_CODE,HCPCS_DESCRIPTION&wt=json&indent=true&rows=1000&facet=true&facet.field=HCPCS_CODE&facet.sort=index
+   
+  
+    SolrClient solr = null;
     
-    return codes;    
+    try {    
+      solr = new HttpSolrClient(solrQueryBase); 
+      String facetField = "HCPCS_CODE";
+      
+      SolrQuery query = new SolrQuery();
+      
+      //query.set("rows", numRows);
+      //query.set("fl", facetField);
+      query.setQuery("HCPCS_CODE:*");
+      
+      query.setFacet(true);
+      query.setFields(facetField + ",HCPCS_DESCRIPTION");
+     
+      query.set("facet.field", facetField);
+      query.set("facet.limit", -1);  // Return all facets so we can match them up
+      query.setRows(10000);
+      if (sortByCount)
+      {
+        query.setFacetSort("count");  // "top" means by count
+      }
+      else
+      {
+        query.setFacetSort("index"); // lexigraphical sort
+      }
+       
+      query.setStart(0);
+      
+      QueryResponse solrJresponse = solr.query(query);
+      
+      FacetField field=solrJresponse.getFacetField(facetField);
+      for (int i=0; i < numRows; i++) {
+        Count codeWithCounts = field.getValues().get(i);
+        
+        codesWithDescriptions.put(codeWithCounts.getName().toUpperCase(), "");
+      } 
+      
+      // Now match up codes with descriptions 
+      // (ideally we would do this in one pass, but haven't worked that query out)
+      // To do - could we use a copy field for this since there's a 1:1 mapping
+      // between hcpcs code and description?
+      SolrDocumentList list = solrJresponse.getResults();
+      for (SolrDocument doc : list)
+      {
+        String code = doc.get("HCPCS_CODE").toString().toUpperCase();
+        if (codesWithDescriptions.containsKey(code))
+        {
+          if (codesWithDescriptions.get(code).isEmpty())
+          {
+            String description = doc.get("HCPCS_DESCRIPTION").toString();
+            codesWithDescriptions.put(code, description);
+          }
+        }        
+      }      
+    }    
+    finally {
+      if (solr != null)
+      {
+        solr.close();
+      }
+    }
+    
+    return codesWithDescriptions;  
   }
   
   public static List<Provider> getProviders(int numRows, String state, String procedure) throws IOException
   {  
-
     List<Provider> providers = new ArrayList<Provider>();
     
     return providers;
@@ -255,7 +321,15 @@ public class SolrQueryResponse {
       for(String state: states)
       {
          System.out.println("State: " + state); 
-      }     
+      }
+      
+      // Test out "get codes and descriptions query"
+      HashMap<String, String> codesWithDescriptions = SolrQueryResponse.getProcedures(20, true);
+      for (String key : codesWithDescriptions.keySet())
+      {
+         String value = codesWithDescriptions.get(key);
+         System.out.println("Code " + key + " : " + value);
+      }      
     }
     catch (Exception e)
     {
