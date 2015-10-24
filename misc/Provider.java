@@ -1,5 +1,7 @@
 package com.crunchify.controller;  // ToDo - change this once we know our package name
 
+import java.util.Map;
+
 public class Provider {  
   
   // See here for quick reference on the medicare derived fields
@@ -41,10 +43,82 @@ public class Provider {
   }
   
   // Set this to null for Solr queries?
-  public ExtendedInfo providerInfo;
+  public ExtendedInfo providerDetails;
   
   public Provider(String id)
   {
     this.id = id; 
   }
+  
+   // Constructor used by SolrJ
+   public Provider(Map<String, Object> fields)
+   {
+     this.providerDetails = null;  // Null = Solr doesn't have these details
+     
+     this.id = fields.get("id").toString();
+     for (String key : fields.keySet())
+     {
+       switch(key){
+         case "id" :
+             // Already set this one
+             break;
+         case "year" :
+             this.year = (long)fields.get(key);
+             break;
+         case "NPI" :
+           this.npi = fields.get(key).toString();
+           break;
+         case "NPPES_PROVIDER_LAST_ORG_NAME" :
+           this.last_or_org_name = fields.get(key).toString();
+           break;
+         case "NPPES_PROVIDER_FIRST_NAME" :
+           this.first_name = fields.get(key).toString();
+           break;
+         case "NPPES_CREDENTIALS" :
+           this.credentials = fields.get(key).toString();
+           break;
+         case "NPPES_ENTITY_CODE" :
+           this.entity_code = fields.get(key).toString();
+           break;
+         case "NPPES_PROVIDER_CITY" :
+           this.city = fields.get(key).toString();
+           break;
+         case "NPPES_PROVIDER_ZIP" :
+           this.zip = fields.get(key).toString();
+           break;
+         case "NPPES_PROVIDER_STATE" :
+           this.state = fields.get(key).toString();
+           break;
+         case "NPPES_PROVIDER_COUNTRY" :
+           this.country = fields.get(key).toString();
+           break;
+         case "PROVIDER_TYPE" :
+           this.provider_type = fields.get(key).toString();
+           break;
+         case "PLACE_OF_SERVICE" :
+           this.place_of_service = fields.get(key).toString();
+           break;
+         case "HCPCS_CODE" :
+           this.hcpcs_code = fields.get(key).toString();
+           break;
+         case "HCPCS_DESCRIPTION" :
+           this.hcpcs_description = fields.get(key).toString();
+           break;
+         case "LINE_SRVC_CNT" :
+           this.line_service_count = (float)fields.get(key);
+           break; 
+         case "BENE_UNIQUE_CNT" :
+           this.beneficiaries_unique_count = (long)fields.get(key);
+           break;
+         case "BENE_DAY_SRVC_CNT" :
+           this.beneficiaries_day_service_count = (long)fields.get(key);
+           break;
+         case "_version_" :
+           break;
+         default: 
+             // We just ignore fields we don't recognize
+             break;
+       }
+     }
+   }
 }
