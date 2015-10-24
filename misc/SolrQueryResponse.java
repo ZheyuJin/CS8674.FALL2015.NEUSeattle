@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 //import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -25,7 +26,8 @@ public class SolrQueryResponse {
   public static String solrQueryBase = solrUrlBase + collectionName;
 
   public enum SortField {
-    DAY_COUNT
+    DEFAULT,
+    UNIQUE_COUNT
   }
   
   // Define a few nested classes specific to the query response
@@ -84,7 +86,7 @@ public class SolrQueryResponse {
     this.header.status = solrJresponse.getStatus();
     this.header.QTime = solrJresponse.getQTime();
     this.body.start = list.getStart();
-    this.body.maxScore = list.getMaxScore();
+    //this.body.maxScore = list.getMaxScore();  // Not always available - throws if not.
     this.body.numFound = list.getNumFound(); 
     
     for (int i=0; i<list.size(); i++)
@@ -146,14 +148,14 @@ public class SolrQueryResponse {
     return stateCounts;
   }
   
-  // Key = code, value = description
+  // Map of procedure values and codes.  Key = code, value = description
   public static HashMap<String, String> getProcedures(int numRows, boolean sortByCount) throws IOException, SolrServerException
   {
     HashMap<String,String> codesWithDescriptions = new HashMap<String,String>();
 
     // This isn't perfect - we query "all" to get all codes/descriptions and then chop the top "x" from that result 
     // http://localhost:8983/solr/csvtest/select?q=HCPCS_CODE%3A*&fl=HCPCS_CODE,HCPCS_DESCRIPTION&wt=json&indent=true&rows=1000&facet=true&facet.field=HCPCS_CODE&facet.sort=index
-   
+    // Once our data gets big, we will need to figure this out some other way (could change id to a parseable value like id="<type>:<key for type")
   
     SolrClient solr = null;
     
@@ -194,9 +196,7 @@ public class SolrQueryResponse {
       } 
       
       // Now match up codes with descriptions 
-      // (ideally we would do this in one pass, but haven't worked that query out)
-      // To do - could we use a copy field for this since there's a 1:1 mapping
-      // between hcpcs code and description?
+      // (ideally we would do this in one pass, but haven't worked that query or schema out)
       SolrDocumentList list = solrJresponse.getResults();
       for (SolrDocument doc : list)
       {
@@ -221,33 +221,107 @@ public class SolrQueryResponse {
     return codesWithDescriptions;  
   }
   
-  public static List<Provider> getProviders(int numRows, String state, String procedure) throws IOException
+  public static List<Provider> getProviders(int numRows, String state, String procedure) throws IOException, SolrServerException
   {  
-    List<Provider> providers = new ArrayList<Provider>();
+    return SolrQueryResponse.getProviders(numRows, state, procedure, SortField.DEFAULT, false);
+  }
+
+  public static List<Provider> getProviders(int numRows, String state, String procedure, SortField sortBy, boolean ascending) throws IOException, SolrServerException
+  {
     
+    // http://localhost:8983/solr/csvtest/select?q=HCPCS_CODE:99232%20AND%20NPPES_PROVIDER_STATE:FL&wt=json&indent=true&rows=10&sort=BENE_UNIQUE_CNT+desc    
+    List<Provider> providers = new ArrayList<Provider>();  // Default = return empty list
+    String queryString = "q=NPPES_PROVIDER_STATE:* AND HCPCS_CODE:whatever&wt=json&indent=true";
+  
+    SolrClient solr = null;   
+    
+    try {    
+      solr = new HttpSolrClient(solrQueryBase);      
+      
+      SolrQuery query = new SolrQuery(queryString);
+      
+      query.set("rows", numRows);
+      query.setQuery("NPPES_PROVIDER_STATE:" + state + " AND HCPCS_CODE:" + procedure);
+      query.setStart(0);
+      
+      String sortField = "id";
+      if (sortBy == SortField.UNIQUE_COUNT)
+      {
+        sortField = "BENE_UNIQUE_CNT";
+      }      
+
+      if (ascending)
+      {
+        query.setSort(sortField, ORDER.asc);
+      }
+      else {
+        query.setSort(sortField, ORDER.desc);       
+      }
+      
+      QueryResponse solrJresponse = solr.query(query);      
+      SolrQueryResponse response = new SolrQueryResponse(solrJresponse);
+      
+      // TODO: This assignment does not preserve sort order 
+      // (ie: you get the right "top" values, but not in order in the list)
+      // Do we care?  If so, might need a helper method to copy and preserve order of list.
+      List<Provider> list = response.body.providers;
+      providers = list;
+      
+      System.out.println("Query returned " + list.size() + " results out of " + response.body.numFound);
+      
+      if (response.body.numFound > 0)
+      {
+        if (list.size() > 0)
+        {
+          for (Provider p : list)
+          {
+            System.out.println("Query result id = " + p.id);            
+          }          
+        }
+      }
+    }    
+    finally {
+      if (solr != null)
+      {
+        solr.close();
+      }
+    }    
+   
     return providers;
   }
   
-  public static List<Provider> getProviders(int numRows, String procedure, SortField sortBy, boolean ascending) throws IOException
-  {   
-    List<Provider> providers = new ArrayList<Provider>();
-   
-    return providers;  
-  }
-  
-  public static List<Provider> getProviders(int numRows, String queryTerm) throws IOException
+  public static List<Provider> getProviders(int numRows, String queryTerm) throws IOException, SolrServerException
   {    
     List<Provider> providers = new ArrayList<Provider>();
     SolrClient solr = null;
     
     try {    
-      solr = new HttpSolrClient(solrUrlBase + "csvtest");      
+      solr = new HttpSolrClient(solrQueryBase);      
       
       SolrQuery query = new SolrQuery();
       
       query.set("rows", numRows);
       query.set("q", queryTerm);
       query.setStart(0);
+      
+      QueryResponse solrJresponse = solr.query(query);
+      SolrQueryResponse response = new SolrQueryResponse(solrJresponse);
+      
+      List<Provider> list = response.body.providers;
+      providers = list;
+      
+      System.out.println("Query returned " + list.size() + " results out of " + response.body.numFound);
+      
+      if (response.body.numFound > 0)
+      {
+        if (list.size() > 0)
+        {
+          for (Provider p : list)
+          {
+            System.out.println("Query result id = " + p.id);
+          }          
+        }
+      }      
     }    
     finally {
       if (solr != null)
@@ -330,6 +404,22 @@ public class SolrQueryResponse {
          String value = codesWithDescriptions.get(key);
          System.out.println("Code " + key + " : " + value);
       }      
+      
+      // Test "get provider by (any) state and procedure, sort based on beneficiary unique count
+      List<Provider> providers = getProviders(10, "*", "69210");
+      for (Provider p : providers)
+      {
+        System.out.println("Provider " + p.last_or_org_name + ", procedure " + p.hcpcs_code + 
+            " (" + p.hcpcs_description + "): " + p.beneficiaries_unique_count);        
+      }      
+
+      // Test "get provider by state and procedure, sort based on beneficiary unique count
+      providers = getProviders(10, "CA", "99213");
+      for (Provider p : providers)
+      {
+        System.out.println("Provider " + p.last_or_org_name + ", procedure " + p.hcpcs_code + 
+            " (" + p.hcpcs_description + "): " + p.beneficiaries_unique_count);        
+      }            
     }
     catch (Exception e)
     {
