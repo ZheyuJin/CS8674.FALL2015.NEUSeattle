@@ -1,15 +1,18 @@
-package com.crunchify.controller;  // ToDo - change this once we know our package name
+package com.crunchify.controller; // TODO: change this when we know what our package name is
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 //import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -91,27 +94,47 @@ public class SolrQueryResponse {
     }   
   }
  
-  public static List<String> getStates(int numRows) throws IOException, SolrServerException
+  // Return just states
+  public static Set<String> getStates() throws IOException, SolrServerException
   {
-    List<String> states = new ArrayList<String>();
+    return getCountsByState().keySet();
+  }
+  
+  // state and count of providers
+  public static HashMap<String, Long> getCountsByState() throws IOException, SolrServerException
+  {
+    // http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&fl=NPPES_PROVIDER_STATE&wt=json&indent=true&facet=true&facet.field=NPPES_PROVIDER_STATE
+    
+    HashMap<String, Long> stateCounts = new HashMap<String, Long>();
     
     SolrClient solr = null;
     
     // Todo: refactor the internal query to one method
     try {    
-      solr = new HttpSolrClient(solrQueryBase);      
+      solr = new HttpSolrClient(solrQueryBase); 
+      String facetField = "NPPES_PROVIDER_STATE";
       
       SolrQuery query = new SolrQuery();
       
-      query.set("rows", numRows);
-      query.set("q", "NPPES_PROVIDER_STATE:*");
-      // set fl or group by?
+      //query.set("rows", numRows);
+      //query.set("fl", facetField);
+      query.setQuery("NPPES_PROVIDER_STATE:*");
+      
+      query.setFacet(true);
+      query.setFields(facetField);
+     
+      query.set("facet.field", facetField);
+       
       query.setStart(0);
       
       QueryResponse solrJresponse = solr.query(query);
       
-      SolrDocumentList list = solrJresponse.getResults();
-      
+      FacetField field=solrJresponse.getFacetField(facetField);
+      for (int i=0; i < field.getValues().size(); i++) {
+        Count stateWithCount = field.getValues().get(i);
+        
+        stateCounts.put(stateWithCount.getName(), (Long)stateWithCount.getCount());
+      }    
     }    
     finally {
       if (solr != null)
@@ -120,7 +143,7 @@ public class SolrQueryResponse {
       }
     }      
     
-    return states;
+    return stateCounts;
   }
   
   // Key = code, value = description
@@ -224,40 +247,15 @@ public class SolrQueryResponse {
     
     try {
 
-      // Using SolrJ to parse results.
-
-      // Try SolrJ
-      // - add to maven pom.xml
-      // - add imports
-      // - know what your zookeeper names/ports are...
+      // Test out a query
+      getQueryResponse(10, "knee");      
       
-      //String zkHostString = "localhost:9983/solr";
-      //solr = new CloudSolrClient(zkHostString);
-      // set default collection?
-      
-      solr = new HttpSolrClient("http://localhost:8983/solr/csvtest");      
-      
-      SolrQuery query = new SolrQuery();
-      
-      query.set("rows", "10");
-      query.set("q", "knee");
-      
-      QueryResponse solrJresponse = solr.query(query);
-      
-      SolrDocumentList list = solrJresponse.getResults();
-      
-      System.out.println("Query returned " + list.size() + " results out of " + list.getNumFound());
-      
-      if (list.getNumFound() > 0)
+      // Test out state count query
+      Set<String> states = SolrQueryResponse.getStates();
+      for(String state: states)
       {
-        if (list.size() > 0)
-        {
-          for (SolrDocument doc : list)
-          {
-            System.out.println("Query result id = " + doc.getFieldValue("id").toString());
-          }          
-        }
-      }
+         System.out.println("State: " + state); 
+      }     
     }
     catch (Exception e)
     {
