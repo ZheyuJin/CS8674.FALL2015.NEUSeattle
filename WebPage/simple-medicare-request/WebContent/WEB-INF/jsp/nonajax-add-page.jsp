@@ -13,7 +13,7 @@
 <h3>Spring MVC - jQuery Integration Tutorial</h3>
 <h4>Non-AJAX version</h4>
 -->
-<c:url var="addUrl" value="/hunter/main/nonajax/add" />
+<c:url var="addUrl" value="add" />
 <form method="POST" action="${addUrl}">
 
 Demo 1 
@@ -26,6 +26,8 @@ Demo 1
 </div>
 
 </form>
+
+	<a href="/simple-medicare-request/index.html">Home</a> 
 
 </body>
 </html>

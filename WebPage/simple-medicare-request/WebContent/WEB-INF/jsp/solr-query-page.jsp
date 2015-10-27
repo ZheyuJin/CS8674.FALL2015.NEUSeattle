@@ -24,5 +24,6 @@
     <input type="submit" value="Submit">
     </form>
 
+	<a href="/simple-medicare-request/index.html">Home</a> 
 </body>
 </html>

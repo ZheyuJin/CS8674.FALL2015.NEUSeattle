@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
  * Handles and retrieves the main requests
  */
 @Controller
-@RequestMapping("/main/solr")
+@RequestMapping("/solr")
 public class SolrTestController 
 {
   protected static Logger logger = Logger.getLogger("controller");
