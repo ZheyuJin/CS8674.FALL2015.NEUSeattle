@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Handles and retrieves the main requests
  */
 @Controller
-@RequestMapping("/main/ajax")
+@RequestMapping("/ajax")
 public class AjaxController {
 
   protected static Logger logger = Logger.getLogger("controller");

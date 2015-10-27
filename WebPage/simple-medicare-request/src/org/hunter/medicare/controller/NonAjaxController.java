@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * Handles and retrieves the main requests
  */
 @Controller
-@RequestMapping("/main/nonajax")
+@RequestMapping("/nonajax")
 public class NonAjaxController {
 
   protected static Logger logger = Logger.getLogger("controller");

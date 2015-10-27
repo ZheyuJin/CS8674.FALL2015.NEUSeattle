@@ -16,5 +16,6 @@ These are the best doctors:
 	${appendedString}
 </div>
 
+	<a href="/simple-medicare-request/index.html">Home</a> 
 </body>
 </html>

@@ -5,7 +5,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	
-	<script type="text/javascript" src="/simple-medicare-request/resources/js/jquery/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script type="text/javascript">
 	    var jq = jQuery.noConflict();
 	</script>
@@ -35,7 +35,7 @@ function add() {
 		// See http://api.jquery.com/jQuery.ajax/
 		// You might find a warning in Firefox: Warning: Unexpected token in attribute selector: '!' 
 		// See http://bugs.jquery.com/ticket/7535
-		jq.post("/simple-medicare-request/hunter/main/ajax/add",
+		jq.post("add",
 					{ 	gender:  jq("#gender").val(),
 				  		state:  jq("#state").val() },
 						function(data){
@@ -47,5 +47,7 @@ function add() {
 }
 
 </script>
+
+	<a href="/simple-medicare-request/index.html">Home</a> 
 </body>
 </html>
