@@ -30,6 +30,13 @@ public class CassandraQueryResponse {
 
 	if (mock) {
 	    providers = buildMockResponse(state, procedure);
+	    /* assign values from 1 to n to proviser's charge. need this for mocking.*/	    
+	    int charge =1;
+	    for(Provider p : providers){
+		p.providerDetails = p.new ExtendedInfo();
+		p.providerDetails.averageSubmittedChargeAmount = charge;
+		charge ++;
+	    }
 	} else {
 	    // uncomment this to use logger
 	    // BasicConfigurator.configure();

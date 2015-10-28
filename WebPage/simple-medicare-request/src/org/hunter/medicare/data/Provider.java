@@ -11,8 +11,14 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class Provider {
     @Override
     public String toString() {
-	return String.format("daycount %d,\t firstname: %s, \tlastname: %s \t zip:%s", beneficiaries_day_service_count,
+	String ret = "";
+	if (providerDetails != null)
+	    ret += String.format("averageSubmittedChargeAmount %.2f,", providerDetails.averageSubmittedChargeAmount);
+
+	ret += String.format("daycount %d,\t firstname: %s, \tlastname: %s \t zip:%s", beneficiaries_day_service_count,
 		first_name, last_or_org_name, zip);
+
+	return ret;
     }
 
     // See here for quick reference on the medicare derived fields
