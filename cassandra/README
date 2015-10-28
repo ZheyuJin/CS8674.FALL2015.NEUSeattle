@@ -1,0 +1,17 @@
+README
+
+to make a new keyspace on a localhost, use
+ bash cass_mk_keyspace.sh KEYSPACE CQLSH_LOCATION
+ e.g., bash cass_mk_keyspace.sh demo /home/ubuntu/cassandra/bin/cqlsh
+
+to add the 3 main storage tables to cassandra, use
+ bash cass_mk_tables.sh KEYSPACE CQLSH_LOCATION
+ e.g., bash cass_mk_tables.sh demo /home/ubuntu/cassandra/bin/cqlsh
+
+to add data from a file into those tables, use
+ bash cass_tabulate.sh HOST KEYSPACE FILE
+ e.g., bash cass_tabulate.sh 127.0.0.1 demo 2012_medicare_thousand_data.csv
+
+to add the first mv, use
+ bash cass_mk_mv.sh HOST KEYSPACE MV_TABLE_NAME
+ e.g., bash cass_mk_mv.sh 127.0.0.1 demo mv
