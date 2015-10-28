@@ -1,9 +1,14 @@
 package org.hunter.medicare.controller;
 
+import java.io.IOException;
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
-import org.hunter.medicare.service.*;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.hunter.medicare.data.Provider;
+import org.hunter.medicare.data.SolrProviderSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,34 +25,37 @@ public class AjaxController {
 
   protected static Logger logger = Logger.getLogger("controller");
   
-  @Resource(name="springService")
-  private StringAppend springService;
   
-  /**
-   * Handles and retrieves the AJAX Add page
-   */
-    @RequestMapping(value = "/add", method = RequestMethod.GET)
+    @RequestMapping(value = "/submit", method = RequestMethod.GET)
     public String getAjaxAddPage() {
-      logger.debug("Received request to show AJAX, add page");
+      logger.debug("Received request to show AJAX, submit page");
       
-      // This will resolve to /WEB-INF/jsp/ajax-add-page.jsp
       return "ajax-add-page";
   }
  
-    /**
-     * Handles request for adding two numbers
-     */
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public @ResponseBody String add(@RequestParam(value="gender", required=true) String str1,
-                  @RequestParam(value="state", required=true) String str2,
-                  Model model) {
-    logger.debug("Received request to add two numbers");
+    @RequestMapping(value = "/submit", method = RequestMethod.POST)
+    public @ResponseBody AjaxResponseBody submit(@RequestParam(value="providerID", required=false) String proc_code,
+                  @RequestParam(value="state", required=true) String state,
+                  Model model) throws IOException, SolrServerException {
+    	  logger.debug("Received submit request");
+    	    
+    AjaxResponseBody output = new AjaxResponseBody();
     
-    // Delegate to service to do the actual adding
-    String output = springService.add(str1, str2);
+    List<Provider> providers = SolrProviderSource.getProviders(10, state, proc_code);
+
+    output.setResults(providers);
     
-    // @ResponseBody will automatically convert the returned value into JSON format
-    // You must have Jackson in your classpath
-    return output;
+    if(proc_code == "yes"){
+    	for(int i = 0; i < 20; i++){
+    		output.addInt(i);
+    	}
+    } else {
+    	for(int i = 0; i < 5; i++){
+    		output.addInt(i);
+    	}
+    }
+    
+	  logger.debug("returning request");
+      return output;
   }
 }

@@ -3,7 +3,6 @@ package org.hunter.medicare.controller;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
-import org.hunter.medicare.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +19,6 @@ public class NonAjaxController {
 
   protected static Logger logger = Logger.getLogger("controller");
   
-  @Resource(name="springService")
-  private StringAppend stringAppender;
   
     /**
      * Handles and retrieves the non-AJAX, ordinary Add page
@@ -44,7 +41,7 @@ public class NonAjaxController {
     logger.debug("Received request to add two numbers");
     
     // Delegate to service to do the actual adding
-    String output = stringAppender.add(str1, str2);
+    String output = str1 + " " + str2;
     
     // Add to model
     model.addAttribute("appendedString", output);
