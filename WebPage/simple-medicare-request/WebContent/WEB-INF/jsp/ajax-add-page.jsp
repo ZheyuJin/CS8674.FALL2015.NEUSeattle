@@ -1,22 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 
 <!DOCTYPE html">
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-	<script type="text/javascript">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<script type="text/javascript"
+	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript">
 	    var jq = jQuery.noConflict();
 	</script>
-	
-	<title>Top Medicare Providers</title>
+
+<title>Top Medicare Providers</title>
 
 </head>
 <body>
 
-<!-- 
+	<!-- 
 <div class="container" style="min-height: 500px">
 
 	<div class="basic-input">
@@ -51,22 +52,27 @@
 
 </div>
 -->
- 
-<div >
-	Request Doctors: <br/>
-	<div>Procedure code:<input id="procCode" type="text" size="10"></div> <br>
-	<div>State: <select id="state">
-		<option label="Select the state">Select the state</option>
-		<option value = "AL">AL</option>
-		<option value = "FL">FL</option>
-		<option value = "WA">WA</option>
-		<option value = "NY">NY</option>
-	</select></div>
-	<input type="submit" value="Submit" onclick="submit()" /> <br/>
-	<span id="feedback"></span>
-</div>
 
-<script type="text/javascript"> 
+	<div>
+		Request Doctors: <br />
+		<div>
+			Procedure code:<input id="procCode" type="text" size="10">
+		</div>
+		<br>
+		<div>
+			State: <select id="state">
+				<option label="Select the state">Select the state</option>
+				<option value="AL">AL</option>
+				<option value="FL">FL</option>
+				<option value="WA">WA</option>
+				<option value="NY">NY</option>
+			</select>
+		</div>
+		<input type="submit" value="Submit" onclick="submit()" /> <br /> <span
+			id="feedback"></span>
+	</div>
+
+	<script type="text/javascript"> 
 
 function submit() {
 	jq(function() {
@@ -98,6 +104,6 @@ function displayData(data){
 
 </script>
 
-	<a href="/simple-medicare-request/index.html">Home</a> 
+	<a href="/simple-medicare-request/index.html">Home</a>
 </body>
 </html>

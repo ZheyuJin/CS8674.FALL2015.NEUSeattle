@@ -11,12 +11,12 @@ import org.hunter.medicare.data.Provider;
  */
 public class CassandraQueryTest {
 
-	public static void main(String[] args) {
-		System.out.println("gonna print test result");
+    public static void main(String[] args) {
+	System.out.println("gonna print test result");
 
-		for (Provider p : CassandraQueryResponse.getInstance().getMostExpensive("CA", "*")) {
-			System.out.println(p);
-		}
+	for (Provider p : CassandraQueryResponse.getInstance().getMostExpensive("CA", "*")) {
+	    System.out.println(p);
 	}
+    }
 
 }

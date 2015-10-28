@@ -17,15 +17,15 @@
 			Procedure: <input type="text" name="proc_code" size="2">
 		</div>
 		<input type="submit" value="JSP result">
-	</form>	
-		<form action="case1-result-json" method="GET">
+	</form>
+	<form action="case1-result-json" method="GET">
 		<div>
 			State: <input type="text" name="state" size="2">
 		</div>
 		<div>
 			Procedure: <input type="text" name="proc_code" size="2">
 		</div>
-		<input type="submit" value="JSON result" >		
+		<input type="submit" value="JSON result">
 	</form>
 </body>
 </html>
