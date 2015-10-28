@@ -30,27 +30,17 @@ public class AjaxController {
 	return "ajax-add-page";
     }
 
-    @RequestMapping(value = "/submit", method = RequestMethod.POST)
-    public @ResponseBody AjaxResponseBody submit(@RequestParam(value = "procCode", required = true) String proc_code,
+    @RequestMapping(value = "/submit", method = RequestMethod.GET)
+    public @ResponseBody AjaxResponseBody submit(@RequestParam(value = "proc_code", required = true) String proc_code,
 	    @RequestParam(value = "state", required = true) String state, Model model)
 		    throws IOException, SolrServerException {
 	logger.debug("Received submit request");
 
 	AjaxResponseBody output = new AjaxResponseBody();
 
-	List<Provider> providers = SolrProviderSource.getProviders(10, state, proc_code);
-
-	output.setResults(providers);
-
-	if (proc_code == "yes") {
-	    for (int i = 0; i < 20; i++) {
-		output.addInt(i);
-	    }
-	} else {
-	    for (int i = 0; i < 5; i++) {
-		output.addInt(i);
-	    }
-	}
+	output.setResults(SolrProviderSource.getProviders(10, state, proc_code));
+	//SolrProviderSource.getProviders(num_rows, state, proc_code)
+	//output.setResults(providers);
 
 	logger.debug("returning request");
 	return output;

@@ -7,21 +7,11 @@ import org.hunter.medicare.data.*;
 //@JsonView(Views.Public.class)
 public class AjaxResponseBody {
 
+    @JsonView(Views.Public.class)
     String msg;
 
     @JsonView(Views.Public.class)
     String code;
-
-    @JsonView(Views.Public.class)
-    ArrayList<Integer> intList = new ArrayList<Integer>();
-
-    public void addInt(int i) {
-	intList.add(i);
-    }
-
-    public List<Integer> getIntList() {
-	return intList;
-    }
 
     @JsonView(Views.Public.class)
     List<Provider> result;

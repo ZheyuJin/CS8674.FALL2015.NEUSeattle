@@ -56,7 +56,7 @@
 	<div>
 		Request Doctors: <br />
 		<div>
-			Procedure code:<input id="procCode" type="text" size="10">
+			Procedure code:<input id="proc_code" type="text" size="10">
 		</div>
 		<br>
 		<div>
@@ -76,12 +76,13 @@
 
 function submit() {
 	jq(function() {
-		jq.post("submit",
-					{ 	procCode:  jq("#procCode").val(),
+		if(jq("#state").val() != "AL"){
+		jq.get("search",
+					{ 	proc_code:  jq("#proc_code").val(),
 				  		state:  jq("#state").val() },
 						function(data){
-							jq("#feedback").replaceWith('<span id="feedback">'+ displayData(data) + '</span>');
-				  		});
+							jq("#feedback").replaceWith('<span id="feedback">'+ "hello" + '</span>');
+				  		});}
 	});
 }
 
@@ -89,7 +90,6 @@ function displayData(data){
 	
 	var text = "";
 	var i;
-//	return text;
 	
 	var len = data.intList.length
 	for(i = 0; i < data.result.length; i++){
@@ -98,8 +98,6 @@ function displayData(data){
 	text += " " + data.msg + " " + data.code + "<br>";
 	
 	return text;
-	//$('#output').html(text);*/
-//	<div id="feedback"></div>
 }
 
 </script>
