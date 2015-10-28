@@ -64,7 +64,6 @@ public class SolrProviderSource {
     }
 
     public ResponseHeader header;
-
     public ResponseBody body;
 
     public SolrProviderSource() {
@@ -100,6 +99,7 @@ public class SolrProviderSource {
     // state and count of providers
     public static HashMap<String, Long> getCountsByState() throws IOException,
 	    SolrServerException {
+
 	// http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&fl=NPPES_PROVIDER_STATE&wt=json&indent=true&facet=true&facet.field=NPPES_PROVIDER_STATE
 
 	HashMap<String, Long> stateCounts = new HashMap<String, Long>();
@@ -131,6 +131,7 @@ public class SolrProviderSource {
 
 		stateCounts.put(stateWithCount.getName(),
 			(Long) stateWithCount.getCount());
+
 	    }
 	} finally {
 	    if (solr != null) {
@@ -148,6 +149,7 @@ public class SolrProviderSource {
 
 	// TODO: This isn't perfect - we query "all" to get all
 	// codes/descriptions and
+
 	// then chop the top "x" from that result
 	// http://localhost:8983/solr/csvtest/select?q=HCPCS_CODE%3A*&fl=HCPCS_CODE,HCPCS_DESCRIPTION&wt=json&indent=true&rows=1000&facet=true&facet.field=HCPCS_CODE&facet.sort=index
 	// Once our data gets big, we will need to figure this out some other
@@ -169,7 +171,7 @@ public class SolrProviderSource {
 
 	    query.set("facet.field", facetField);
 	    query.set("facet.limit", -1); // Return all facets so we can match
-	    // them up
+					  // them up
 	    query.setRows(10000);
 	    if (sortByCount) {
 		query.setFacetSort("count"); // "top" means by count
@@ -325,9 +327,9 @@ public class SolrProviderSource {
 		solr.close();
 	    }
 	}
-
 	return providers;
     }
+
 
     // Free text search, like "knee"
     public static SolrProviderSource getQueryResponse(int numRows,
