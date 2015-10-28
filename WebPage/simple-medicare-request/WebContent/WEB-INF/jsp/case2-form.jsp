@@ -4,14 +4,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Case1: Who are the top 10 most expensive providers for a
-	given state and procedure?</title>
+<title>Case2: Top providers by number of visits
+	(unique_bene_day_cnt) for a given procedure and state?</title>
 </head>
 <body>
-	<h2>Case1: Who are the top 10 most expensive providers for a given
-		state and procedure?</h2>
-	<!-- change actoin to case1-result-json you get json response -->
-	<form action="case1-result-jsp" method="GET">
+	<h2>Case2: Top providers by number of visits (unique_bene_day_cnt)
+		for a given procedure and state?</h2>
+	<form action="case2-result-jsp" method="GET">
 		<div>
 			State: <input type="text" name="state" size="2">
 		</div>
@@ -20,7 +19,7 @@
 		</div>
 		<input type="submit" value="JSP result">
 	</form>
-	<form action="case1-result-json" method="GET">
+	<form action="case2-result-json" method="GET">
 		<div>
 			State: <input type="text" name="state" size="2">
 		</div>

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hunter.medicare.data.CassandraQueryResponse;
 import org.hunter.medicare.data.Provider;
 import org.hunter.medicare.data.SolrProviderSource;
 import org.springframework.stereotype.Controller;
@@ -28,8 +29,13 @@ public class MainController {
     static Logger logger = Logger.getLogger("MainController");
 
     @RequestMapping(value = "/case1-from", method = RequestMethod.GET)
-    public String getCase2Form() {
+    public String getCase1Form() {
 	return "case1-form";
+    }
+    
+    @RequestMapping(value = "/case2-from", method = RequestMethod.GET)
+    public String getCase2Form() {
+	return "case2-form";
     }
 
     /**
@@ -44,23 +50,12 @@ public class MainController {
      * @return
      */
     @RequestMapping(value = "/case1-result-jsp", method = RequestMethod.GET)
-    public String getCase2_ResultForm(@RequestParam(value = "state", required = true) String state,
+    public String getCase1_ResultForm(@RequestParam(value = "state", required = true) String state,
 	    @RequestParam(value = "proc_code", required = true) String proc_code, Model model) {
 	List<Provider> list = new ArrayList<Provider>();
 
 	try {
 	    list = getTopExpensiveProvider(state, proc_code);
-	    /**
-	     * sort on beneficiaries_day_service_count field, descending order.
-	     */
-	    class TopDayCountComp implements Comparator<Provider> {
-		@Override
-		public int compare(Provider p1, Provider p2) {
-		    return (p2.beneficiaries_day_service_count - p1.beneficiaries_day_service_count) > 0 ? 1 : -1;
-		}
-	    }
-	    // sort
-	    Collections.sort(list, new TopDayCountComp());
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
@@ -68,14 +63,14 @@ public class MainController {
 	// Add to model
 	model.addAttribute("providerlist", list);
 
-	return "case1-result";
+	return "ProviserListView";
     }
 
     /**
-     * "rest" endpoint - returns JSON rather than redirecting to a page
-     * http://localhost:8080/simple-medicare-request/hunter/main/solr/provider?
-     * state=AZ&proc=92213
      * 
+     * @param state
+     * @param proc_code
+     * @return
      * @throws Exception
      */
     @RequestMapping(value = "/case1-result-json", method = RequestMethod.GET)
@@ -86,7 +81,11 @@ public class MainController {
 
 	try {
 	    // TODO: Should this be a service like Hunter did?
-	    List<Provider> providers = SolrProviderSource.getProviders(num_rows, state, proc_code);
+	    // List<Provider> providers =
+	    // SolrProviderSource.getProviders(num_rows, state, proc_code);
+	    List<Provider> providers = CassandraQueryResponse.getInstance().getMostExpensive(state, proc_code); // mock
+	    Collections.sort(providers, new TopChargeSComp());
+
 	    return providers;
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -94,5 +93,75 @@ public class MainController {
 	    throw e;
 	}
 
+    }
+
+    @RequestMapping(value = "/case2-result-jsp", method = RequestMethod.GET)
+    public String getCase2_ResultForm(@RequestParam(value = "state", required = true) String state,
+	    @RequestParam(value = "proc_code", required = true) String proc_code, Model model) {
+	List<Provider> list = new ArrayList<Provider>();
+
+	try {
+	    list = getTopBusyProvider(state, proc_code);
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+
+	// Add to model
+	model.addAttribute("providerlist", list);
+
+	// reuse case1's view since parameter is the same, will be parsed correctly.
+	return "ProviserListView";
+    }
+
+    /**
+     * "rest" endpoint - returns JSON rather than redirecting to a page
+     * http://localhost:8080/simple-medicare-request/hunter/main/solr/provider?
+     * state=AZ&proc=92213
+     * 
+     * @throws Exception
+     */
+    @RequestMapping(value = "/case2-result-json", method = RequestMethod.GET)
+    @ResponseBody
+    public List<Provider> getTopBusyProvider(@RequestParam(value = "state", required = true) String state,
+	    @RequestParam(value = "proc_code", required = true) String proc_code) throws Exception {
+	int num_rows = 10;
+
+	try {
+	    // TODO: Should this be a service like Hunter did?
+	    List<Provider> providers = SolrProviderSource.getProviders(num_rows, state, proc_code);
+
+	    // sort
+	    Collections.sort(providers, new TopDayCountComp());
+
+	    return providers;
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    logger.debug("Exception querying Solr; rethrowing...");
+	    throw e;
+	}
+
+    }
+
+}
+
+/**
+ * sort by averageSubmittedChargeAmount in {@link Provider#providerDetails} , descending order
+ */
+class TopChargeSComp implements Comparator<Provider> {
+    @Override
+    public int compare(Provider o1, Provider o2) {
+	return (o1.providerDetails.averageSubmittedChargeAmount - o2.providerDetails.averageSubmittedChargeAmount) > 0
+		? -1 : 1;
+    }
+}
+
+/**
+ * sort on beneficiaries_day_service_count field, descending order.
+ */
+class TopDayCountComp implements Comparator<Provider> {
+    @Override
+    public int compare(Provider p1, Provider p2) {
+	return (p2.beneficiaries_day_service_count - p1.beneficiaries_day_service_count) > 0 ? 1 : -1;
     }
 }
