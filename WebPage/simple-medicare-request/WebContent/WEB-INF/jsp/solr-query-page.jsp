@@ -7,8 +7,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <title>Get Busiest Doctors in a state for a procedure</title>
+<link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
+
 </head>
 <body>
+    
 	<form action="ui/list" method="GET">
 		<div>
 			Enter a state: <input type="text" name="state" size="2">

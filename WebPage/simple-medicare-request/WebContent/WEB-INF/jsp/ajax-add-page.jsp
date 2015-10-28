@@ -13,6 +13,7 @@
 	</script>
 
 <title>Top Medicare Providers</title>
+<link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
 
 </head>
 <body>

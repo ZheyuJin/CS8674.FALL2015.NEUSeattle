@@ -6,6 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Case2: Top providers by number of visits
 	(unique_bene_day_cnt) for a given procedure and state?</title>
+<link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
+
 </head>
 <body>
 	<h2>Case2: Top providers by number of visits (unique_bene_day_cnt)

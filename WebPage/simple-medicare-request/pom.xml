@@ -7,12 +7,13 @@
 	<packaging>war</packaging>
 	<properties>
 		<jdk.version>1.8</jdk.version>
-		<spring.version>4.2.2.RELEASE</spring.version>
+		<spring.version>3.0.5.RELEASE</spring.version>
 		<jackson.version>2.6.3</jackson.version>
 		<logback.version>1.1.3</logback.version>
 		<jcl.slf4j.version>1.7.12</jcl.slf4j.version>
 		<jstl.version>1.2</jstl.version>
 		<servletapi.version>3.1.0</servletapi.version>
+  		<spring.security.version>3.0.5.RELEASE</spring.security.version>  
 	</properties>
 	<dependencies>
 		<dependency>
@@ -127,6 +128,21 @@
 			<version>${logback.version}</version>
 		</dependency>
 
+  <!-- Spring Security -->  
+
+  
+  <dependency>  
+   <groupId>org.springframework.security</groupId>  
+   <artifactId>spring-security-web</artifactId>  
+   <version>${spring.security.version}</version>  
+  </dependency>  
+  <dependency>  
+   <groupId>org.springframework.security</groupId>  
+   <artifactId>spring-security-config</artifactId>  
+   <version>${spring.security.version}</version>  
+  </dependency>  
+  
+  
 		<!-- compile only, runtime container will provide this -->
 		<!-- Need this for config annotation -->
 		<dependency>
