@@ -5,19 +5,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.apache.log4j.Logger;
 import org.hunter.medicare.data.Provider;
 import org.hunter.medicare.data.SolrProviderSource;
-import org.hunter.medicare.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Handles and retrieves the main requests
@@ -69,6 +65,7 @@ public class SolrTestController {
 			// sort
 			Collections.sort(list, new TopDayCountComp());
 		} catch (Exception e) {
+			e.printStackTrace();
 			// TODO: Maybe we should redirect to an error page here?
 			// Or add an error to the model?
 			// For now - just return an empty array
