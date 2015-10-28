@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!DOCTYPE html">
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -10,40 +11,89 @@
 	    var jq = jQuery.noConflict();
 	</script>
 	
-	<title>Top Doctors - Ajax Style</title>
+	<title>Top Medicare Providers</title>
 
 </head>
 <body>
 
-Demo Request:
-<div style="border: 1px solid #ccc; width: 250px;">
-	Request Doctors: <br/>
-	<input id="gender" type="text" size="5"> +
-	<input id="state" type="text" size="5">
-	<input type="submit" value="Add" onclick="add()" /> <br/>
-	Output: <span id="output">(Result will be shown here)</span>
-</div>
+<!-- 
+<div class="container" style="min-height: 500px">
 
+	<div class="basic-input">
+		<h1>Search Form</h1>
+		<br />
+
+		<div id="feedback"></div>
+
+		<form class="form-horizontal" id="search-form">
+			<div class="form-group form-group-lg">
+				<label class="col-sm-2 control-label">State</label>
+				<div class="col-sm-10">
+					<input type=text class="form-control" id="state">
+				</div>
+			</div>
+			<div class="form-group form-group-lg">
+				<label class="col-sm-2 control-label">Provider ID</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="providerID">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button type="submit" id="bth-search"
+						class="btn btn-primary btn-lg" onclick="submit()">Search</button>
+				</div>
+			</div>
+		</form>
+
+	</div>
+
+</div>
+-->
+ 
+<div >
+	Request Doctors: <br/>
+	<div>Procedure code:<input id="procCode" type="text" size="10"></div> <br>
+	<div>State: <select id="state">
+		<option label="Select the state">Select the state</option>
+		<option value = "AL">AL</option>
+		<option value = "FL">FL</option>
+		<option value = "WA">WA</option>
+		<option value = "NY">NY</option>
+	</select></div>
+	<input type="submit" value="Submit" onclick="submit()" /> <br/>
+	<span id="feedback"></span>
+</div>
 
 <script type="text/javascript"> 
 
-function add() {
+function submit() {
 	jq(function() {
-		// Call a URL and pass two arguments
-		// Also pass a call back function
-		// See http://api.jquery.com/jQuery.post/
-		// See http://api.jquery.com/jQuery.ajax/
-		// You might find a warning in Firefox: Warning: Unexpected token in attribute selector: '!' 
-		// See http://bugs.jquery.com/ticket/7535
-		jq.post("add",
-					{ 	gender:  jq("#gender").val(),
+		jq.post("submit",
+					{ 	procCode:  jq("#procCode").val(),
 				  		state:  jq("#state").val() },
 						function(data){
-							// data contains the result
-							// Assign result to the sum id
-							jq("#output").replaceWith('<span id="output">'+ data + '</span>');
-					});
+							jq("#feedback").replaceWith('<span id=feedback">'+ displayData(data) + '</span>');
+				  		});
 	});
+}
+
+function displayData(data){
+	
+	var text = "";
+	var i;
+//	return text;
+	
+	var len = data.intList.length
+	for(i = 0; i < data.result.length; i++){
+		text += data.result[i].last_or_org_name + "<br>";
+	}
+	text += " " + data.msg + " " + data.code + "<br>";
+	
+	return text;
+	//$('#output').html(text);*/
+//	<div id="feedback"></div>
 }
 
 </script>

@@ -31,7 +31,7 @@ public class CassandraQueryResponse {
     
     if (mock)
     {
-      providers = buildMockResponse(procedure, state);
+      providers = buildMockResponse(state, procedure);
     }
     else {
       //uncomment this to use logger

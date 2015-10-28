@@ -1,8 +1,12 @@
 package org.hunter.medicare.data;
 
 import java.util.Map;
+
+import org.hunter.medicare.controller.Views;
+
 import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.datastax.driver.core.Row;
+import com.fasterxml.jackson.annotation.JsonView;
 
 public class Provider {
 	@Override
@@ -13,23 +17,41 @@ public class Provider {
 	// See here for quick reference on the medicare derived fields
 	// http://www.t1cg.io/medicare-glossary
 
+	@JsonView(Views.Public.class)
 	public String id;
+	@JsonView(Views.Public.class)
 	public long year;
+	@JsonView(Views.Public.class)
 	public String npi;
+	@JsonView(Views.Public.class)
 	public String last_or_org_name;
+	@JsonView(Views.Public.class)
 	public String first_name;
+	@JsonView(Views.Public.class)
 	public String credentials;
+	@JsonView(Views.Public.class)
 	public String entity_code; // or enum?
+	@JsonView(Views.Public.class)
 	public String city;
+	@JsonView(Views.Public.class)
 	public String zip;
+	@JsonView(Views.Public.class)
 	public String state;
+	@JsonView(Views.Public.class)
 	public String country;
+	@JsonView(Views.Public.class)
 	public String provider_type;
+	@JsonView(Views.Public.class)
 	public String place_of_service; // or enum?
+	@JsonView(Views.Public.class)
 	public String hcpcs_code;
+	@JsonView(Views.Public.class)
 	public String hcpcs_description;
+	@JsonView(Views.Public.class)
 	public float line_service_count;
+	@JsonView(Views.Public.class)
 	public long beneficiaries_unique_count;
+	@JsonView(Views.Public.class)
 	public long beneficiaries_day_service_count;
 
 	// These are only in Cassandra.
