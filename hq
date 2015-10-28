@@ -1,0 +1,234 @@
+[33mcommit 056f85b689d395c7a24b70281dd4159c1fb58e85[m
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Wed Oct 28 00:44:49 2015 -0700
+
+    case1 half done
+
+[33mcommit 0c6bad2e4fe6c678c5bfbab88c32b36dd437bf98[m
+Merge: 1c9737d eb6ccfa
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 23:03:27 2015 -0700
+
+    Merge branch 'master' of https://github.com/ZheyuJin/CS8674.FALL2015.NEUSeattle
+
+[33mcommit 1c9737dd0c3bab8915f788e187dd6128ec34a354[m
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 23:03:20 2015 -0700
+
+    mock cassandra response.
+
+[33mcommit eb6ccfa21fce29cc2a8da9d232a6701425dd3ded[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Tue Oct 27 22:40:40 2015 -0700
+
+    couple flipped parameters, logging of solr query
+
+[33mcommit dca15d388dc20ac0a2e1eefca5984f363c5f8c7f[m
+Author: ahjorgen167 <ahjorgen167@gmail.com>
+Date:   Tue Oct 27 20:13:46 2015 -0700
+
+    Simple webpage with SOLR integration
+
+[33mcommit 465051f992cab335f87bb5d800e521fc49c72560[m
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 17:29:10 2015 -0700
+
+    add test for CassandraQueryResponse. see if mock works or not.
+
+[33mcommit 7600b2940ff460078c9277313055c8a6d4a5ec5b[m
+Merge: 8cf7065 29b45f4
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 17:13:17 2015 -0700
+
+    Merge branch 'master' of https://github.com/ZheyuJin/CS8674.FALL2015.NEUSeattle
+
+[33mcommit 8cf706521f52862c59d22a0b88a787e31a7c591f[m
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 17:13:07 2015 -0700
+
+    print excepton to stderr
+
+[33mcommit 29b45f4cb2e05462dd2d1fd2af9ef39b913ce950[m
+Merge: 6b73ca0 c9202a7
+Author: doylerav <doylerav@gmail.com>
+Date:   Tue Oct 27 17:12:10 2015 -0700
+
+    Merge remote-tracking branch 'origin/master'
+    
+    Conflicts:
+    	WebPage/simple-medicare-request/pom.xml
+
+[33mcommit 6b73ca04cf67f3c9dc3a73a5ccdb1761ce09aaf5[m
+Author: doylerav <doylerav@gmail.com>
+Date:   Tue Oct 27 17:04:11 2015 -0700
+
+    Tim's early cassandra draft - still in progress, will add mock response for now
+
+[33mcommit c9202a7e95dab5bcacaf214278d64cd3cd91b21e[m
+Author: ahjorgen167 <ahjorgen167@gmail.com>
+Date:   Tue Oct 27 16:56:58 2015 -0700
+
+    modified pom file
+
+[33mcommit 2fb6a6ab406b9f1a1c7b7503fc53df0eaa01e363[m
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 16:41:17 2015 -0700
+
+    sorting provider by day count, print string of providers on test UI
+
+[33mcommit 91eb932ceb2197fbd507491321119e2bc371ac38[m
+Merge: c5ee5ab 3c412f8
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 16:00:44 2015 -0700
+
+    pull and merge
+
+[33mcommit 3c412f885449a148caafddcee3b893c57474ff3b[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Tue Oct 27 14:59:38 2015 -0700
+
+    changed urls a bit (no more hunter/main), fixed ajax jquery reference, added home link to pages
+
+[33mcommit c5ee5ab65c1f9a1ebb5609d285e677d0180b6aa5[m
+Author: ZheyuJin <jinzheyu@ccs.neu.edu>
+Date:   Tue Oct 27 12:13:39 2015 -0700
+
+    build log change.
+
+[33mcommit 77cb843efa1a89c470f51234943c0c4e880ecb85[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Tue Oct 27 11:59:35 2015 -0700
+
+    Added the solr test page to the project
+
+[33mcommit abe4d0c5bf0ba1d116b9c7ba453dc5a6ed499420[m
+Author: doylerav <doylerav@gmail.com>
+Date:   Mon Oct 26 18:00:25 2015 -0700
+
+    move log4j properties to the "right" place, according to stack overflow
+
+[33mcommit 46c65a5c330a6ae2cad8501ee7fd1ae05a36cff3[m
+Author: doylerav <doylerav@gmail.com>
+Date:   Mon Oct 26 17:16:33 2015 -0700
+
+    added Provider and Solr data access class
+
+[33mcommit 014fb24eb1080fa9ad23b17ce7aa18f4639d7bc4[m
+Author: doylerav <doylerav@gmail.com>
+Date:   Mon Oct 26 16:34:55 2015 -0700
+
+    add a home page with a couple links
+
+[33mcommit 8881d4001e6c6a3bb3146def23eeff8e34b22534[m
+Author: doylerav <doylerav@gmail.com>
+Date:   Mon Oct 26 15:35:15 2015 -0700
+
+    restructured project
+
+[33mcommit 5edacbf9c1fee8478eac943bac69bf5bfdcc16be[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 24 16:03:14 2015 -0700
+
+    Filled in query by state on procedure with sort
+
+[33mcommit d23a16cfe5499183c2ab02c18ab09ca48313ec5c[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 24 13:22:17 2015 -0700
+
+    get code and description working
+
+[33mcommit b4d70de5eb7dd3b62fecf0d886f271270d821426[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 24 12:33:41 2015 -0700
+
+    Added provider constructor for solr fields.
+
+[33mcommit 2cba1b6d1bfa461a9f77984fd3c54fecf71018a8[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 24 12:27:04 2015 -0700
+
+    getStates is working (most other methods just stubs still)
+
+[33mcommit c0c634233c357e909cee0e508493ef1b66bb74af[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 24 10:43:21 2015 -0700
+
+    checking in early draft of solr query class for Jin
+
+[33mcommit 744a997398f6e117ea06e0a6fe6d079250c512a6[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 24 10:21:18 2015 -0700
+
+    .gitignore for project
+
+[33mcommit 2d60bef72274c83579a6a637aa857c7cbd0ea41a[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Thu Oct 22 23:07:57 2015 -0700
+
+    initial draft of Provider class
+
+[33mcommit c22b2c249e723cfbfc05e2de60c96e19e64ef297[m
+Author: ahjorgen167 <ahjorgen167@gmail.com>
+Date:   Thu Oct 22 18:11:13 2015 -0700
+
+    Minor changes to Web src
+
+[33mcommit 80b03df0e71d24c54376ef1bbc361cb2d90d231f[m
+Author: ahjorgen167 <ahjorgen167@gmail.com>
+Date:   Thu Oct 22 15:55:25 2015 -0700
+
+    Removed redundant files
+
+[33mcommit f884adfbc9e2dd82017e4e1fd3ac10b2bca16c50[m
+Author: ahjorgen167 <ahjorgen167@gmail.com>
+Date:   Thu Oct 22 15:33:26 2015 -0700
+
+    Uploading currently not working webpage
+
+[33mcommit e42e309b50632497f132ac069a7b3447be745622[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 17 22:22:08 2015 -0700
+
+    Added some example queries with json result
+    
+    Also added provider type (ie: "Oncology") to 'bag of words' default
+    query field
+
+[33mcommit 4d1a92f4e9e815d3d2965bdca6d6b9328b5838de[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 17 15:21:04 2015 -0700
+
+    Tweaked schema for credentials for betting matching
+    
+    Credential matches will be done with periods stripped, split on commas
+    (ie: dnp, fnp is two tokens and you can query on either) and lowercased.
+
+[33mcommit 22153e96998fffe21f213e388b8cd6d08b5aeb3b[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 17 14:49:03 2015 -0700
+
+    adding a note on the url to delete all "old" data
+
+[33mcommit 568ac280436044bcad96e9b3b168e4013f8d0cf1[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 17 14:29:45 2015 -0700
+
+    various data and solr updates
+    
+    Added year column (and added year to id) in the "old" sample csv
+    Added a 1000 row sample csv (also with year column and year in id)
+    Made a minor change to schema (turns out live service count is a float
+    for at least one of the rows in the larger 1000 row sample)
+    Made the config batch files allow collection and dir as input
+
+[33mcommit c68554016914cbd29ae79cedffe2b2e5e80762e7[m
+Author: Doyle Ravnaas <doylerav@ccs.neu.edu>
+Date:   Sat Oct 17 12:59:45 2015 -0700
+
+    Checking in current Solr config and the small csv data file
+
+[33mcommit 6f71ec67ceef75cd39e0e62d62f6b14b3c1781ca[m
+Author: Zheyu Jin <jin.zh@husky.neu.edu>
+Date:   Thu Oct 15 18:27:21 2015 -0700
+
+    Initial commit
