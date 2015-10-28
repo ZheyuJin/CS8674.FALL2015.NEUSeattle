@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -20,7 +21,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
-public class SolrProviderSource {
+public class SolrProviderSource {  
 
 	// ToDo: get this from config instead?
 	// public static String solrUrlBase = "http://localhost:8983/solr/";
@@ -127,6 +128,7 @@ public class SolrProviderSource {
 
 			query.setStart(0);
 
+      System.out.println("SolrJ query = " + solrQueryBase + query);
 			QueryResponse solrJresponse = solr.query(query);
 
 			FacetField field = solrJresponse.getFacetField(facetField);
@@ -183,6 +185,7 @@ public class SolrProviderSource {
 
 			query.setStart(0);
 
+      System.out.println("SolrJ query = " + solrQueryBase + query);
 			QueryResponse solrJresponse = solr.query(query);
 
 			FacetField field = solrJresponse.getFacetField(facetField);
@@ -250,7 +253,9 @@ public class SolrProviderSource {
 				query.setSort(sortField, ORDER.desc);
 			}
 
+      System.out.println("SolrJ query = " + solrQueryBase + query);
 			QueryResponse solrJresponse = solr.query(query);
+
 			SolrProviderSource response = new SolrProviderSource(solrJresponse);
 
 			// TODO: This assignment does not preserve sort order
@@ -291,7 +296,9 @@ public class SolrProviderSource {
 			query.set("q", queryTerm);
 			query.setStart(0);
 
+      System.out.println("SolrJ query = " + solrQueryBase + query);
 			QueryResponse solrJresponse = solr.query(query);
+
 			SolrProviderSource response = new SolrProviderSource(solrJresponse);
 
 			List<Provider> list = response.body.providers;
@@ -315,6 +322,7 @@ public class SolrProviderSource {
 		return providers;
 	}
 
+	// Free text search, like "knee"
 	public static SolrProviderSource getQueryResponse(int numRows, String queryTerm) throws IOException {
 		SolrProviderSource response = null;
 		SolrClient solr = null;

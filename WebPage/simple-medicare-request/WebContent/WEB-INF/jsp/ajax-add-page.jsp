@@ -54,14 +54,14 @@
  
 <div >
 	Request Doctors: <br/>
-	<input id="providerID" type="text" size="10"> <br>
-	<select id="state">
+	<div>Procedure code:<input id="procCode" type="text" size="10"></div> <br>
+	<div>State: <select id="state">
 		<option label="Select the state">Select the state</option>
 		<option value = "AL">AL</option>
 		<option value = "FL">FL</option>
 		<option value = "WA">WA</option>
 		<option value = "NY">NY</option>
-	</select>
+	</select></div>
 	<input type="submit" value="Submit" onclick="submit()" /> <br/>
 	<span id="feedback"></span>
 </div>
@@ -71,7 +71,7 @@
 function submit() {
 	jq(function() {
 		jq.post("submit",
-					{ 	providerID:  jq("#providerID").val(),
+					{ 	procCode:  jq("#procCode").val(),
 				  		state:  jq("#state").val() },
 						function(data){
 							jq("#feedback").replaceWith('<span id=feedback">'+ displayData(data) + '</span>');

@@ -34,7 +34,7 @@ public class AjaxController {
   }
  
     @RequestMapping(value = "/submit", method = RequestMethod.POST)
-    public @ResponseBody AjaxResponseBody submit(@RequestParam(value="providerID", required=false) String proc_code,
+    public @ResponseBody AjaxResponseBody submit(@RequestParam(value="procCode", required=true) String proc_code,
                   @RequestParam(value="state", required=true) String state,
                   Model model) throws IOException, SolrServerException {
     	  logger.debug("Received submit request");
