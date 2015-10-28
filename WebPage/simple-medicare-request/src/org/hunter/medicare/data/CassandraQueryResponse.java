@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hunter.medicare.controller.SolrTestController;
+
 //import org.apache.log4j.BasicConfigurator;
 
 
@@ -97,9 +99,23 @@ public class CassandraQueryResponse {
     
   }
   
+  /**
+   * used for integration phase. returns mock data. 
+   * @param state
+   * @param procedure
+   * @return
+ * @throws Exception 
+   */
   public List<Provider> buildMockResponse(String state, String procedure)
   {
     List<Provider> providers = new ArrayList<Provider>();
+    
+    try{
+    	providers = new SolrTestController().getTop("CA","*",null);
+    }
+    catch(Exception e){
+    	e.printStackTrace();
+    }
     
     return providers;
   }
