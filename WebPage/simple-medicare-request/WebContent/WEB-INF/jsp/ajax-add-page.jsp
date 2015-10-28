@@ -74,7 +74,7 @@ function submit() {
 					{ 	providerID:  jq("#providerID").val(),
 				  		state:  jq("#state").val() },
 						function(data){
-							jq("#feedback").replaceWith('<span id=feedback">'+ displayData(data) + '</span>');
+							jq("#feedback").replaceWith('<span id="feedback">'+ displayData(data) + '</span>');
 				  		});
 	});
 }
