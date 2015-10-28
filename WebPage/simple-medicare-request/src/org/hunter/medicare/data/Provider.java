@@ -42,7 +42,7 @@ public class Provider {
 		public boolean hcpcs_drug_indicator; // true or false (y/n in the csv)
 		public float averageMedicareAllowedAmount;
 		public float stddevMedicareAllowedAmount;
-		public float averageSubmittedChargeAmount;
+		public float averageSubmittedChargeAmount; // sort this field to find top expensive ones.
 		public float stddevSubmittedChargeAmount;
 		public float averageMedicarePaymentAmount;
 		public float stddevMedicarePaymentAmount;

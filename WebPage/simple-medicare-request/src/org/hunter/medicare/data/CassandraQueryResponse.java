@@ -1,7 +1,5 @@
 package org.hunter.medicare.data;
 
-//import org.slf4j.*;
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,11 +104,12 @@ public class CassandraQueryResponse {
    * @return
  * @throws Exception 
    */
-  public List<Provider> buildMockResponse(String state, String procedure)
+  private List<Provider> buildMockResponse(String state, String procedure)
   {
     List<Provider> providers = new ArrayList<Provider>();
     
     try{
+    	// always mock in this way.
     	providers = new SolrTestController().getTop("CA","*",null);
     }
     catch(Exception e){
