@@ -6,6 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Case1: Who are the top 10 most expensive providers for a
 	given state and procedure?</title>
+<link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
+
 </head>
 <body>
 	<h2>Case1: Who are the top 10 most expensive providers for a given

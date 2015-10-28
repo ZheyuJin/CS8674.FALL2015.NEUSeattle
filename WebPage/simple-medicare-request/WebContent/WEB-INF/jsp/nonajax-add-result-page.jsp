@@ -7,6 +7,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <title>Get Top Ten Doctors Results</title>
+<link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
+
 </head>
 <body>
 
