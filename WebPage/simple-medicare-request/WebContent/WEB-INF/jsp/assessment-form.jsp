@@ -18,42 +18,6 @@
 </head>
 <body>
 
-	<!-- 
-<div class="container" style="min-height: 500px">
-
-	<div class="basic-input">
-		<h1>Search Form</h1>
-		<br />
-
-		<div id="feedback"></div>
-
-		<form class="form-horizontal" id="search-form">
-			<div class="form-group form-group-lg">
-				<label class="col-sm-2 control-label">State</label>
-				<div class="col-sm-10">
-					<input type=text class="form-control" id="state">
-				</div>
-			</div>
-			<div class="form-group form-group-lg">
-				<label class="col-sm-2 control-label">Provider ID</label>
-				<div class="col-sm-10">
-					<input type="text" class="form-control" id="providerID">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<div class="col-sm-offset-2 col-sm-10">
-					<button type="submit" id="bth-search"
-						class="btn btn-primary btn-lg" onclick="submit()">Search</button>
-				</div>
-			</div>
-		</form>
-
-	</div>
-
-</div>
--->
-
 	<div>
 		<h2> Request Doctors: </h2>
 		<div>
@@ -110,20 +74,21 @@
 
 function submit() {
 
-    if(jq('input[name="use_case"]:checked').val() != "case_3"){
-    	if (jq("#proc_code").val().length == 0 || jq("#proc_code").val().length > 5) {
-        	alert("Procedure Code must be filled out");
+	if(jq('input[name="use_case"]:checked').val() != "case_3"){
+    	if (!document.getElementById('proc_code').value.match(new RegExp(/^[A-Z0-9]{3,5}$/))) {
+        	alert("Procedure Code must be filled out properly.");
         	return;
     	}
     }
     
     if(jq('input[name="use_case"]:checked').val() == "case_3"){
     	if (jq("#proc_keyword").val().length == 0) {
-        	alert("Procedure Keyword must be filled out");
+        	alert("Procedure Keyword must be filled out.");
         	return;
     	}
     }
-    
+    jq("#feedback").replaceWith('<span id="feedback">Searching...</span>');
+		
 	switch(jq('input[name="use_case"]:checked').val()){
 	case("case_1"):
 	
@@ -163,22 +128,40 @@ function submit() {
 }
 
 function displayDataCase1(data){
-	var text = "";
-	for(var i = 0; i < data.length; i++){
-		text += data[i].last_or_org_name + ", " + data[i].first_name + " - \t" + data[i].providerDetails.averageSubmittedChargeAmount + "<br>";
-	};
+	if(checkEmpty(data)){
+		return "No providers found for that criteria."
+	} 
+	
+	var text = '<table style="width:100%"><tr><td><b>Last Name</b></td><td><b>First Name</b></td><td><b> Submitted Charge Amount </b></td></tr>'
+			
+		 for(var i = 0; i < data.length; i++){
+				text +=  '<tr><td>' + toNameCase(data[i].last_or_org_name) + '</td><td>' + toNameCase(data[i].first_name) + '</td><td>\$'  + data[i].providerDetails.averageSubmittedChargeAmount + '.00</td></tr>';
+			};
+			text += '</table>';
 	
 	return text;
 }
 
 function displayDataCase2(data){
-	 var text = '<table style="width:100%">'
+	if(checkEmpty(data)){
+		return "No providers found for that criteria."
+	}
+	 var text = '<table style="width:100%"><tr><td><b>Last Name</b></td><td><b>First Name</b></td><td><b> Day Service Count </b></td></tr>';
 	
 	 for(var i = 0; i < data.length; i++){
-			text +=  '<tr><td>' + toNameCase(data[i].last_or_org_name) + '</td><td>' + toNameCase(data[i].first_name) + '</td><td>Service count: '  + data[i].beneficiaries_day_service_count + '</td></tr>';
+			text +=  '<tr><td>' + toNameCase(data[i].last_or_org_name) + '</td><td>' + toNameCase(data[i].first_name) + '</td><td>'  + data[i].beneficiaries_day_service_count + '</td></tr>';
 		};
 		text += '</table>';
 		return text;
+}
+
+function checkEmpty(data){
+	if(data.length == 0){
+		return true;
+	} else {
+		return false;
+	}
+	
 }
 
 function displayEntry(data){
