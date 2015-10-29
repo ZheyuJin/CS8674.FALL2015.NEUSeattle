@@ -78,11 +78,11 @@
 function submit() {
 	jq(function() {
 		if(jq("#state").val() != "AL"){
-		jq.get("search",
+		jq.post("submit",
 					{ 	proc_code:  jq("#proc_code").val(),
 				  		state:  jq("#state").val() },
 						function(data){
-							jq("#feedback").replaceWith('<span id="feedback">'+ "hello" + '</span>');
+							jq("#feedback").replaceWith('<span id="feedback">'+ JSON.stringify(data) + '</span>');
 				  		});}
 	});
 }
@@ -92,7 +92,6 @@ function displayData(data){
 	var text = "";
 	var i;
 	
-	var len = data.intList.length
 	for(i = 0; i < data.result.length; i++){
 		text += data.result[i].last_or_org_name + "<br>";
 	}
