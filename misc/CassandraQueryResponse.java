@@ -67,7 +67,7 @@ public class CassandraQueryResponse {
         	    Session session = null;
         	    cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
         	    // pick KEYSPACE
-      	    try {
+//       	    try {
         	    session = cluster.connect("demo");
         	    System.out.println("connecting to cassandra");
         	    // compose query
@@ -81,6 +81,7 @@ public class CassandraQueryResponse {
         	    }
         	    
         	    String npi = procedureRow.getString("npi");
+        	    System.out.println("The npi = " + npi);
         	    String hcpcs_code = procedureRow.getString("hcpcs_code");
         	   
         	    String query2 = "SELECT * FROM proceduresinfo"
@@ -97,15 +98,14 @@ public class CassandraQueryResponse {
         	    
         	    provider = new Provider(providerRow, procedureRow, procedureInfoRow);
         	   
-        	    } catch (Exception e) {
-        	    	//TODO seperate out exceptions
-        	    	System.out.println("An Error Occured");
-        	    } finally {
-        	    	if (session != null) {
-        	    		cluster.close();	 
-        	    	}
-        	    	System.out.println("session closed");
-        	    }
+//        	    } catch (Exception e) {
+//        	    	//TODO seperate out exceptions
+//        	    	System.out.println("An Error Occured");
+//        	    } finally {
+//        	    	if (session != null) {
+//        	    		cluster.close();	 
+//        	    	}
+//        	    }
         	    return provider;
         }
 

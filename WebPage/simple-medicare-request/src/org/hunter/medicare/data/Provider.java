@@ -3,6 +3,7 @@ package org.hunter.medicare.data;
 import java.util.Map;
 
 import org.hunter.medicare.controller.Views;
+import org.hunter.medicare.data.Provider.ExtendedInfo;
 
 import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.datastax.driver.core.Row;
@@ -156,51 +157,111 @@ public class Provider {
     }
 
     /**
-     * Cassandra constructor
+     * Cassandra Constructor
+     *  Author Tim
+     * @param providerRow
+     * @param procedureRow
+     * @param procedureInfoRow
      */
-    // TODO make sure this works on empty columns, otherwise will
-    // have to do something similar to Doyle, but don't think
-    // cases can be Definition class type
-    // could try definition.getName() -> suppose to return string
-    public Provider(Row result) {
-	this.id = result.getString("id");
-	this.year = (long) result.getInt("year");
-	this.npi = result.getString("npi");
-	this.last_or_org_name = result.getString("nppes_provider_last_org_name");
-	this.first_name = result.getString("nppes_provider_first_name");
-	this.credentials = result.getString("nppes_credentials");
-	this.entity_code = result.getString("nppes_entity_code");
-	this.city = result.getString("nppes_provider_city");
-	this.zip = result.getString("nppes_provider_zip");
-	this.state = result.getString("nppes_provider_state");
-	this.country = result.getString("nppes_provider_country");
-	this.provider_type = result.getString("provider_type");
-	this.place_of_service = result.getString("place_of_service");
-	this.hcpcs_code = result.getString("hcpcs_code");
-	this.hcpcs_description = result.getString("hcpcs_description");
-	this.line_service_count = (float) result.getInt("line_srvc_cnt");
-	this.beneficiaries_unique_count = (long) result.getInt("bene_unique_cnt");
-	this.beneficiaries_day_service_count = (long) result.getInt("bene_day_srvc_cnt");
-	providerDetails.middle_initial = result.getString("nppes_provider_mi");
-	providerDetails.gender = result.getString("nppes_provider_gender");
-	providerDetails.streetAddress1 = result.getString("nppes_provider_street1");
-	providerDetails.streetAddress2 = result.getString("nppes_provider_street2");
-
-	if (result.getString("medicare_participation_indicator").equals("y")) {
-	    providerDetails.medicare_participation = true;
-	} else {
-	    providerDetails.medicare_participation = false;
-	}
-	if (result.getString("hcpcs_drug_indicator").equals("y")) {
-	    providerDetails.hcpcs_drug_indicator = true;
-	} else {
-	    providerDetails.hcpcs_drug_indicator = false;
-	}
-	providerDetails.averageMedicareAllowedAmount = result.getFloat("average_medicare_allowed_amt");
-	providerDetails.stddevMedicareAllowedAmount = result.getFloat("stdev_Medicare_allowed_amt");
-	providerDetails.averageSubmittedChargeAmount = result.getFloat("average_submitted_chrg_amt");
-	providerDetails.stddevSubmittedChargeAmount = result.getFloat("stdev_submitted_chrg_amt");
-	providerDetails.averageMedicarePaymentAmount = result.getFloat(" average_medicare_payment_amt");
-	providerDetails.stddevMedicarePaymentAmount = result.getFloat(" stdev_medicare_payment_amt");
+    public Provider(Row providerRow, Row procedureRow, Row procedureInfoRow) {
+    	providerDetails = new ExtendedInfo();
+    	if (! providerRow.isNull("npi")) {
+    		npi = providerRow.getString("npi");
+    	}
+    	if (! providerRow.isNull("nppes_provider_last_org_name")) {
+    		last_or_org_name = providerRow.getString("nppes_provider_last_org_name");
+    	}
+    	if (! providerRow.isNull("nppes_provider_first_name")) {
+    		first_name = providerRow.getString("nppes_provider_first_name");
+    	}
+    	if (! providerRow.isNull("nppes_credentials")) {
+    		credentials = providerRow.getString("nppes_credentials");
+    	}
+    	if (! providerRow.isNull("nppes_entity_code")) {
+    		entity_code = providerRow.getString("nppes_entity_code");
+    	}
+    	if (! providerRow.isNull("nppes_provider_city")) {
+    		city = providerRow.getString("nppes_provider_city");
+    	}
+    	if (! providerRow.isNull("nppes_provider_zip")) {
+    		zip = "" + providerRow.getInt("nppes_provider_zip");
+    	}
+    	if (! providerRow.isNull("nppes_provider_state")) {
+    		state = providerRow.getString("nppes_provider_state");
+    	}
+    	if (! providerRow.isNull("nppes_provider_country")) {
+    		country = providerRow.getString("nppes_provider_country");
+    	}
+    	if (! providerRow.isNull("provider_type")) {
+    		provider_type = providerRow.getString("provider_type");
+    	}
+    	if (! providerRow.isNull("nppes_provider_mi")) {
+    		providerDetails.middle_initial = providerRow.getString("nppes_provider_mi");
+    	}
+    	if (! providerRow.isNull("nppes_provider_gender")) {
+    		providerDetails.gender = providerRow.getString("nppes_provider_gender");
+    	}
+    	if (! providerRow.isNull("nppes_provider_street1")) {
+    		providerDetails.streetAddress1 = providerRow.getString("nppes_provider_street1");
+    	}
+    	if (! providerRow.isNull("nppes_provider_street2")) {
+    		providerDetails.streetAddress2 = providerRow.getString("nppes_provider_street2");
+    	}
+    	if (! providerRow.isNull("medicare_participation_indicator")) {
+    		if (providerRow.getString("medicare_participation_indicator").equals("y")) {
+    			providerDetails.medicare_participation = true;
+			} else {
+				providerDetails.medicare_participation = false;
+			}
+    	}
+    	if (! procedureRow.isNull("id")) {
+    		id = procedureRow.getString("id");
+    	}
+    	if (! procedureRow.isNull("hcpcs_code")) {
+    		hcpcs_code = procedureRow.getString("hcpcs_code");
+    	}
+    	if (! procedureRow.isNull("year")) {
+    		year = (long)procedureRow.getInt("year");
+    	}
+    	if (! procedureRow.isNull("place_of_service")) {
+    		place_of_service = procedureRow.getString("place_of_service");
+    	}
+    	if (! procedureRow.isNull("line_srvc_cnt")) {
+    		line_service_count = procedureRow.getFloat("line_srvc_cnt");
+    	}
+    	if (! procedureRow.isNull("bene_unique_cnt")) {
+    		beneficiaries_unique_count = (long)procedureRow.getFloat("bene_unique_cnt");
+    	}
+    	if (! procedureRow.isNull("bene_day_srvc_cnt")) {
+    		beneficiaries_day_service_count = (long)procedureRow.getFloat("bene_day_srvc_cnt");
+    	}
+    	if (! procedureRow.isNull("average_medicare_allowed_amt")) {
+    		providerDetails.averageMedicareAllowedAmount = procedureRow.getFloat("average_medicare_allowed_amt");
+    	}
+    	if (! procedureRow.isNull("stdev_medicare_allowed_amt")) {
+    		providerDetails.stddevMedicareAllowedAmount = procedureRow.getFloat("stdev_medicare_allowed_amt");
+    	}
+    	if (! procedureRow.isNull("average_submitted_chrg_amt")) {
+    		providerDetails.averageSubmittedChargeAmount = procedureRow.getFloat("average_submitted_chrg_amt");
+    	}
+    	if (! procedureRow.isNull("stdev_submitted_chrg_amt")) {
+    		providerDetails.stddevSubmittedChargeAmount = procedureRow.getFloat("stdev_submitted_chrg_amt");
+    	}
+    	if (! procedureRow.isNull("average_medicare_payment_amt")) {
+    		providerDetails.averageMedicarePaymentAmount = procedureRow.getFloat("average_medicare_payment_amt");
+    	}
+    	if (! procedureRow.isNull("stdev_medicare_payment_amt")) {
+    		providerDetails.stddevMedicarePaymentAmount = procedureRow.getFloat("stdev_medicare_payment_amt");
+    	}
+    	if (! procedureInfoRow.isNull("hcpcs_drug_indicator")) {
+        	if (procedureInfoRow.getString("hcpcs_drug_indicator").equals("y")) {
+    	    providerDetails.hcpcs_drug_indicator = true;
+    	} else {
+    	    providerDetails.hcpcs_drug_indicator = false;
+    	}
+        if (! procedureInfoRow.isNull("hcpcs_description")) {
+        	hcpcs_description = procedureInfoRow.getString("hcpcs_description");
+        }
+    	}	
     }
 }
