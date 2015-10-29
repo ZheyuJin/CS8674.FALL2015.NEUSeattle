@@ -5,17 +5,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import org.hunter.medicare.data.SolrProviderSource;
+import java.util.Set;
 
 //import org.apache.log4j.BasicConfigurator;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.ColumnDefinitions.Definition;
 
 public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
@@ -245,7 +244,7 @@ public class CassandraQueryResponse {
     }
 
     public static HashMap<String, Double> getCodeToAvgCostMappingForState(
-            HashSet<String> codes, String state) {
+            Set<String> codes, String state) {
         HashMap<String, Double> codeToAvgCostMappingForState = new HashMap<String, Double>();
         Iterator<String> codesIterator = codes.iterator();
         while (codesIterator.hasNext()) {

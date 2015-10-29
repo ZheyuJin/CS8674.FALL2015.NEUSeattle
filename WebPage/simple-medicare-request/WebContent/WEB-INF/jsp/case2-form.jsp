@@ -17,7 +17,7 @@
 			State: <input type="text" name="state" size="2">
 		</div>
 		<div>
-			Procedure: <input type="text" name="proc_code" size="2">
+			Procedure Code: <input type="text" name="proc_code" size="2">
 		</div>
 		<input type="submit" value="JSP result">
 	</form>
@@ -26,7 +26,7 @@
 			State: <input type="text" name="state" size="2">
 		</div>
 		<div>
-			Procedure: <input type="text" name="proc_code" size="2">
+			Procedure Code: <input type="text" name="proc_code" size="2">
 		</div>
 		<input type="submit" value="JSON result">
 	</form>
