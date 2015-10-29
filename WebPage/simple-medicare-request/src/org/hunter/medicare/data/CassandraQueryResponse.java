@@ -18,10 +18,11 @@ import com.datastax.driver.core.Session;
 
 public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
-    private boolean mock = true;
+    private boolean mock = false;
 
     //private static String host = "127.0.0.1";  // If mock=false and run local
-    private static String host = "54.200.138.99"; // mock=false and EC2
+    private static String host = "54.200.138.99"; // mock=false and EC2 brian
+    //private static String host = "54.191.107.167"; // ec2 josh
     private static String keyspace = "demo";
     private static String mvTable = "mv";
 
@@ -272,7 +273,7 @@ public class CassandraQueryResponse {
     // TODO Note: This function returns null if a Provider is not found that
     // matches the id
     // or if the connection is bad
-    public Provider getProviderById(String id) {
+    public static Provider getProviderById(String id) {
         // TODO Logger
         // uncomment this to use logger
         // BasicConfigurator.configure();
@@ -354,6 +355,7 @@ public class CassandraQueryResponse {
     public static void main(String[] args) {
      ArrayList<String> x = getProviders("CA", "99223", LEAST, 10);
      System.out.println(x);
+     Provider p = getProviderById(x.get(0));
 
      HashSet<String> asdf = new HashSet<String>();
      asdf.add("99238");
