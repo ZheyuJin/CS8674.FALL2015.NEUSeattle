@@ -131,7 +131,7 @@ function submit() {
 				  		state:  jq("#state").val(),
 				  		use_case:  jq('input[name="use_case"]:checked').val()},
 				  		function(data){
-				  			jq("#feedback").replaceWith('<span id="feedback">' + JSON.stringify(data) + '</span>');
+				  			jq("#feedback").replaceWith('<span id="feedback">' + displayDataCase1(data) + '</span>');
 				  		});
 	});
 	break;
@@ -162,11 +162,9 @@ function submit() {
 
 function displayDataCase1(data){
 	var text = "";
-	var i;
-	for(i = 0; i < data.length; i++){
+	for(var i = 0; i < data.length; i++){
 		text += data[i].last_or_org_name + ", " + data[i].first_name + " - \t" + data[i].providerDetails.averageSubmittedChargeAmount + "<br>";
 	};
-	
 	
 	return text;
 }
