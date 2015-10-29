@@ -122,7 +122,8 @@ public class SolrProviderSource {
 
 	    query.setStart(0);
 
-	    System.out.println("SolrJ query = " + solrQueryBase + query);
+	    System.out.println("SolrJ query = " + solrQueryBase + "/select?"
+		    + query);
 	    QueryResponse solrJresponse = solr.query(query);
 
 	    FacetField field = solrJresponse.getFacetField(facetField);
@@ -144,66 +145,80 @@ public class SolrProviderSource {
 
     // Map of procedure values and codes. Key = code, value = description
     public static HashMap<String, String> getProcedures(int numRows,
-	    boolean sortByCount) throws IOException, SolrServerException {
+	    String queryTerm) throws IOException, SolrServerException {
+
 	HashMap<String, String> codesWithDescriptions = new HashMap<String, String>();
-
-	// TODO: This isn't perfect - we query "all" to get all
-	// codes/descriptions and
-
-	// then chop the top "x" from that result
-	// http://localhost:8983/solr/csvtest/select?q=HCPCS_CODE%3A*&fl=HCPCS_CODE,HCPCS_DESCRIPTION&wt=json&indent=true&rows=1000&facet=true&facet.field=HCPCS_CODE&facet.sort=index
-	// Once our data gets big, we will need to figure this out some other
-	// way (could change id to a parseable value like id="<type>:<key for
-	// type")
 
 	SolrClient solr = null;
 
 	try {
 	    solr = new HttpSolrClient(solrQueryBase);
-	    String facetField = "HCPCS_CODE";
+
+	    SolrQuery query = new SolrQuery();
+
+	    query.setQuery(queryTerm);
+	    query.setFields("HCPCS_CODE,HCPCS_DESCRIPTION");
+
+	    query.setRows(numRows);
+	    query.setStart(0);
+	    query.setSort("BENE_UNIQUE_CNT", ORDER.desc); // TODO: other sorts?
+
+	    System.out.println("SolrJ query = " + solrQueryBase + "/select?"
+		    + query);
+	    QueryResponse solrJresponse = solr.query(query);
+
+	    SolrDocumentList list = solrJresponse.getResults();
+	    for (SolrDocument doc : list) {
+		String code = doc.get("HCPCS_CODE").toString().toUpperCase();
+
+		if (!codesWithDescriptions.containsKey(code)) {
+		    String description = doc.get("HCPCS_DESCRIPTION")
+			    .toString();
+		    codesWithDescriptions.put(code.toUpperCase(), description);
+		}
+	    }
+	} finally {
+	    if (solr != null) {
+		solr.close();
+	    }
+	}
+
+	return codesWithDescriptions;
+
+    }
+
+    // Map of procedure values and codes. Key = code, value = description
+    public static HashMap<String, String> getProcedures(int numRows)
+	    throws IOException, SolrServerException {
+
+	HashMap<String, String> codesWithDescriptions = new HashMap<String, String>();
+
+	SolrClient solr = null;
+
+	try {
+	    solr = new HttpSolrClient(solrQueryBase);
 
 	    SolrQuery query = new SolrQuery();
 
 	    query.setQuery("HCPCS_CODE:*");
+	    query.setFields("HCPCS_CODE,HCPCS_DESCRIPTION");
 
-	    query.setFacet(true);
-	    query.setFields(facetField + ",HCPCS_DESCRIPTION");
-
-	    query.set("facet.field", facetField);
-	    query.set("facet.limit", -1); // Return all facets so we can match
-					  // them up
-	    query.setRows(10000);
-	    if (sortByCount) {
-		query.setFacetSort("count"); // "top" means by count
-	    } else {
-		query.setFacetSort("index"); // lexigraphical sort
-	    }
-
+	    query.setRows(numRows);
 	    query.setStart(0);
+	    query.setSort("BENE_UNIQUE_CNT", ORDER.desc);
 
-	    System.out.println("SolrJ query = " + solrQueryBase + query);
+	    System.out.println("SolrJ query = " + solrQueryBase + "/select?"
+		    + query);
 	    QueryResponse solrJresponse = solr.query(query);
 
-	    FacetField field = solrJresponse.getFacetField(facetField);
-	    for (int i = 0; i < numRows; i++) {
-		Count codeWithCounts = field.getValues().get(i);
-
-		codesWithDescriptions.put(codeWithCounts.getName()
-			.toUpperCase(), "");
-	    }
-
-	    // Now match up codes with descriptions
-	    // (ideally we would do this in one pass, but haven't worked that
-	    // query or schema out)
 	    SolrDocumentList list = solrJresponse.getResults();
 	    for (SolrDocument doc : list) {
 		String code = doc.get("HCPCS_CODE").toString().toUpperCase();
-		if (codesWithDescriptions.containsKey(code)) {
-		    if (codesWithDescriptions.get(code).isEmpty()) {
-			String description = doc.get("HCPCS_DESCRIPTION")
-				.toString();
-			codesWithDescriptions.put(code, description);
-		    }
+
+		if (!codesWithDescriptions.containsKey(code)) {
+		    String description = doc.get("HCPCS_DESCRIPTION")
+			    .toString();
+		    codesWithDescriptions.put(code.toUpperCase(), description);
 		}
 	    }
 	} finally {
@@ -225,10 +240,9 @@ public class SolrProviderSource {
 	    String procedure, SortField sortBy, boolean ascending)
 	    throws IOException, SolrServerException {
 
-	// http://localhost:8983/solr/csvtest/select?q=HCPCS_CODE:99232%20AND%20NPPES_PROVIDER_STATE:FL&wt=json&indent=true&rows=10&sort=BENE_UNIQUE_CNT+desc
-	List<Provider> providers = new ArrayList<Provider>(); // Default =
-	// return empty
-	// list
+	List<Provider> providers = new ArrayList<Provider>();
+	// Default = return empty list
+
 	String queryString = "q=NPPES_PROVIDER_STATE:* AND HCPCS_CODE:whatever&wt=json&indent=true";
 
 	SolrClient solr = null;
@@ -254,7 +268,8 @@ public class SolrProviderSource {
 		query.setSort(sortField, ORDER.desc);
 	    }
 
-	    System.out.println("SolrJ query = " + solrQueryBase + query);
+	    System.out.println("SolrJ query = " + solrQueryBase + "/select?"
+		    + query);
 	    QueryResponse solrJresponse = solr.query(query);
 
 	    SolrProviderSource response = new SolrProviderSource(solrJresponse);
@@ -304,7 +319,8 @@ public class SolrProviderSource {
 	    // By default, sort based on which procedure is performed often
 	    query.setSort("BENE_UNIQUE_CNT", ORDER.desc);
 
-	    System.out.println("SolrJ query = " + solrQueryBase + query);
+	    System.out.println("SolrJ query = " + solrQueryBase + "/select?"
+		    + query);
 	    QueryResponse solrJresponse = solr.query(query);
 
 	    SolrProviderSource response = new SolrProviderSource(solrJresponse);
@@ -330,7 +346,6 @@ public class SolrProviderSource {
 	return providers;
     }
 
-
     // Free text search, like "knee"
     public static SolrProviderSource getQueryResponse(int numRows,
 	    String queryTerm) throws IOException {
@@ -347,7 +362,8 @@ public class SolrProviderSource {
 	    query.set("q", queryTerm);
 
 	    QueryResponse solrJresponse = solr.query(query);
-	    System.out.println("SolrJ query = " + solrQueryBase + query);
+	    System.out.println("SolrJ query = " + solrQueryBase + "/select?"
+		    + query);
 	    response = new SolrProviderSource(solrJresponse);
 
 	    List<Provider> list = response.body.providers;
@@ -395,7 +411,17 @@ public class SolrProviderSource {
 	    System.out
 		    .println("Querying for list of procedures providers reported:");
 	    HashMap<String, String> codesWithDescriptions = SolrProviderSource
-		    .getProcedures(20, true);
+		    .getProcedures(20);
+	    for (String key : codesWithDescriptions.keySet()) {
+		String value = codesWithDescriptions.get(key);
+		System.out.println("  Code " + key + " : " + value);
+	    }
+
+	    // Test out "get codes and descriptions query" #2
+	    System.out
+		    .println("Querying for list of procedures providers reported for knees:");
+	    codesWithDescriptions = SolrProviderSource
+		    .getProcedures(20, "knee");
 	    for (String key : codesWithDescriptions.keySet()) {
 		String value = codesWithDescriptions.get(key);
 		System.out.println("  Code " + key + " : " + value);
