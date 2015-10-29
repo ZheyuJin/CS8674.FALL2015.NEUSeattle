@@ -6,18 +6,14 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<script type="text/javascript"
-	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script type="text/javascript">
-	    var jq = jQuery.noConflict();
-	</script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript"> var jq = jQuery.noConflict(); </script>
 
 <title>Top Medicare Providers</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
 
 </head>
 <body>
-
 	<div>
 		<h2> Request Doctors: </h2>
 		<div>
@@ -56,8 +52,8 @@
 				<input id="proc_keyword" type="text" size="10">
 				<br>
 			</div>
-		<input type="submit" value="Submit" onclick="submit()" /> <br /> <span
-			id="feedback"></span>
+		<input type="submit" value="Submit" onclick="submit()" /> <br /> 
+		<span id="feedback"></span>
 	</div>
 			<div id="proc_keyword_box" style="display:none">
 				<b> Keyword:</b>
@@ -120,7 +116,7 @@ function submit() {
 					  		state:  jq("#state").val(),
 					  		use_case:  jq('input[name="use_case"]:checked').val()},
 							function(data){
-					  			jq("#feedback").replaceWith('<span id="feedback">'+ JSON.stringify(data) + '</span>');
+					  			jq("#feedback").replaceWith('<span id="feedback">'+ displayDataCase3(data) + '</span>');
 					  		});
 		});
 		break;
@@ -129,7 +125,7 @@ function submit() {
 
 function displayDataCase1(data){
 	if(checkEmpty(data)){
-		return "No providers found for that criteria."
+		return "No providers found for that criteria.";
 	} 
 	
 	var text = '<table style="width:100%"><tr><td><b>Last Name</b></td><td><b>First Name</b></td><td><b> Submitted Charge Amount </b></td></tr>'
@@ -155,6 +151,19 @@ function displayDataCase2(data){
 		return text;
 }
 
+function displayDataCase3(data){
+	if(checkEmpty(data)){
+		return "No procedures found for that keyword."
+	}
+	 var text = '<table style="width:100%"><tr><td><b>Procedure Code</b></td><td><b>Description</b></td><td><b> Average Cost </b></td><td><b> State </b></td></tr>';
+	
+	 for(var i = 0; i < data.length; i++){
+			text +=  '<tr><td>' + data[i].procCode + '</td><td>' + data[i].desc + '</td><td>'  + data[i].avgCost + '</td><td>'  + data[i].state + '</td></tr>';
+		};
+		text += '</table>';
+		return text;
+}
+
 function checkEmpty(data){
 	if(data.length == 0){
 		return true;
@@ -165,7 +174,6 @@ function checkEmpty(data){
 }
 
 function displayEntry(data){
-	
 	
 }
 
@@ -184,8 +192,7 @@ function caseCheck(){
     } else {
     	document.getElementById('proc_keyword_box').style.display = 'none';
         document.getElementById('proc_code').disabled = false;
-    }
-	
+    }	
 }
 
 function toNameCase(str) {
