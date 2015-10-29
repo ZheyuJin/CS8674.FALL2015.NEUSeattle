@@ -83,7 +83,7 @@ public class MainController {
 	    // TODO: Should this be a service like Hunter did?
 	    // List<Provider> providers =
 	    // SolrProviderSource.getProviders(num_rows, state, proc_code);
-	    List<Provider> providers = CassandraQueryResponse.getInstance().getMostExpensive(state, proc_code); // mock
+	    List<Provider> providers = CassandraQueryResponse.getInstance().getMostExpensive(num_rows, state, proc_code); // mock
 	    Collections.sort(providers, new TopChargeSComp());
 
 	    return providers;

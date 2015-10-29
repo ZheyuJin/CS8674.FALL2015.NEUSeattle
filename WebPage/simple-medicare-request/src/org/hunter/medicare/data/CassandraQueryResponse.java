@@ -21,7 +21,8 @@ public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
     private boolean mock = true;
 
-    private static String host = "127.0.0.1";
+    //private static String host = "127.0.0.1";  // If mock=false and run local
+    private static String host = "54.200.138.99"; // mock=false and EC2
     private static String keyspace = "demo";
     private static String mvTable = "mv";
 
@@ -58,7 +59,7 @@ public class CassandraQueryResponse {
         return instance;
     }
 
-    public List<Provider> getMostExpensive(String state, String procedure) {
+    public List<Provider> getMostExpensive(Integer numRows, String state, String procedure) {
         List<Provider> providers = new ArrayList<Provider>();
 
         if (mock) {
@@ -76,7 +77,7 @@ public class CassandraQueryResponse {
         } else {
             // FIXME
             // CALL Josh's function here
-            List<String> ids = getProviders(state, procedure, MOST, 10);
+            List<String> ids = getProviders(state, procedure, MOST, numRows);
             for (String id : ids) {
                 Provider p = getProviderById(id);
                 providers.add(p);
@@ -90,7 +91,7 @@ public class CassandraQueryResponse {
 
         // incremented until $limit or EOF
         int numberOfInstances = 0;
-        ArrayList<String> orderedIds = null;
+        ArrayList<String> orderedIds = new ArrayList<String>();
 
         Cluster cluster = null;
         Session session = null;
@@ -106,7 +107,7 @@ public class CassandraQueryResponse {
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             if ((row = resultSet.one()) != null) {
-                orderedIds = new ArrayList<String>();
+                
                 ColumnDefinitions columnDefinitions = row
                         .getColumnDefinitions();
                 List<Definition> columns = columnDefinitions.asList();
@@ -162,7 +163,7 @@ public class CassandraQueryResponse {
             }
         } catch (Exception e) {
             // TODO seperate out exceptions
-            System.out.println("An Error Occured");
+            System.out.println("An error occured:  " + e);
         } finally {
             if (session != null) {
         	session.close();
@@ -229,7 +230,7 @@ public class CassandraQueryResponse {
             }
         } catch (Exception e) {
             // TODO seperate out exceptions
-            System.out.println("An Error Occured");
+            System.out.println("An error occured:  " + e);
         } finally {
             if (session != null) {
          	session.close();
@@ -312,7 +313,7 @@ public class CassandraQueryResponse {
 
         } catch (Exception e) {
             // TODO seperate out exceptions
-            System.out.println("An Error Occured");
+            System.out.println("An error occured:  " + e);
         } finally {
             if (session != null) {
          	session.close();

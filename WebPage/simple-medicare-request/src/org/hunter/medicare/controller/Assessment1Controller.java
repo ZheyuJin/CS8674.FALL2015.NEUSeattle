@@ -43,7 +43,7 @@ public class Assessment1Controller {
 	List<Provider> list = new ArrayList<Provider>();
 	
 	switch(use_case){
-	case "case_1" : list = CassandraQueryResponse.getInstance().getMostExpensive(state, proc_code); // mock
+	case "case_1" : list = CassandraQueryResponse.getInstance().getMostExpensive(10, state, proc_code); // mock
     				Collections.sort(list, new TopChargeSComp());
 					break;
 	case "case_2" : list = SolrProviderSource.getProviders(10, state, proc_code);
