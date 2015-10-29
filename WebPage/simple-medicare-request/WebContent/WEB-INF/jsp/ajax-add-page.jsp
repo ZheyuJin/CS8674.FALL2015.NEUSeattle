@@ -63,9 +63,11 @@
 		<div>
 			State: <select id="state">
 				<option label="Select the state">Select the state</option>
-				<option value="AL">AL</option>
+				<option value="AZ">AZ</option>
+				<option value="CA">CA</option>
 				<option value="FL">FL</option>
-				<option value="WA">WA</option>
+				<option value="GA">GA</option>
+				<option value="TX">TX</option>
 				<option value="NY">NY</option>
 			</select>
 		</div>

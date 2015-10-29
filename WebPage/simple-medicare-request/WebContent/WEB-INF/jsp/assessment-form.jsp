@@ -68,9 +68,11 @@
 			<br>
 			<select id="state">
 				<option label="Select the state" disabled>Select the state</option>
-				<option value="AL">AL</option>
+				<option value="AZ">AZ</option>
+				<option value="CA">CA</option>
 				<option value="FL">FL</option>
-				<option value="WA">WA</option>
+				<option value="GA">GA</option>
+				<option value="TX">TX</option>
 				<option value="NY">NY</option>
 			</select>
 		</div>
@@ -173,7 +175,7 @@ function displayDataCase2(data){
 	 var text = '<table style="width:100%">'
 	
 	 for(var i = 0; i < data.length; i++){
-			text +=  '<tr><td>' + data[i].last_or_org_name + '</td><td>' + data[i].first_name + '</td><td>'  + data[i].beneficiaries_day_service_count + '</td></tr>';
+			text +=  '<tr><td>' + toNameCase(data[i].last_or_org_name) + '</td><td>' + toNameCase(data[i].first_name) + '</td><td>Service count: '  + data[i].beneficiaries_day_service_count + '</td></tr>';
 		};
 		text += '</table>';
 		return text;
@@ -202,6 +204,10 @@ function caseCheck(){
     }
 	
 }
+
+function toNameCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
 
 </script>
 
