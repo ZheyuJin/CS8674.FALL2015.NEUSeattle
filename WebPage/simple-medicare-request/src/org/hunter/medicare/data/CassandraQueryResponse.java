@@ -3,7 +3,7 @@ package org.hunter.medicare.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hunter.medicare.controller.SolrTestController;
+import org.hunter.medicare.data.SolrProviderSource;
 
 //import org.apache.log4j.BasicConfigurator;
 
@@ -107,7 +107,7 @@ public class CassandraQueryResponse {
 
 	try {
 	    // always mock in this way.
-	    providers = new SolrTestController().getTop("CA", "*", null);
+	    providers = SolrProviderSource.getProviders(10, state, procedure);
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
