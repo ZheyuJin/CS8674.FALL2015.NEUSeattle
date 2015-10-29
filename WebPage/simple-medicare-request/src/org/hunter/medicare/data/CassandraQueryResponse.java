@@ -225,7 +225,11 @@ public class CassandraQueryResponse {
                     }
                 }
 
+                if (numberOfInstances == 0.0) {
+                    return -1.0;
+                }
                 average = sumOfCosts / numberOfInstances;
+                
             }
         } catch (Exception e) {
             // TODO seperate out exceptions
@@ -239,7 +243,7 @@ public class CassandraQueryResponse {
              }
             System.out.println("session closed");
         }
-
+       
         return average;
     }
 
