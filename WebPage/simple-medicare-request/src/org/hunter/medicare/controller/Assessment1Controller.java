@@ -73,20 +73,5 @@ public class Assessment1Controller {
 	}
 	
 			return output;
-    }
-    
-    public static List<SampleProcedure> procGen(){
-    	List<SampleProcedure> list = new ArrayList<SampleProcedure>();
-    	SampleProcedure temp = new SampleProcedure("99123", "Knee injury", 453463, "WA");
-    	list.add(temp);
-    	temp = new SampleProcedure("91223", "Bullet to the knee", 45, "FL");
-    	list.add(temp);
-    	temp = new SampleProcedure("99135", "Extra knee", 234, "GA");
-    	list.add(temp);
-    	temp = new SampleProcedure("59123", "Dislocated knee", 99, "AL");
-    	list.add(temp);
-
-    	return list;
-    }
-    
+    }    
 }
