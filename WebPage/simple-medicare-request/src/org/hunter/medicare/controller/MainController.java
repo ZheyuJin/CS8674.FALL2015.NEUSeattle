@@ -163,6 +163,7 @@ public class MainController {
 	try {
 	    Map<String, String> procsMap = SolrProviderSource.getProcedures(num_rows, proc_desc);
 	    System.err.println("procsMap key:" + procsMap.keySet());
+	    // ID, 
 	    Map<String, Double> avgPriceMap = CassandraQueryResponse.getCodeToAvgCostMappingForState(procsMap.keySet(),
 		    state);
 	    System.err.println("avgPriceMap key:" + avgPriceMap.keySet());
@@ -173,7 +174,8 @@ public class MainController {
 	    for (String procId : procsMap.keySet()) {
 		String desc = procsMap.get(procId);
 		double avgCost = avgPriceMap.get(procId);
-		ret.add(new Procedure(procId, desc, avgCost, state));
+		if(avgCost >0)
+		    ret.add(new Procedure(procId, desc, avgCost, state));
 	    }
 
 	    // sort procedures.
