@@ -141,7 +141,7 @@
 				text += '<tr><td>' + toNameCase(data[i].last_or_org_name)
 						+ '</td><td>' + toNameCase(data[i].first_name)
 						+ '</td><td>\$'
-						+ data[i].providerDetails.averageSubmittedChargeAmount
+						+ data[i].providerDetails.averageSubmittedChargeAmount.toFixed(2)
 						+ '</td></tr>';
 			}
 			text += '</table>';
@@ -178,7 +178,7 @@
 
 			for (var i = 0; i < data.length; i++) {
 				text += '<tr><td>' + data[i].procCode + '</td><td>'
-						+ data[i].desc + '</td><td>' + data[i].avgCost
+						+ data[i].desc + '</td><td>\$' + data[i].avgCost.toFixed(2)
 						+ '</td><td>' + data[i].state + '</td></tr>';
 			}
 			text += '</table>';
