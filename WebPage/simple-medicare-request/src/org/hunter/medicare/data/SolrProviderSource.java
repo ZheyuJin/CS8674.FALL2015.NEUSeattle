@@ -28,12 +28,13 @@ public class SolrProviderSource {
     public static String solrQueryBase = solrUrlBase + collectionName;
 
     public enum SortField {
-	DEFAULT, UNIQUE_COUNT
+	DEFAULT, // Solr default, no explicit sort specified.
+	UNIQUE_COUNT
     }
 
     // Define a few nested classes specific to the query response
-    // I expect these to be mostly used internally to solr queries.
-    public class RequestParams {
+    // I expect these to be used internally to solr queries.
+    protected class RequestParams {
 	public String q;
 	public boolean indent;
 	public String wt;
@@ -42,7 +43,7 @@ public class SolrProviderSource {
 	public String start;
     }
 
-    public class ResponseHeader {
+    protected class ResponseHeader {
 
 	public int status;
 	public int QTime;
@@ -50,12 +51,12 @@ public class SolrProviderSource {
 	public RequestParams params;
     }
 
-    public class ResponseBody {
+    protected class ResponseBody {
 	// "\"response\":{\"numFound\":19,\"start\":0,\"maxScore\":0.7061373,\"docs:\"[]}}";
 
 	public long numFound;
 	public long start;
-	public double maxScore;
+	// public double maxScore; // Not always present, and not needed.
 
 	// Queries are typically either for providers or facet counts.
 	public List<Provider> providers;
@@ -67,15 +68,15 @@ public class SolrProviderSource {
 	}
     }
 
-    public ResponseHeader header;
-    public ResponseBody body;
+    protected ResponseHeader header;
+    protected ResponseBody body;
 
     public SolrProviderSource() {
 	this.header = new ResponseHeader();
 	this.body = new ResponseBody();
     }
 
-    public SolrProviderSource(QueryResponse solrJresponse) {
+    protected SolrProviderSource(QueryResponse solrJresponse) {
 	SolrDocumentList list = solrJresponse.getResults();
 
 	this.header = new ResponseHeader();
@@ -84,8 +85,10 @@ public class SolrProviderSource {
 	this.header.status = solrJresponse.getStatus();
 	this.header.QTime = solrJresponse.getQTime();
 	this.body.start = list.getStart();
-	// this.body.maxScore = list.getMaxScore(); // Not always available -
-	// throws if not.
+
+	// Not always available - get call throws if it's not there.
+	// this.body.maxScore = list.getMaxScore();
+
 	this.body.numFound = list.getNumFound();
 
 	// If we have provider results, fill in our provider array
@@ -126,7 +129,6 @@ public class SolrProviderSource {
 	// http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&fl=NPPES_PROVIDER_STATE&wt=json&indent=true&facet=true&facet.field=NPPES_PROVIDER_STATE
 
 	String facetField = "NPPES_PROVIDER_STATE";
-
 	SolrQuery query = new SolrQuery();
 
 	query.setQuery("NPPES_PROVIDER_STATE:*");
@@ -142,6 +144,9 @@ public class SolrProviderSource {
     }
 
     // Map of procedure values and codes. Key = code, value = description
+    // Note that we return only the procedures defined for the "top numrows"
+    // providers who had a procedure with the query term, as ordered by
+    // beneficiary unique count.
     public static HashMap<String, String> getProcedures(int numRows,
 	    String queryTerm) throws IOException, SolrServerException {
 
@@ -175,6 +180,8 @@ public class SolrProviderSource {
     }
 
     // Map of procedure values and codes. Key = code, value = description
+    // Note that we return only the procedures defined for the "top numrows"
+    // providers, as ordered by beneficiary unique count.
     public static HashMap<String, String> getProcedures(int numRows)
 	    throws IOException, SolrServerException {
 
@@ -188,6 +195,9 @@ public class SolrProviderSource {
 		SortField.DEFAULT, false);
     }
 
+    // Get sorted list of providers for the given state and procedure.
+    // Returns up to numRows results (less if not that many providers exist
+    // for the state + procedure combination).
     public static List<Provider> getProviders(int numRows, String state,
 	    String procedure, SortField sortBy, boolean ascending)
 	    throws IOException, SolrServerException {
@@ -215,11 +225,14 @@ public class SolrProviderSource {
 	    query.setSort(sortField, ORDER.desc);
 	}
 
+
 	SolrProviderSource solrData = getQueryResponse(query);
 	providers = solrData.body.providers;
 
+
 	System.out.println("Query returned " + providers.size()
 		+ " results out of " + solrData.body.numFound);
+
 
 	return providers;
     }
@@ -251,6 +264,7 @@ public class SolrProviderSource {
     // Internal query helper
     protected static QueryResponse doQuery(SolrQuery query)
 	    throws SolrServerException, IOException {
+
 
 	SolrClient solr = null;
 	QueryResponse solrJresponse = null;
