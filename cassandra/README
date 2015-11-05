@@ -1,5 +1,16 @@
 README
 
+to configure Cassandra for your EC2 cluster. Grab the private IP from
+ the EC2 instance launch site. Navigate to $CASSANDRA_HOME/conf/ 
+ then edit the cassandra.yaml in the following ways:
+     change: listen_address: <EC2 private IP>
+		 change: rpc_address: <EC2 private IP>
+ next, in the conf directory there is a file cqlshrc.sample Copy this 
+ to /.cassandra in your HOME directory (probably /home/ubuntu/.cassandra)
+    comment out the authentication and version lines (we may use these later)
+		then change: [connection]
+		             hostname = <EC2 private OP>
+
 to make a new keyspace on a localhost, use
  bash cass_mk_keyspace.sh KEYSPACE CQLSH_LOCATION
  e.g., bash cass_mk_keyspace.sh demo /home/ubuntu/cassandra/bin/cqlsh
