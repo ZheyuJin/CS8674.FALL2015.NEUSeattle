@@ -6,13 +6,16 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type="text/javascript">
 	var jq = jQuery.noConflict();
 </script>
 
-<title>Hunter's First Website</title>
+<title>Medicare Data Query Form</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 
@@ -61,7 +64,7 @@
 
 	<footer>
 		<p>
-			<a href="/simple-medicare-request/index.html">Home</a>
+			<a href="../../index.html">Home</a>
 	</footer>
 
 	<script type="text/javascript">

@@ -6,9 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 //import org.apache.log4j.BasicConfigurator;
-
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.ColumnDefinitions.Definition;
@@ -20,9 +18,9 @@ public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
     private boolean mock = false;
 
-    //private static String host = "127.0.0.1";  // If mock=false and run local
+    // private static String host = "127.0.0.1"; // If mock=false and run local
     private static String host = "54.200.138.99"; // mock=false and EC2 brian
-    //private static String host = "54.191.107.167"; // ec2 josh
+    // private static String host = "54.191.107.167"; // ec2 josh
     private static String keyspace = "demo";
     private static String mvTable = "mv";
 
@@ -86,8 +84,7 @@ public class CassandraQueryResponse {
         return providers;
     }
 
-    public static ArrayList<String> getProviders(String state, String code,
-            String order, int limit) {
+    public static ArrayList<String> getProviders(String state, String code, String order, int limit) {
 
         // incremented until $limit or EOF
         int numberOfInstances = 0;
@@ -100,16 +97,14 @@ public class CassandraQueryResponse {
             cluster = Cluster.builder().addContactPoint(host).build();
             session = cluster.connect(keyspace);
 
-            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE
-                    + FROM + SPACE + mvTable + SPACE + WHERE + SPACE + STATE
-                    + SPACE + EQUALS + SPACE + OPEN_STRING + state
-                    + CLOSE_STRING;
+            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
+                    + OPEN_STRING + state + CLOSE_STRING;
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             if ((row = resultSet.one()) != null) {
-                
-                ColumnDefinitions columnDefinitions = row
-                        .getColumnDefinitions();
+
+                ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
                 List<Definition> columns = columnDefinitions.asList();
 
                 if (order.equals(LEAST)) {
@@ -127,8 +122,7 @@ public class CassandraQueryResponse {
                                 // start at 11 because 10 for npi, 1 for
                                 // office/faculty. subtract 4 to peel the year.
                                 String idCode = id.substring(11, idLength - 4);
-                                if (idCode.equals(code)
-                                        && numberOfInstances < limit) {
+                                if (idCode.equals(code) && numberOfInstances < limit) {
                                     orderedIds.add(id);
                                     numberOfInstances++;
                                 }
@@ -151,8 +145,7 @@ public class CassandraQueryResponse {
                                 // place_of_service
                                 // subtract 4 from the end to peel the year.
                                 String idCode = id.substring(11, idLength - 4);
-                                if (idCode.equals(code)
-                                        && numberOfInstances < limit) {
+                                if (idCode.equals(code) && numberOfInstances < limit) {
                                     orderedIds.add(id);
                                     numberOfInstances++;
                                 }
@@ -166,7 +159,7 @@ public class CassandraQueryResponse {
             System.out.println("An error occured:  " + e);
         } finally {
             if (session != null) {
-        	session.close();
+                session.close();
             }
             if (cluster != null) {
                 cluster.close();
@@ -187,18 +180,16 @@ public class CassandraQueryResponse {
             cluster = Cluster.builder().addContactPoint(host).build();
             session = cluster.connect(keyspace);
 
-            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE
-                    + FROM + SPACE + mvTable + SPACE + WHERE + SPACE + STATE
-                    + SPACE + EQUALS + SPACE + OPEN_STRING + state
-                    + CLOSE_STRING;
+            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
+                    + OPEN_STRING + state + CLOSE_STRING;
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             Double sumOfCosts = 0.0;
             Double numberOfInstances = 0.0;
 
             if ((row = resultSet.one()) != null) {
-                ColumnDefinitions columnDefinitions = row
-                        .getColumnDefinitions();
+                ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
                 List<Definition> columns = columnDefinitions.asList();
 
                 // columnsIndex starts at 1 because 0 is the index for
@@ -217,8 +208,7 @@ public class CassandraQueryResponse {
                             // subtract 4 to peel the year.
                             String idCode = id.substring(11, idLength - 4);
                             if (idCode.equals(code)) {
-                                double cost = Double.parseDouble(columnName
-                                        .substring(1));
+                                double cost = Double.parseDouble(columnName.substring(1));
                                 sumOfCosts += cost;
                                 numberOfInstances++;
                             }
@@ -230,26 +220,26 @@ public class CassandraQueryResponse {
                     return -1.0;
                 }
                 average = sumOfCosts / numberOfInstances;
-                
+
             }
         } catch (Exception e) {
             // TODO seperate out exceptions
             System.out.println("An error occured:  " + e);
         } finally {
             if (session != null) {
-         	session.close();
-             }
-             if (cluster != null) {
-                 cluster.close();
-             }
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
             System.out.println("session closed");
         }
-       
+
         return average;
     }
 
-    public static HashMap<String, Double> getCodeToAvgCostMappingForState(
-            Set<String> codes, String state) {
+    public static HashMap<String, Double> getCodeToAvgCostMappingForState(Set<String> codes,
+            String state) {
         HashMap<String, Double> codeToAvgCostMappingForState = new HashMap<String, Double>();
         Iterator<String> codesIterator = codes.iterator();
         while (codesIterator.hasNext()) {
@@ -289,8 +279,7 @@ public class CassandraQueryResponse {
             session = cluster.connect(keyspace);
             System.out.println("connecting to cassandra");
             // compose query
-            String query1 = "SELECT * FROM proceduresstats" + " WHERE id = '"
-                    + id + "';";
+            String query1 = "SELECT * FROM proceduresstats" + " WHERE id = '" + id + "';";
 
             ResultSet procedureResult = session.execute(query1);
             Row procedureRow = procedureResult.one();
@@ -301,14 +290,13 @@ public class CassandraQueryResponse {
             String npi = procedureRow.getString("npi");
             String hcpcs_code = procedureRow.getString("hcpcs_code");
 
-            String query2 = "SELECT * FROM proceduresinfo"
-                    + " WHERE hcpcs_code = '" + hcpcs_code + "';";
+            String query2 = "SELECT * FROM proceduresinfo" + " WHERE hcpcs_code = '" + hcpcs_code
+                    + "';";
 
             ResultSet procedureInfoResult = session.execute(query2);
             Row procedureInfoRow = procedureInfoResult.one();
 
-            String query3 = "SELECT * FROM providers " + " WHERE npi = '" + npi
-                    + "';";
+            String query3 = "SELECT * FROM providers " + " WHERE npi = '" + npi + "';";
 
             ResultSet providerResult = session.execute(query3);
             Row providerRow = providerResult.one();
@@ -320,11 +308,11 @@ public class CassandraQueryResponse {
             System.out.println("An error occured:  " + e);
         } finally {
             if (session != null) {
-         	session.close();
-             }
-             if (cluster != null) {
-                 cluster.close();
-             }
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
             System.out.println("session closed");
         }
         return provider;
@@ -353,15 +341,15 @@ public class CassandraQueryResponse {
 
     // for testing
     public static void main(String[] args) {
-     ArrayList<String> x = getProviders("CA", "99223", LEAST, 10);
-     System.out.println(x);
-     Provider p = getProviderById(x.get(0));
+        ArrayList<String> x = getProviders("CA", "99223", LEAST, 10);
+        System.out.println(x);
+        Provider p = getProviderById(x.get(0));
 
-     HashSet<String> asdf = new HashSet<String>();
-     asdf.add("99238");
-     asdf.add("99204");
-     asdf.add("99223");
-     System.out.println(getCodeToAvgCostMappingForState(asdf, "CA"));
+        HashSet<String> asdf = new HashSet<String>();
+        asdf.add("99238");
+        asdf.add("99204");
+        asdf.add("99223");
+        System.out.println(getCodeToAvgCostMappingForState(asdf, "CA"));
 
     }
 

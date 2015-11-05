@@ -6,19 +6,19 @@ public class SearchCriteria {
     public String providerID;
 
     public void setState(String state) {
-	this.state = state;
+        this.state = state;
     }
 
     public String getState() {
-	return this.state;
+        return this.state;
     }
 
     public void setProviderID(String providerID) {
-	this.providerID = providerID;
+        this.providerID = providerID;
     }
 
     public String getproviderID() {
-	return this.providerID;
+        return this.providerID;
     }
 
 }
