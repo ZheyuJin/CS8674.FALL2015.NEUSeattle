@@ -90,7 +90,7 @@ public class Provider {
     public Provider(Map<String, Object> fields) {
 	this.providerDetails = null; // Null = Solr doesn't have these details
 
-	this.id = fields.get("id").toString();
+	this.id = fields.get("id").toString(); // required.
 	for (String key : fields.keySet()) {
 	    switch (key) {
 	    case "id":
