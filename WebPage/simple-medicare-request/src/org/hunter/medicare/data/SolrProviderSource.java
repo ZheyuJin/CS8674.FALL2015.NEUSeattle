@@ -116,15 +116,34 @@ public class SolrProviderSource {
 
     // Return just states
     public static Set<String> getStates() throws IOException, SolrServerException {
-        return getCountsByState().keySet();
+        return getCountsForStates().keySet();
     }
 
-    // state and count of providers
-    public static HashMap<String, Long> getCountsByState() throws IOException, SolrServerException {
+    // Provider counts by state (state = key)
+    public static HashMap<String, Long> getCountsForStates() throws IOException,
+            SolrServerException {
 
         // http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&fl=NPPES_PROVIDER_STATE&wt=json&indent=true&facet=true&facet.field=NPPES_PROVIDER_STATE
 
         String facetField = "NPPES_PROVIDER_STATE";
+        SolrQuery query = new SolrQuery();
+
+        query.setQuery("NPPES_PROVIDER_STATE:*");
+        query.setFacet(true);
+        query.setFields(facetField);
+        query.set("facet.field", facetField);
+        query.setStart(0);
+
+        SolrProviderSource solrData = getQueryResponse(query);
+        System.out.println("Facet query returned " + solrData.body.facets.size());
+
+        return solrData.body.facets;
+    }
+
+    // Zip with provider counts per state (input state, output map key = zip)
+    public static HashMap<String, Long> getZipCountsByState(String state) throws IOException,
+            SolrServerException {
+        String facetField = "NPPES_PROVIDER_ZIP";
         SolrQuery query = new SolrQuery();
 
         query.setQuery("NPPES_PROVIDER_STATE:*");
@@ -188,6 +207,41 @@ public class SolrProviderSource {
             throws IOException, SolrServerException {
 
         return SolrProviderSource.getProviders(numRows, state, procedure, SortField.DEFAULT, false);
+    }
+
+    // Get the providers for the given state and/or zip
+    public static List<Provider> getProvidersByStateandorZip(String state, String zip, Integer start, Integer numRows)
+            throws IOException, SolrServerException {
+
+        SolrQuery query = new SolrQuery();
+
+        String stateQuery = "NPPES_PROVIDER_STATE:";
+        if (state != null && !state.isEmpty()) {
+            stateQuery = stateQuery + state;
+        } else {
+            stateQuery = stateQuery + "*";
+        }
+
+        String zipQuery = "NPPES_PROVIDER_ZIP:";
+        if (zip != null && !zip.isEmpty()) {
+            zipQuery = zipQuery + state;
+        } else {
+            zipQuery = zipQuery + "*";
+        }
+
+        // TODO: BRIAN or Doyle - get a query working to get the providers by state and or zip,
+        // plus use the start + numrows to get pageability if there's lots of results
+
+        // State = * or a two letter value AND zip = star or the full zip.
+        // Not sure this is right?
+        query.setQuery(stateQuery + " AND " + zipQuery);
+
+        // Set other things and do the actual query
+
+        // send query results to SolrPRoviderSource, which hopefully builds the
+        // provider list from the response
+
+        return new ArrayList<Provider>();
     }
 
     // Get sorted list of providers for the given state and procedure.
@@ -344,6 +398,26 @@ public class SolrProviderSource {
                 System.out.println("  Provider " + p.last_or_org_name + ", procedure "
                         + p.hcpcs_code + " (" + p.hcpcs_description + "): "
                         + p.beneficiaries_unique_count);
+            }
+
+            HashMap<String, Long> stateCounts = getCountsForStates();
+            for (String state : stateCounts.keySet()) {
+                System.out.println(state + "(" + stateCounts.get(state) + ")");
+            }
+
+            HashMap<String, Long> zipsForTexas = getZipCountsByState("tx");
+            for (String zip : zipsForTexas.keySet()) {
+                System.out.println(zip + "(" + zipsForTexas.get(zip) + ")");
+            }
+
+            List<Provider> providersInTx = getProvidersByStateandorZip("tx", null, 0, 10);
+            for (Provider p : providersInTx) {
+                System.out.println("  " + p.id);
+            }
+
+            List<Provider> providersInTxZip = getProvidersByStateandorZip("tx", "78654", 0, 10);
+            for (Provider p : providersInTxZip) {
+                System.out.println("  " + p.id);
             }
         } catch (Exception e) {
             e.printStackTrace();
