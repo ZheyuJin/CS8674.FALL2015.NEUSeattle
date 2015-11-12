@@ -211,6 +211,103 @@ public class MainController {
         // correctly.
         return "ProviserListView";
     }
+    
+    /**
+     * Returns JSON
+     * 
+     * @throws Exception
+     */
+    // http://localhost:8080/simple-medicare-request/assessment/main/provider/
+    @RequestMapping(value = "/provider", method = RequestMethod.GET)
+    @ResponseBody
+    public FacetedProviderResult getProvidersWithFacets(
+            @RequestParam(value = "state", required = false, defaultValue="") String state,
+            @RequestParam(value = "zip", required = false, defaultValue="") String zip,
+            @RequestParam(value = "provider_type", required = false, defaultValue="") String provider_type,
+            @RequestParam(value = "query", required = false, defaultValue="") String query,
+            @RequestParam(value = "facet", required = false, defaultValue="") String facetType,
+            @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
+            @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
+    throws Exception {
+
+        FacetedProviderResult ret = new FacetedProviderResult(); 
+        
+        // Input parameter processing...
+        
+        // If they don't have start/end set, default to first 10 (= 0-9)
+        Long startRow = 0L;
+        Long endRow = startRow + 10L - 1L;  // Default at 10 rows (inclusive)
+        
+        if (start >= 0) {
+            startRow = Integer.toUnsignedLong(start);
+            endRow = startRow + 10L - 1L; 
+            
+            if (end >= start) {                
+                endRow = Integer.toUnsignedLong(end);
+            }
+        }      
+
+        if (!query.isEmpty() || !state.isEmpty() || !zip.isEmpty() || !provider_type.isEmpty())
+        {
+            ret.facets = new FacetedCount();
+            ret.facets.facetFilters = new HashMap<String, String>();
+
+        }        
+        if (query != null && !query.isEmpty())
+        {
+            ret.facets.facetFilters.put(FacetedCount.FacetType.Query.toString(), query);
+        }
+        if (zip != null && !zip.isEmpty())
+        {
+            ret.facets.facetFilters.put(FacetedCount.FacetType.Zip.toString(), zip);
+        }
+        if (state != null && !state.isEmpty())
+        {
+            ret.facets.facetFilters.put(FacetedCount.FacetType.State.toString(), state);
+        }
+        if (provider_type != null && !provider_type.isEmpty())
+        {
+            ret.facets.facetFilters.put(FacetedCount.FacetType.ProviderType.toString(), provider_type);
+        }      
+                
+        
+        // TODO: remove this (but Hunter might need it early on for UI)
+        boolean useMock = true;
+        try {
+            
+            if (useMock) {
+                
+                ret.startRow = startRow;
+                ret.endRow = endRow;
+                
+                ret.numProvidersTotal = endRow-startRow + 1;
+                
+                // ToDo: mock some providers in the list too?
+                
+                ret.facets.facetType = FacetedCount.FacetType.State;
+                
+                ret.facets.facetedCount = new HashMap<String, Long>();
+                ret.facets.facetedCount.put("tx", 135L);
+                ret.facets.facetedCount.put("fl", 70L);
+                ret.facets.facetedCount.put("nv", 7L);
+                ret.facets.facetedCount.put("ny", 86L);
+
+            } else {
+                // Query Solr for the provider count per state
+                // TODO: maybe we should sort these?
+                Map<String, Long> providerCounts = SolrProviderSource.getCountsForStates();
+                ret.facets.facetedCount = providerCounts;
+            }
+
+            return ret;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("Exception querying Solr; rethrowing...");
+            throw e;
+        }
+
+    }    
 
     /**
      * Returns JSON
@@ -270,7 +367,7 @@ class FacetedCount {
 
     // Valid facet types
     public enum FacetType {
-        State, Zip, ProviderType
+        State, Zip, ProviderType, Query
     }
 
     // Indicates the type of facet contained in the facetedCount.
@@ -283,9 +380,24 @@ class FacetedCount {
     // If there are more than one entry, all have been applied
     // (ie: treat these filters as an AND, not an OR)
     // If this is empty/null, then no filters were used.
+    // Note that a query term, if applicable, will be in this list as
+    // "query", "query term or phrase" 
     public Map<String, String> facetFilters;
 
     public Map<String, Long> facetedCount;
+}
+
+class FacetedProviderResult {
+        
+    public FacetedCount facets;
+    
+    public Long numProvidersTotal;
+    
+    public Long startRow;
+    
+    public Long endRow;
+    
+    public List<Provider> providers;
 }
 
 /**
