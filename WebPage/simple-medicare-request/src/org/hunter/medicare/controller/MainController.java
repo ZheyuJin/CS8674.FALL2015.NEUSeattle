@@ -3,6 +3,7 @@ package org.hunter.medicare.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -211,6 +212,80 @@ public class MainController {
         return "ProviserListView";
     }
 
+    /**
+     * Returns JSON
+     * 
+     * @throws Exception
+     */
+    // http://localhost:8080/simple-medicare-request/assessment/main/provider/count/states/
+    @RequestMapping(value = "/provider/count/states", method = RequestMethod.GET)
+    @ResponseBody
+    public FacetedCount getProviderCountsPerState() throws Exception {
+
+        // TODO: remove this (but Hunter might need it early on for UI)
+        boolean useMock = true;
+
+        try {
+            FacetedCount ret = new FacetedCount();
+            ret.facetType = FacetedCount.FacetType.State;
+
+            if (useMock) {
+                // JSON:
+                // {
+                // facetType: "State",
+                // facetFilters: null,
+                // facetedCount: {
+                // tx: 135,
+                // fl: 70,
+                // nv: 7,
+                // ny: 86
+                // }
+                // }
+                ret.facetedCount = new HashMap<String, Long>();
+                ret.facetedCount.put("tx", 135L);
+                ret.facetedCount.put("fl", 70L);
+                ret.facetedCount.put("nv", 7L);
+                ret.facetedCount.put("ny", 86L);
+
+            } else {
+                // Query Solr for the provider count per state
+                // TODO: maybe we should sort these?
+                Map<String, Long> providerCounts = SolrProviderSource.getCountsForStates();
+                ret.facetedCount = providerCounts;
+            }
+
+            return ret;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("Exception querying Solr; rethrowing...");
+            throw e;
+        }
+
+    }
+}
+
+// Container class for returning a faceted count to the UI
+class FacetedCount {
+
+    // Valid facet types
+    public enum FacetType {
+        State, Zip, ProviderType
+    }
+
+    // Indicates the type of facet contained in the facetedCount.
+    public FacetType facetType;
+
+    // This indicates what filters were in place for this
+    // faceted query - for example, if we filtered on
+    // state, and we are returning provider types for WA,
+    // this would have the entry "State", "WA".
+    // If there are more than one entry, all have been applied
+    // (ie: treat these filters as an AND, not an OR)
+    // If this is empty/null, then no filters were used.
+    public Map<String, String> facetFilters;
+
+    public Map<String, Long> facetedCount;
 }
 
 /**
