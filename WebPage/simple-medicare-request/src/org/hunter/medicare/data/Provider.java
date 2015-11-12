@@ -138,7 +138,8 @@ public class Provider {
                 this.hcpcs_description = fields.get(key).toString();
                 break;
             case "LINE_SRVC_CNT":
-                this.line_service_count = (float) fields.get(key);
+                Object value = fields.get(key);
+                this.line_service_count = Float.parseFloat(value.toString());
                 break;
             case "BENE_UNIQUE_CNT":
                 this.beneficiaries_unique_count = (long) fields.get(key);

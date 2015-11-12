@@ -22,8 +22,8 @@ import org.apache.solr.common.SolrDocumentList;
 public class SolrProviderSource {
 
     // ToDo: get this from config instead?
-    // public static String solrUrlBase = "http://localhost:8983/solr/";
-    public static String solrUrlBase = "http://54.200.138.99:8983/solr/";
+    public static String solrUrlBase = "http://localhost:8983/solr/";
+    //public static String solrUrlBase = "http://54.200.138.99:8983/solr/";
     public static String collectionName = "csvtest";
     public static String solrQueryBase = solrUrlBase + collectionName;
 
@@ -210,18 +210,19 @@ public class SolrProviderSource {
     }
 
     // Get the providers for the given state and/or zip
-    public static List<Provider> getProvidersByStateandorZip(String state, String zip, Integer start, Integer numRows)
+    public static List<Provider> getProvidersByStateZipOrType(String state, String zip, String providerType, Integer start, Integer numRows)
             throws IOException, SolrServerException {
 
-        SolrQuery query = new SolrQuery();
+        List<Provider> providers = new ArrayList<Provider>();
 
+ 
         String stateQuery = "NPPES_PROVIDER_STATE:";
         if (state != null && !state.isEmpty()) {
             stateQuery = stateQuery + state;
         } else {
             stateQuery = stateQuery + "*";
         }
-
+       
         String zipQuery = "NPPES_PROVIDER_ZIP:";
         if (zip != null && !zip.isEmpty()) {
             zipQuery = zipQuery + state;
@@ -229,17 +230,26 @@ public class SolrProviderSource {
             zipQuery = zipQuery + "*";
         }
 
-        // TODO: BRIAN or Doyle - get a query working to get the providers by state and or zip,
-        // plus use the start + numrows to get pageability if there's lots of results
-
-        // State = * or a two letter value AND zip = star or the full zip.
-        // Not sure this is right?
-        query.setQuery(stateQuery + " AND " + zipQuery);
+        String providerQuery = "PROVIDER_TYPE:";
+        if (providerType != null && !providerType.isEmpty()) {
+            providerQuery = providerQuery + providerType;
+        } else {
+            providerQuery = providerQuery + "*";
+        }
+ 
+ 
+        String queryString = stateQuery + " AND " + zipQuery + " AND " + providerQuery + "&wt=json&indent=true";
+        SolrQuery query = new SolrQuery(queryString);
 
         // Set other things and do the actual query
+        query.setRows(numRows);
+        query.setStart(start);
+ 
+        SolrProviderSource solrData = getQueryResponse(query);
+        providers = solrData.body.providers;
 
-        // send query results to SolrPRoviderSource, which hopefully builds the
-        // provider list from the response
+        System.out.println("Query returned " + providers.size() + " results out of "
+                + solrData.body.numFound);
 
         return new ArrayList<Provider>();
     }
@@ -410,12 +420,12 @@ public class SolrProviderSource {
                 System.out.println(zip + "(" + zipsForTexas.get(zip) + ")");
             }
 
-            List<Provider> providersInTx = getProvidersByStateandorZip("tx", null, 0, 10);
+            List<Provider> providersInTx = getProvidersByStateZipOrType("tx", null, null, 0, 10);
             for (Provider p : providersInTx) {
                 System.out.println("  " + p.id);
             }
 
-            List<Provider> providersInTxZip = getProvidersByStateandorZip("tx", "78654", 0, 10);
+            List<Provider> providersInTxZip = getProvidersByStateZipOrType("tx", "78654", null, 0, 10);
             for (Provider p : providersInTxZip) {
                 System.out.println("  " + p.id);
             }
