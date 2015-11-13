@@ -28,8 +28,7 @@ public class CassandraQueryTest2 {
         // for (ProviderT p : pt) {
         // System.out.println("Provider Id is: " + p.npi);
         // }
-        CassandraQueryResponse cqr = new CassandraQueryResponse();
-        Provider test = cqr.getProviderById("1003000522F992132012");
+        Provider test = CassandraQueryResponse.getProviderById("1003000522F992132012");
         System.out.println("id is: " + test.id);
         System.out.println("year: " + test.year);
         System.out.println("day service count: " + test.beneficiaries_day_service_count);
