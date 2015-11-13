@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -113,14 +112,9 @@ public class SolrProviderSource {
         }
 
     }
-
-    // Return just states
-    public static Set<String> getStates() throws IOException, SolrServerException {
-        return getCountsForStates().keySet();
-    }
-
+    
     // Provider counts by state (state = key)
-    public static HashMap<String, Long> getCountsForStates() throws IOException,
+    public static List<CountedPropertyValue> getCountsForStates() throws IOException,
             SolrServerException {
 
         // http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&fl=NPPES_PROVIDER_STATE&wt=json&indent=true&facet=true&facet.field=NPPES_PROVIDER_STATE
@@ -132,30 +126,12 @@ public class SolrProviderSource {
         query.setFacet(true);
         query.setFields(facetField);
         query.set("facet.field", facetField);
-        query.setStart(0);
+        //query.setStart(0);
 
         SolrProviderSource solrData = getQueryResponse(query);
         System.out.println("Facet query returned " + solrData.body.facets.size());
 
-        return solrData.body.facets;
-    }
-
-    // Zip with provider counts per state (input state, output map key = zip)
-    public static HashMap<String, Long> getZipCountsByState(String state) throws IOException,
-            SolrServerException {
-        String facetField = "NPPES_PROVIDER_ZIP";
-        SolrQuery query = new SolrQuery();
-
-        query.setQuery("NPPES_PROVIDER_STATE:*");
-        query.setFacet(true);
-        query.setFields(facetField);
-        query.set("facet.field", facetField);
-        query.setStart(0);
-
-        SolrProviderSource solrData = getQueryResponse(query);
-        System.out.println("Facet query returned " + solrData.body.facets.size());
-
-        return solrData.body.facets;
+        return FacetedCount.convertToFacetList(solrData.body.facets);
     }
 
     // Map of procedure values and codes. Key = code, value = description
@@ -200,7 +176,7 @@ public class SolrProviderSource {
     public static HashMap<String, String> getProcedures(int numRows) throws IOException,
             SolrServerException {
 
-        return getProcedures(numRows, "");
+        return getProcedures(numRows, "*");
     }
 
     public static List<Provider> getProviders(int numRows, String state, String procedure)
@@ -210,48 +186,97 @@ public class SolrProviderSource {
     }
 
     // Get the providers for the given state and/or zip
-    public static List<Provider> getProvidersByStateZipOrType(String state, String zip, String providerType, Integer start, Integer numRows)
-            throws IOException, SolrServerException {
+    public static Long getProviders(String query, List<Provider> providers) throws IOException, SolrServerException
+    {
+        ArrayList<FilterPair> filters = new ArrayList<FilterPair>();
 
-        List<Provider> providers = new ArrayList<Provider>();
-
+        filters.add(new FilterPair("Query", query));
+        return getProvidersWithFacets(providers, filters);
+    }
  
-        String stateQuery = "NPPES_PROVIDER_STATE:";
-        if (state != null && !state.isEmpty()) {
-            stateQuery = stateQuery + state;
-        } else {
-            stateQuery = stateQuery + "*";
-        }
+    public static Long getProvidersWithFacets(List<Provider> providers, List<FilterPair> filters) 
+            throws IOException, SolrServerException
+    {
+        FacetType facetOn = FacetType.State;        
+        return getProvidersWithFacets(providers, facetOn, new ArrayList<CountedPropertyValue>(), filters, 0, 10);
+    }
+    
+    public static Long getProvidersWithFacets(List<Provider> providers, FacetType facetField, List<CountedPropertyValue> facetCounts, List<FilterPair> filters, Integer start, Integer numRows)
+            throws IOException, SolrServerException 
+    {
+        // TODO: might be able to have a fixed table that maps facet type to solr field
+        // Or turn this into a "build query" helper function
+        String newQuery = "";
+        String queryString = "";
+        for (FilterPair fp : filters) {
+            
+            if (fp.propertyName.equalsIgnoreCase(FacetType.State.toString())) {
+                newQuery = "NPPES_PROVIDER_STATE:" + fp.propertyValue;
+            } 
        
-        String zipQuery = "NPPES_PROVIDER_ZIP:";
-        if (zip != null && !zip.isEmpty()) {
-            zipQuery = zipQuery + state;
-        } else {
-            zipQuery = zipQuery + "*";
-        }
+            if (fp.propertyName.equalsIgnoreCase(FacetType.Zip.toString())) {
+                newQuery = "NPPES_PROVIDER_ZIP:" + fp.propertyValue;
+            } 
 
-        String providerQuery = "PROVIDER_TYPE:";
-        if (providerType != null && !providerType.isEmpty()) {
-            providerQuery = providerQuery + providerType;
-        } else {
-            providerQuery = providerQuery + "*";
+            if (fp.propertyName.equalsIgnoreCase(FacetType.ProviderType.toString())) {
+                newQuery = "PROVIDER_TYPE:" + fp.propertyValue;
+            } 
+            if (queryString.isEmpty()) {
+                queryString = newQuery;
+            }
+            else {
+                queryString = queryString + " AND " + newQuery;
+            }
         }
  
- 
-        String queryString = stateQuery + " AND " + zipQuery + " AND " + providerQuery + "&wt=json&indent=true";
+        if (queryString.isEmpty())
+        {
+            queryString = "*";
+        }
         SolrQuery query = new SolrQuery(queryString);
 
         // Set other things and do the actual query
         query.setRows(numRows);
         query.setStart(start);
- 
+        
+        String facetProperty = "PROVIDER_TYPE";
+        if (facetField == FacetType.State)
+        {
+            facetProperty = "NPPES_PROVIDER_STATE";
+        }
+        else if (facetField == FacetType.Zip)
+        {
+             facetProperty = "NPPES_PROVIDER_ZIP";
+        }
+        else if (facetField == FacetType.Query)
+        {
+             facetProperty = "";
+        }
+        
+        if (facetProperty.isEmpty())
+        {
+            query.set("facet.field", facetField.toString());
+            query.setFacet(true);
+        }
+        
         SolrProviderSource solrData = getQueryResponse(query);
-        providers = solrData.body.providers;
-
+        
+        // Add values to input lists
+        for (Provider p: solrData.body.providers)
+        {
+            providers.add(p);
+        }
+        
+        for (String k: solrData.body.facets.keySet())
+        {
+            CountedPropertyValue cpv = new CountedPropertyValue(k, solrData.body.facets.get(k));
+            facetCounts.add(cpv);
+        }
+        
         System.out.println("Query returned " + providers.size() + " results out of "
                 + solrData.body.numFound);
 
-        return new ArrayList<Provider>();
+        return solrData.body.numFound;
     }
 
     // Get sorted list of providers for the given state and procedure.
@@ -360,9 +385,9 @@ public class SolrProviderSource {
 
             // Test out state count query
             System.out.println("Querying for list of states providers are in:");
-            Set<String> states = SolrProviderSource.getStates();
-            for (String state : states) {
-                System.out.println("  State: " + state);
+            List<CountedPropertyValue> states = SolrProviderSource.getCountsForStates();
+            for (CountedPropertyValue state : states) {
+                System.out.println("  State: " + state.propertyValue + "(" + state.propertyCount + ")");
             }
 
             // Test out "get codes and descriptions query"
@@ -410,23 +435,21 @@ public class SolrProviderSource {
                         + p.beneficiaries_unique_count);
             }
 
-            HashMap<String, Long> stateCounts = getCountsForStates();
-            for (String state : stateCounts.keySet()) {
-                System.out.println(state + "(" + stateCounts.get(state) + ")");
-            }
-
-            HashMap<String, Long> zipsForTexas = getZipCountsByState("tx");
-            for (String zip : zipsForTexas.keySet()) {
-                System.out.println(zip + "(" + zipsForTexas.get(zip) + ")");
-            }
-
-            List<Provider> providersInTx = getProvidersByStateZipOrType("tx", null, null, 0, 10);
+            System.out.println("Querying for providers with facets within Texas:");
+            List<Provider> providersInTx = new ArrayList<Provider>();
+            List<FilterPair> filters = new ArrayList<FilterPair>();
+            Long numResults = getProvidersWithFacets(providersInTx, filters);
             for (Provider p : providersInTx) {
                 System.out.println("  " + p.id);
             }
 
-            List<Provider> providersInTxZip = getProvidersByStateZipOrType("tx", "78654", null, 0, 10);
-            for (Provider p : providersInTxZip) {
+            System.out.println("Querying for providers with facets within Texas zip:");
+            List<CountedPropertyValue> facets = new ArrayList<CountedPropertyValue>();
+            filters.add(new FilterPair(FacetType.State, "tx"));
+            filters.add(new FilterPair(FacetType.Zip, "78654"));
+            
+            numResults = getProvidersWithFacets(providersInTx, FacetType.ProviderType, facets, filters, 0, 10);
+            for (Provider p : providersInTx) {
                 System.out.println("  " + p.id);
             }
         } catch (Exception e) {
