@@ -167,7 +167,7 @@
 
   <!-- DoyleRav: Define our fields for the medicare columns
        Note that id is defined above (and is a special field) -->
-  <!-- Potential fields are: NPI,NPPES_PROVIDER_LAST_ORG_NAME,NPPES_PROVIDER_FIRST_NAME,NPPES_PROVIDER_MI,NPPES_CREDENTIALS,NPPES_PROVIDER_GENDER,NPPES_ENTITY_CODE,NPPES_PROVIDER_STREET1,NPPES_PROVIDER_STREET2,NPPES_PROVIDER_CITY,NPPES_PROVIDER_ZIP,NPPES_PROVIDER_STATE,NPPES_PROVIDER_COUNTRY,PROVIDER_TYPE,MEDICARE_PARTICIPATION_INDICATOR,PLACE_OF_SERVICE,HCPCS_CODE,HCPCS_DESCRIPTION,HCPCS_DRUG_INDICATOR,LINE_SRVC_CNT,BENE_UNIQUE_CNT,BENE_DAY_SRVC_CNT,AVERAGE_MEDICARE_ALLOWED_AMT,STDEV_MEDICARE_ALLOWED_AMT,AVERAGE_SUBMITTED_CHRG_AMT,STDEV_SUBMITTED_CHRG_AMT,AVERAGE_MEDICARE_PAYMENT_AMT,STDEV_MEDICARE_PAYMENT_AMT -->
+  <!-- Potential fields are: id,year,NPI,NPPES_PROVIDER_LAST_ORG_NAME,NPPES_PROVIDER_FIRST_NAME,NPPES_PROVIDER_MI,NPPES_CREDENTIALS,NPPES_PROVIDER_GENDER,NPPES_ENTITY_CODE,NPPES_PROVIDER_STREET1,NPPES_PROVIDER_STREET2,NPPES_PROVIDER_CITY,NPPES_PROVIDER_ZIP,NPPES_PROVIDER_STATE,NPPES_PROVIDER_COUNTRY,PROVIDER_TYPE,MEDICARE_PARTICIPATION_INDICATOR,PLACE_OF_SERVICE,HCPCS_CODE,HCPCS_DESCRIPTION,HCPCS_DRUG_INDICATOR,LINE_SRVC_CNT,BENE_UNIQUE_CNT,BENE_DAY_SRVC_CNT,AVERAGE_MEDICARE_ALLOWED_AMT,STDEV_MEDICARE_ALLOWED_AMT,AVERAGE_SUBMITTED_CHRG_AMT,STDEV_SUBMITTED_CHRG_AMT,AVERAGE_MEDICARE_PAYMENT_AMT,STDEV_MEDICARE_PAYMENT_AMT -->
 
   <field name="year" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPI" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
@@ -230,6 +230,11 @@
     <copyField source="NPPES_CREDENTIALS" dest="text" />
     <copyField source="HCPCS_CODE" dest="text" />
     <copyField source="PROVIDER_TYPE" dest="text" />
+
+    <!-- We facet on provider type "exact" rather than the lowercase stemmed value.
+         This ensures the facets are the original text values, not the transformed text -->
+    <field name="provider_type_exact" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
+    <copyField source="PROVIDER_TYPE" dest="provider_type_exact" />
     
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"

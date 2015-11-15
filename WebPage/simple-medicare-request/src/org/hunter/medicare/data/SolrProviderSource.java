@@ -185,16 +185,16 @@ public class SolrProviderSource {
         return SolrProviderSource.getProviders(numRows, state, procedure, SortField.DEFAULT, false);
     }
 
-    // Get the providers for the given state and/or zip
+    // Get the providers for the given query
     public static Long getProviders(String query, List<Provider> providers) throws IOException,
             SolrServerException {
         ArrayList<FilterPair> filters = new ArrayList<FilterPair>();
 
         filters.add(new FilterPair("Query", query));
-        return getProvidersWithFacets(providers, filters);
+        return getProvidersWithFilters(providers, filters);
     }
 
-    public static Long getProvidersWithFacets(List<Provider> providers, List<FilterPair> filters)
+    public static Long getProvidersWithFilters(List<Provider> providers, List<FilterPair> filters)
             throws IOException, SolrServerException {
 
         // FacetType.Query basically means
@@ -263,7 +263,7 @@ public class SolrProviderSource {
         query.setRows(numRows);
         query.setStart(start);
 
-        String facetProperty = "PROVIDER_TYPE";
+        String facetProperty = "provider_type_exact";
         if (facetField == FacetType.State) {
             facetProperty = "NPPES_PROVIDER_STATE";
         } else if (facetField == FacetType.Zip) {
@@ -459,11 +459,11 @@ public class SolrProviderSource {
                         + p.beneficiaries_unique_count);
             }
 
-            System.out.println("Querying for providers with facets within Texas:");
+            System.out.println("Querying for providers, filtered within Texas:");
             List<Provider> providersInTx = new ArrayList<Provider>();
             List<FilterPair> filters = new ArrayList<FilterPair>();
             filters.add(new FilterPair(FacetType.State, "tx"));
-            Long numResults = getProvidersWithFacets(providersInTx, filters);
+            Long numResults = getProvidersWithFilters(providersInTx, filters);
             System.out.println(numResults + " providers found in Texas");
             for (Provider p : providersInTx) {
                 System.out.println("  " + p.id);
@@ -474,7 +474,7 @@ public class SolrProviderSource {
             }
             providersInTx.clear();
 
-            System.out.println("Querying for providers with facets within Texas zip:");
+            System.out.println("Querying for providers within Texas zip, faceted by type:");
             List<CountedPropertyValue> facets = new ArrayList<CountedPropertyValue>();
             filters.add(new FilterPair(FacetType.Zip, "78654"));
 
@@ -487,6 +487,10 @@ public class SolrProviderSource {
                     System.out.println("Warning - provider zip does not begin with 78654 = "
                             + p.zip);
                 }
+            }
+            for (CountedPropertyValue f : facets) {
+                System.out.println("  " + f.propertyValue + " (" + f.propertyCount + ")");
+
             }
         } catch (Exception e) {
             e.printStackTrace();
