@@ -32,6 +32,7 @@ html, body {
 
 .result-hover {
 	background-color: grey;
+	width: "100%";
 }
 
 .link {
@@ -119,8 +120,8 @@ html, body {
 		});
 
 		function resetVars() {
-			start_index = 0;
-			end_index = 15;
+			start_index = start_index;
+			end_index = end_index;
 			proc_code = "";
 			state = "";
 			zip_code = "";
@@ -139,7 +140,6 @@ html, body {
 					end : 15
 				}
 			}).done(function(data) {
-				//alert(JSON.stringify(data));
 				responseHandler(data);
 			});
 		}
@@ -155,7 +155,6 @@ html, body {
 		}
 
 		function formatResults(list) {
-			alert(list);
 			var output = "";
 			for ( var i in list) {
 				output += '<div class="result">' + list[i].last_or_org_name
