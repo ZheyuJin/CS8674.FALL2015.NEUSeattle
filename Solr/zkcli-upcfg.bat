@@ -3,6 +3,9 @@
 @if .%1. == .. set collection=csvtest
 @set cfgdir=%2
 @if .%2. == .. set cfgdir=curcfg
+@set zkhost=%3
+@if .%3. == .. set zkhost=localhost:9983
+
 
 @echo.
 @echo Uploading config for collection %collection% from directory %cfgdir%
@@ -11,7 +14,7 @@
 @set fileerr=1
 @if exist %cfgdir%\schema.xml if exist %cfgdir%\solrconfig.xml set fileerr=
 
-@if .%fileerr%. == .. call %solr_home%\server\scripts\cloud-scripts\zkcli -zkhost localhost:9983 -cmd upconfig -confdir curcfg -confname csvtest
+@if .%fileerr%. == .. call %solr_home%\server\scripts\cloud-scripts\zkcli -zkhost %zkhost% -cmd upconfig -confdir curcfg -confname csvtest
 @if .%fileerr%. == .1. @echo Could not find %cfgdir%\schema.xml or %cfgdir%\solrconfig.xml
 @echo.
 

@@ -6,22 +6,28 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<link rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type="text/javascript">
 	var jq = jQuery.noConflict();
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+<style type="text/css">
+            div.bar {
+                display: inline-block;
+                width: 20px;
+                height: 75px;
+                background-color: teal;
+</style>
 <title>Medicare Data Query Form</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 
 </head>
 <body>
-	<div>
+<!-- <div>
 		<h2>Request Doctors:</h2>
 		<div>
 			<b> Procedure Code:</b> <br> <input id="proc_code" type="text"
@@ -54,6 +60,7 @@
 			size="10"> <br>
 	</div>
 	<input type="submit" value="Submit" onclick="submit()" />
+	<input type="submit" value="Convert" onclick="displayData()" />
 	<br />
 	<span id="feedback"></span>
 	<div id="proc_keyword_box" style="display: none">
@@ -65,9 +72,131 @@
 		<p>
 			<a href="../../index.html">Home</a>
 	</footer>
-
+ -->	
+ 
+ 
 	<script type="text/javascript">
-		function submit() {
+    forceSubmit();
+
+	
+    function forceSubmit(){
+    	jq(function() {
+			jq.get("submit", {
+				proc_code : "99213",//jq("#proc_code").val(),
+				state : "FL",//jq("#state").val(),
+				use_case : "case_2"//jq('input[name="use_case"]:checked').val()
+			}, function(data) {
+				d3helper(data);
+			});
+			
+		});
+    
+    }
+    
+    function d3helper(data){
+    	var dataset = [];
+    		
+		for (var i = 0; i < data.length; i++) {
+			dataset.push([data[i].beneficiaries_day_service_count),data[i].beneficiaries_unique_count]);
+			//dataset.push(data[i].beneficiaries_day_service_count);//,data[i].beneficiaries_unique_count]);
+			
+		}
+		alert(JSON.stringify(data));
+		//alert(JSON.stringify(dataset));
+	    /*d3.select("body").selectAll("div")
+        .data(dataset)
+        .enter()
+        .append("div")
+        .attr("class", "bar")
+        .style("height", function(d) {
+        	
+        	//forceSubmit();
+            var barHeight = d * 5;  //Scale up by factor of 5
+            return barHeight + "px";
+        });*/
+	    
+	    var w = 500;
+		var h = 300;
+		var padding = 30;
+		
+		//Dynamic, random dataset
+		/*var dataset = [];					//Initialize empty array
+		var numDataPoints = 50;				//Number of dummy data points to create
+		var xRange = Math.random() * 1000;	//Max range of new x values
+		var yRange = Math.random() * 1000;	//Max range of new y values
+		for (var i = 0; i < numDataPoints; i++) {					//Loop numDataPoints times
+			var newNumber1 = Math.round(Math.random() * xRange);	//New random integer
+			var newNumber2 = Math.round(Math.random() * yRange);	//New random integer
+			dataset.push([newNumber1, newNumber2]);					//Add new number to array
+		}*/
+
+		//Create scale functions
+		var xScale = d3.scale.linear()
+							 .domain([0, d3.max(dataset, function(d) { return d[0]; })])
+							 .range([padding, w - padding * 2]);
+
+		var yScale = d3.scale.linear()
+							 .domain([0, d3.max(dataset, function(d) { return d[1]; })])
+							 .range([h - padding, padding]);
+
+		var rScale = d3.scale.linear()
+							 .domain([0, d3.max(dataset, function(d) { return d[1]; })])
+							 .range([2, 5]);
+
+		var formatAsPercentage = d3.format(".1%");
+
+		//Define X axis
+		var xAxis = d3.svg.axis()
+						  .scale(xScale)
+						  .orient("bottom")
+						  .ticks(5)
+						  .tickFormat(formatAsPercentage);
+
+		//Define Y axis
+		var yAxis = d3.svg.axis()
+						  .scale(yScale)
+						  .orient("left")
+						  .ticks(5)
+						  .tickFormat(formatAsPercentage);
+
+		//Create SVG element
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width", w)
+					.attr("height", h);
+
+		//Create circles
+		svg.selectAll("circle")
+		   .data(dataset)
+		   .enter()
+		   .append("circle")
+		   .attr("cx", function(d) {
+		   		return xScale(d[0]);
+		   })
+		   .attr("cy", function(d) {
+		   		return yScale(d[1]);
+		   })
+		   .attr("r", function(d) {
+		   		return rScale(d[1]);
+		   });
+
+		
+		//Create X axis
+		svg.append("g")
+			.attr("class", "axis")
+			.attr("transform", "translate(0," + (h - padding) + ")")
+			.call(xAxis);
+		
+		//Create Y axis
+		svg.append("g")
+			.attr("class", "axis")
+			.attr("transform", "translate(" + padding + ",0)")
+			.call(yAxis);
+	    
+	    
+    }
+    
+	function submit() {
 
 			if (jq('input[name="use_case"]:checked').val() != "case_3") {
 				if (!document.getElementById('proc_code').value
@@ -96,9 +225,10 @@
 						use_case : jq('input[name="use_case"]:checked').val()
 					}, function(data) {
 						jq("#feedback").replaceWith(
-								'<span id="feedback">' + displayDataCase1(data)
+								'<span id="feedback">' + dataset//displayDataCase1(data)
 										+ '</span>');
 					});
+					
 				});
 				break;
 			case ("case_2"):
@@ -112,7 +242,9 @@
 								'<span id="feedback">' + displayDataCase2(data)
 										+ '</span>');
 					});
+					
 				});
+			//handleClick();
 				break;
 			case ("case_3"):
 				jq(function() {
@@ -122,12 +254,32 @@
 						use_case : jq('input[name="use_case"]:checked').val()
 					}, function(data) {
 						jq("#feedback").replaceWith(
-								'<span id="feedback">' + displayDataCase3(data)
+								'<span id="feedback">' + changeDataset()//displayDataCase3(data)
 										+ '</span>');
 					});
 				});
 				break;
 			}
+		}
+		
+		var dataset = [];
+		
+		var p = d3.select("body").selectAll("footer")
+		.data(dataset);
+		
+		function handleClick(){
+			//d3.select("body").append("p");
+			//dataset = data;
+			var p = d3.select("body").selectAll("div")
+			.data(dataset)
+			.enter()
+			.attr("class","bar")
+			.style("height", function(d){
+				var barheight = d * 5;
+				return barHeight + "px";
+			});
+			alert(dataset[0]);
+			
 		}
 
 		function displayDataCase1(data) {
@@ -164,9 +316,17 @@
 						+ '</td><td>' + toNameCase(data[i].first_name)
 						+ '</td><td>' + data[i].beneficiaries_day_service_count
 						+ '</td></tr>';
+
+				dataset.push(data[i].beneficiaries_day_service_count);
+				//alert("got here");
 			}
 			text += '</table>';
+			handleClick();
 			return text;
+		}
+		
+		function displayData(dataset){
+			
 		}
 
 		function displayDataCase3(data) {
@@ -187,6 +347,8 @@
 			return text;
 		}
 
+		
+		
 		function checkEmpty(data) {
 			if (data.length == 0) {
 				return true;
@@ -194,6 +356,8 @@
 				return false;
 			}
 		}
+		
+		
 
 		function caseCheck() {
 			if (document.getElementById('case3btn').checked) {

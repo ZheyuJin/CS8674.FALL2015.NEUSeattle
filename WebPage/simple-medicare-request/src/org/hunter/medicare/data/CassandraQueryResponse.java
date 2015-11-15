@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 //import org.apache.log4j.BasicConfigurator;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ColumnDefinitions;
@@ -343,7 +344,7 @@ public class CassandraQueryResponse {
     public static void main(String[] args) {
         ArrayList<String> x = getProviders("CA", "99223", LEAST, 10);
         System.out.println(x);
-        Provider p = getProviderById(x.get(0));
+        getProviderById(x.get(0));
 
         HashSet<String> asdf = new HashSet<String>();
         asdf.add("99238");

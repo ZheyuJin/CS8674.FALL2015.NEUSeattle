@@ -4,13 +4,12 @@
 <!DOCTYPE html">
 <html>
 <head>
+<meta charset="utf-8">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<link rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-
-<script type="text/javascript"
-	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 	var jq = jQuery.noConflict();
 </script>
@@ -21,7 +20,15 @@
 
 </head>
 <body>
+	<div class="container">
+	<div class="page-header">
+			<h6><a href="../../index.html">Home</a></h6>
+		</div>
+		</div>
 	<div>
+		<div class="container"><div class="alert alert-danger fade in">
+		<a href="#" class=close data-dismiss="alert" aria-label="close">&times;</a>These are instructions for this assessment</div></div>
+		
 		<h2>Request Doctors:</h2>
 		<div>
 			<b> Procedure Code:</b> <br> <input id="proc_code" type="text"
@@ -29,8 +36,16 @@
 
 		</div>
 		<br>
-		<div>
-			<b> State: </b> <br> <select id="state">
+		<div class="container">
+		<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+		  States <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+		<li><a href="#">AZ</a></li>
+		<li><a href="#">FL</a></li>
+		<li><a href="#">TX</a></li>
+		</ul>
+			<!-- <b> State: </b> <br> <select id="state">
 				<option label="Select the state" disabled>Select the state</option>
 				<option value="AZ">AZ</option>
 				<option value="CA">CA</option>
@@ -38,7 +53,7 @@
 				<option value="GA">GA</option>
 				<option value="TX">TX</option>
 				<option value="NY">NY</option>
-			</select>
+			</select> -->
 		</div>
 		<form>
 			<br> <input type="radio" name="use_case" value="case_1" checked
@@ -53,19 +68,19 @@
 		<b> Procedure Name:</b> <br> <input id="proc_keyword" type="text"
 			size="10"> <br>
 	</div>
-	<input type="submit" value="Submit" onclick="submit()" />
+	<div class="container">
+	<button type="button" class="btn btn-primary btn-block" value="Submit" onclick="submit()">Submit</button>
+	</div>
 	<br />
+	<div class= "container">
 	<span id="feedback"></span>
+	</div>
 	<div id="proc_keyword_box" style="display: none">
 		<b> Keyword:</b> <br> <input id="proc_keyword" type="text"
 			size="10"> <br>
 	</div>
 
-	<footer>
-		<p>
-			<a href="../../index.html">Home</a>
-	</footer>
-
+	
 	<script type="text/javascript">
 		function submit() {
 
@@ -135,18 +150,20 @@
 				return "No providers found for that criteria.";
 			}
 
-			var text = '<table style="width:100%"><tr><td>'
-			+ '<b>Last Name</b></td><td><b>First Name</b></td>'
-			+ '<td><b> Submitted Charge Amount </b></td></tr>';
+			var text = '<table class="table table-hover" style="width:100%"><thead><tr><td>'
+					+ '<b>Last Name</b></th><th><b>First Name</b></th>'
+					+ '<th><b> Submitted Charge Amount </b></tr></thead><tbody>';
 
 			for (var i = 0; i < data.length; i++) {
-				text += '<tr><td>' + toNameCase(data[i].last_or_org_name)
-						+ '</td><td>' + toNameCase(data[i].first_name)
+				text += '<tr><td>'
+						+ toNameCase(data[i].last_or_org_name)
+						+ '</td><td>'
+						+ toNameCase(data[i].first_name)
 						+ '</td><td>\$'
-						+ data[i].providerDetails.averageSubmittedChargeAmount.toFixed(2)
-						+ '</td></tr>';
+						+ data[i].providerDetails.averageSubmittedChargeAmount
+								.toFixed(2) + '</td></tr>';
 			}
-			text += '</table>';
+			text += '</tbody></table>';
 
 			return text;
 		}
@@ -156,8 +173,8 @@
 				return "No providers found for that criteria."
 			}
 			var text = '<table style="width:100%"><tr><td>'
-			+ '<b>Last Name</b></td><td><b>First Name</b></td>'
-			+ '<td><b> Day Service Count </b></td></tr>';
+					+ '<b>Last Name</b></td><td><b>First Name</b></td>'
+					+ '<td><b> Day Service Count </b></td></tr>';
 
 			for (var i = 0; i < data.length; i++) {
 				text += '<tr><td>' + toNameCase(data[i].last_or_org_name)
@@ -180,8 +197,9 @@
 
 			for (var i = 0; i < data.length; i++) {
 				text += '<tr><td>' + data[i].procCode + '</td><td>'
-						+ data[i].desc + '</td><td>\$' + data[i].avgCost.toFixed(2)
-						+ '</td><td>' + data[i].state + '</td></tr>';
+						+ data[i].desc + '</td><td>\$'
+						+ data[i].avgCost.toFixed(2) + '</td><td>'
+						+ data[i].state + '</td></tr>';
 			}
 			text += '</table>';
 			return text;
