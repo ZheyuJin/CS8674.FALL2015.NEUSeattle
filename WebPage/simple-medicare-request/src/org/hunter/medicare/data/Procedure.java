@@ -17,8 +17,15 @@ public class Procedure {
     public Procedure(String code, String desc, double avgcost, String state) {
         this.procCode = code;
         this.desc = desc;
+
+        // avgCost is only filled in for a state, and is >0.0
+        // ie: if state isn't set, average cost is likely zero (and vice
+        // versa)
         this.avgCost = avgcost;
         this.state = state;
+    }
+
+    public Procedure() {
     }
 
     @Override

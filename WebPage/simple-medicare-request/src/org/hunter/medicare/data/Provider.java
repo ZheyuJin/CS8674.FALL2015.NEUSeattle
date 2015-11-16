@@ -2,10 +2,7 @@ package org.hunter.medicare.data;
 
 import java.util.Map;
 
-import org.hunter.medicare.controller.Views;
-
 import com.datastax.driver.core.Row;
-import com.fasterxml.jackson.annotation.JsonView;
 
 public class Provider {
     @Override

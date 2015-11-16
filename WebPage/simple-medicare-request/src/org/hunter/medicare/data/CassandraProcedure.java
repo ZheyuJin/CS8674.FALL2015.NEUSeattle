@@ -3,23 +3,12 @@ package org.hunter.medicare.data;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.Row;
 
-public class CassandraProcedure {
-    public String hcpcsCode;
-    public String hcpcsDescription;
-    public boolean drugIndicator;
-    public Float allowedAmt;
-    public Float submittedChrg;
-    public Float medicarePay;
-    public Float stdevAllowedAmt;
-    public Float stdevSubmittedChrg;
-    public Float stdevMedicarePay;
-    public Float payGap;
-    public Float patientResponsibility;
+public class CassandraProcedure extends ProcedureDetails {
 
     public CassandraProcedure(Row row) {
         ColumnDefinitions columns = row.getColumnDefinitions();
-        hcpcsCode = row.getString("hcpcs_code");
-        hcpcsDescription = row.getString("hcpcs_description");
+        procCode = row.getString("hcpcs_code");
+        desc = row.getString("hcpcs_description");
         drugIndicator = row.getString("hcpcs_drug_indicator").equals('Y');
 
         if (columns.contains("average_medicare_allowed_amt")) {

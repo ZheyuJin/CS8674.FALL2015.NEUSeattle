@@ -185,5 +185,7 @@ html, body {
 			return output;
 		}
 	</script>
+	
+    <a href="/simple-medicare-request/index.html">Home</a>
 </body>
 </html>

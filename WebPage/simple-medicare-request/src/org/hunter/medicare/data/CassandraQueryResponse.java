@@ -17,7 +17,7 @@ import com.datastax.driver.core.Session;
 
 public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
-    private boolean mock = false;
+    private static boolean mock = true;
 
     // private static String host = "127.0.0.1"; // If mock=false and run local
     private static String host = "54.200.138.99"; // mock=false and EC2 brian
@@ -60,10 +60,12 @@ public class CassandraQueryResponse {
         return instance;
     }
 
-    public List<Provider> getMostExpensive(Integer numRows, String state, String procedure) {
+    public static List<Provider> getMostExpensive(Integer numRows, String state, String procedure) {
         List<Provider> providers = new ArrayList<Provider>();
 
         if (mock) {
+            System.err.println("Warning: Cassandra mock flag is ON");
+
             providers = buildMockResponse(state, procedure);
             /*
              * assign values from 1 to n to proviser's charge. need this for
@@ -76,8 +78,6 @@ public class CassandraQueryResponse {
                 charge++;
             }
         } else {
-            // FIXME
-            // CALL Josh's function here
             List<String> ids = getProviders(state, procedure, MOST, numRows);
             for (String id : ids) {
                 Provider p = getProviderById(id);
@@ -87,8 +87,7 @@ public class CassandraQueryResponse {
         return providers;
     }
 
-    public static ArrayList<String> getProviders(String state, String code, String order,
-            int limit) {
+    public static ArrayList<String> getProviders(String state, String code, String order, int limit) {
 
         // incremented until $limit or EOF
         int numberOfInstances = 0;
@@ -102,8 +101,8 @@ public class CassandraQueryResponse {
             session = cluster.connect(keyspace);
 
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
-                    + state + CLOSE_STRING;
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
+                    + OPEN_STRING + state + CLOSE_STRING;
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             if ((row = resultSet.one()) != null) {
@@ -185,8 +184,8 @@ public class CassandraQueryResponse {
             session = cluster.connect(keyspace);
 
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
-                    + state + CLOSE_STRING;
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
+                    + OPEN_STRING + state + CLOSE_STRING;
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             Double sumOfCosts = 0.0;
@@ -332,28 +331,43 @@ public class CassandraQueryResponse {
      *            the top N to return
      * @return
      */
-    public List<CassandraProcedure> getChargedMedicarePayGap(boolean largest, int numReturn) {
+    public static List<ProcedureDetails> getChargedMedicarePayGap(boolean largest, int numReturn) {
+        return getChargedMedicarePayGap(largest, 0, numReturn);
+    }
+
+    public static List<ProcedureDetails> getChargedMedicarePayGap(boolean largest, int start,
+            int numReturn) {
+
+        if (start < 0) {
+            start = 0; // Fix start if it's negative
+        }
+        if (numReturn == 0) {
+            return new ArrayList<ProcedureDetails>();
+        }
+
         if (mock) {
-            List<CassandraProcedure> lp = new ArrayList<CassandraProcedure>();
-            CassandraProcedure p1 = new CassandraProcedure();
-            p1.hcpcsCode = "22525";
-            p1.hcpcsDescription = "Injection of bone cement body of middle or lower spine bone";
+            System.err.println("Warning: Cassandra mock flag is ON");
+
+            List<ProcedureDetails> lp = new ArrayList<ProcedureDetails>();
+            ProcedureDetails p1 = new CassandraProcedure();
+            p1.procCode = "22525";
+            p1.desc = "Injection of bone cement body of middle or lower spine bone";
             p1.drugIndicator = false;
             p1.submittedChrg = (float) 12744.692;
             p1.medicarePay = (float) 4106.93;
             p1.payGap = (float) 8637.762;
 
-            CassandraProcedure p2 = new CassandraProcedure();
-            p2.hcpcsCode = "22524";
-            p2.hcpcsDescription = "Injection of bone cement into cavity of body of lower spind bone";
+            ProcedureDetails p2 = new CassandraProcedure();
+            p2.procCode = "22524";
+            p2.desc = "Injection of bone cement into cavity of body of lower spind bone";
             p2.drugIndicator = false;
             p2.submittedChrg = (float) 11605.895;
             p2.medicarePay = (float) 5698.3804;
             p2.payGap = (float) 5907.514;
 
-            CassandraProcedure p3 = new CassandraProcedure();
-            p3.hcpcsCode = "52648";
-            p3.hcpcsDescription = "Laser vaporization of prostate including control of bleeding";
+            ProcedureDetails p3 = new CassandraProcedure();
+            p3.procCode = "52648";
+            p3.desc = "Laser vaporization of prostate including control of bleeding";
             p3.drugIndicator = false;
             p3.submittedChrg = (float) 5000;
             p3.medicarePay = (float) 1444.0548;
@@ -366,7 +380,7 @@ public class CassandraQueryResponse {
         } else {
             Cluster cluster = null;
             Session session = null;
-            List<CassandraProcedure> procedureList = new ArrayList<CassandraProcedure>();
+            List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
             try {
                 cluster = Cluster.builder().addContactPoint(host)
                         .withCredentials(USERNAME, PASSWORD).build();
@@ -377,13 +391,26 @@ public class CassandraQueryResponse {
                     ordering = "DESC";
                 }
                 String query = "SELECT * FROM mv_charged_medicare_payment_gap "
-                        + "WHERE mv_id = 2 ORDER BY charge_medicare_pay_gap " + ordering + " LIMIT "
-                        + numReturn + ";";
+                        + "WHERE mv_id = 2 ORDER BY charge_medicare_pay_gap " + ordering
+                        + " LIMIT " + numReturn + ";";
 
                 ResultSet result = session.execute(query);
+
+                int i = -1;
                 for (Row row : result) {
-                    CassandraProcedure procedure = new CassandraProcedure(row);
+                    // TODO: Check on this - trying to get the right slice
+                    i++;
+                    if (i < start) {
+                        continue; // keep looping
+                    }
+
+                    // Add this row to the slice we will return
+                    ProcedureDetails procedure = new CassandraProcedure(row);
                     procedureList.add(procedure);
+
+                    if (i >= start + numReturn - 1) {
+                        break;
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("An error occured " + e);
@@ -412,28 +439,42 @@ public class CassandraQueryResponse {
      *            the top N returns
      * @return
      */
-    public List<CassandraProcedure> getPatientResponsibility(boolean largest, int numReturn) {
+    public static List<ProcedureDetails> getPatientResponsibility(boolean largest, int numReturn) {
+        return getPatientResponsibility(largest, 0, numReturn);
+    }
+
+    public static List<ProcedureDetails> getPatientResponsibility(boolean largest, int start,
+            int numReturn) {
+        if (start < 0) {
+            start = 0; // Fix start if it's negative
+        }
+        if (numReturn == 0) {
+            return new ArrayList<ProcedureDetails>();
+        }
+
         if (mock) {
-            List<CassandraProcedure> lp = new ArrayList<CassandraProcedure>();
-            CassandraProcedure p1 = new CassandraProcedure();
-            p1.hcpcsCode = "90853";
-            p1.hcpcsDescription = "Group psychotherapy";
+            System.err.println("Warning: Cassandra mock flag is ON");
+
+            List<ProcedureDetails> lp = new ArrayList<ProcedureDetails>();
+            ProcedureDetails p1 = new CassandraProcedure();
+            p1.procCode = "90853";
+            p1.desc = "Group psychotherapy";
             p1.drugIndicator = false;
             p1.allowedAmt = (float) 33.45;
             p1.medicarePay = (float) 7.8686666;
             p1.patientResponsibility = (float) 0.7653945;
 
-            CassandraProcedure p2 = new CassandraProcedure();
-            p2.hcpcsCode = "90804";
-            p2.hcpcsDescription = "Individual office or outpatient psychotherapy, approximately 20 to 30 minutes";
+            ProcedureDetails p2 = new CassandraProcedure();
+            p2.procCode = "90804";
+            p2.desc = "Individual office or outpatient psychotherapy, approximately 20 to 30 minutes";
             p2.drugIndicator = false;
             p2.allowedAmt = (float) 53.1975;
             p2.medicarePay = (float) 22.3465;
             p2.patientResponsibility = (float) 0.46279326;
 
-            CassandraProcedure p3 = new CassandraProcedure();
-            p3.hcpcsCode = "90806";
-            p3.hcpcsDescription = "Individual office or outpatient psychotherapy, approximately 45 to 50 minutes";
+            ProcedureDetails p3 = new CassandraProcedure();
+            p3.procCode = "90806";
+            p3.desc = "Individual office or outpatient psychotherapy, approximately 45 to 50 minutes";
             p3.drugIndicator = false;
             p3.allowedAmt = (float) 85.06606;
             p3.medicarePay = (float) 45.82522;
@@ -447,7 +488,7 @@ public class CassandraQueryResponse {
         } else {
             Cluster cluster = null;
             Session session = null;
-            List<CassandraProcedure> procedureList = new ArrayList<CassandraProcedure>();
+            List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
             try {
                 cluster = Cluster.builder().addContactPoint(host)
                         .withCredentials(USERNAME, PASSWORD).build();
@@ -462,9 +503,21 @@ public class CassandraQueryResponse {
                         + numReturn + ";";
 
                 ResultSet result = session.execute(query);
+                int i = -1;
                 for (Row row : result) {
-                    CassandraProcedure procedure = new CassandraProcedure(row);
+                    // TODO: Check on this - trying to get the right slice
+                    i++;
+                    if (i < start) {
+                        continue; // keep looping
+                    }
+
+                    // Add this row to the slice we will return
+                    ProcedureDetails procedure = new CassandraProcedure(row);
                     procedureList.add(procedure);
+
+                    if (i >= start + numReturn - 1) {
+                        break;
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("An error occured " + e);
@@ -490,7 +543,7 @@ public class CassandraQueryResponse {
      * @return
      * @throws Exception
      */
-    private List<Provider> buildMockResponse(String state, String procedure) {
+    private static List<Provider> buildMockResponse(String state, String procedure) {
         List<Provider> providers = new ArrayList<Provider>();
 
         try {

@@ -14,6 +14,7 @@ import org.hunter.medicare.data.FacetedCount;
 import org.hunter.medicare.data.FacetedProviderResult;
 import org.hunter.medicare.data.FilterPair;
 import org.hunter.medicare.data.Procedure;
+import org.hunter.medicare.data.ProcedureDetails;
 import org.hunter.medicare.data.Provider;
 import org.hunter.medicare.data.SolrProviderSource;
 import org.springframework.stereotype.Controller;
@@ -93,8 +94,8 @@ public class MainController {
         int num_rows = 10;
 
         try {
-            List<Provider> providers = CassandraQueryResponse.getInstance().getMostExpensive(
-                    num_rows, state, proc_code); // mock
+            List<Provider> providers = CassandraQueryResponse.getMostExpensive(num_rows, state,
+                    proc_code); // mock
             Collections.sort(providers, new TopChargeSComp());
 
             return providers;
@@ -349,6 +350,10 @@ public class MainController {
                 // ny: 86
                 // }
                 // }
+
+                // Here's our hint that this is mock data
+                ret.facetedCount.add(new CountedPropertyValue("mk", 19999L));
+
                 ret.facetedCount = new ArrayList<CountedPropertyValue>();
                 ret.facetedCount.add(new CountedPropertyValue("tx", 135L));
                 ret.facetedCount.add(new CountedPropertyValue("fl", 70L));
@@ -367,6 +372,88 @@ public class MainController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.debug("Exception querying Solr; rethrowing...");
+            throw e;
+        }
+
+    }
+
+    /**
+     * Returns JSON
+     * 
+     * @throws Exception
+     */
+    // http://localhost:8080/simple-medicare-request/assessment/main/procedure/paygap/
+    @RequestMapping(value = "/procedure/paygap", method = RequestMethod.GET)
+    @ResponseBody
+    public List<ProcedureDetails> getProcedureMedicarePayGap(
+            @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
+            @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
+            @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
+            throws Exception {
+
+        // Input parameter processing...
+
+        // If they don't have start/end set, default to first 10 (= 0-9)
+        Integer startRow = 0;
+        Integer numRows = 10; // Default at 10 rows (inclusive)
+
+        // Note: start = end = 0 is one row (the first one)
+        if (start >= 0) {
+            startRow = start;
+
+            if (end >= start) {
+                numRows = end - start + 1;
+            }
+        }
+
+        try {
+
+            return CassandraQueryResponse.getChargedMedicarePayGap(sortDesc, startRow, numRows);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("Exception querying Cassandra; rethrowing...");
+            throw e;
+        }
+
+    }
+
+    /**
+     * Returns JSON
+     * 
+     * @throws Exception
+     */
+    // http://localhost:8080/simple-medicare-request/assessment/main/procedure/copay/
+    @RequestMapping(value = "/procedure/copay", method = RequestMethod.GET)
+    @ResponseBody
+    public List<ProcedureDetails> getProcedurePatientCopay(
+            @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
+            @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
+            @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
+            throws Exception {
+
+        // Input parameter processing...
+
+        // If they don't have start/end set, default to first 10 (= 0-9)
+        Integer startRow = 0;
+        Integer numRows = 10; // Default at 10 rows (inclusive)
+
+        // Note: start = end = 0 is one row (the first one)
+        if (start >= 0) {
+            startRow = start;
+
+            if (end >= start) {
+                numRows = end - start + 1;
+            }
+        }
+
+        try {
+
+            return CassandraQueryResponse.getPatientResponsibility(sortDesc, startRow, numRows);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("Exception querying Cassandra; rethrowing...");
             throw e;
         }
 
