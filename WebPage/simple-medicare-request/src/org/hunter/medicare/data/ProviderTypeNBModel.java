@@ -35,6 +35,7 @@ public class ProviderTypeNBModel {
     // Hardcoding the data and model paths for now.
     private static String DATAPATH = "C:\\Users\\Brian\\Desktop\\PUFDataSample.csv";
     private static String MODELPATH = "C:\\Users\\Brian\\Desktop\\NaiveBayesModel";
+    private static String TFIDFPATH = "C:\\Users\\Brian\\Desktop\\TFIDFModel";
 
     public ProviderTypeNBModel(JavaSparkContext sc){
 	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
@@ -51,12 +52,12 @@ public class ProviderTypeNBModel {
 	NaiveBayesModel model = null;
 	Path path = FileSystems.getDefault().getPath(outputModelPath);
 	try{
-	    // Configure SparkContext, and load and parse data, then remove header
+	    //Configure SparkContext, and load and parse data, then remove header
 	    JavaRDD<String> data = sc.textFile(DATAPATH);
 	    JavaRDD<Record> dataParsed = data.map(new parseCSV());
 	    removeHeader(dataParsed);
 
-	    //	    TEST TRAINING SET
+	    //TEST TRAINING SET
 	    //	    Record one = new Record("one", "foo foo foo bar foo");
 	    //	    Record two = new Record("two", "foo foo buzz foo");
 	    //	    Record three = new Record("one", "foo foo bar");
@@ -167,9 +168,12 @@ public class ProviderTypeNBModel {
 	    }
 	}
 	JavaRDD<Vector> tfVectors = recordRDD.map(new getTF());
+	//tfVectors.saveAsObjectFile(TFIDFPATH);
 
 	IDFModel idfModel = new IDF().fit(tfVectors);
+
 	JavaRDD<Vector> tfidf = idfModel.transform(tfVectors);
+	//tfidf.saveAsObjectFile(TFIDFPATH);
 	JavaPairRDD<Integer, Vector> labelAndTfIdfPairs = labels.zip(tfidf);
 	JavaRDD<Tuple2<Integer, Vector>> labelAndTfIdfRDD = JavaRDD.fromRDD(JavaPairRDD.toRDD(labelAndTfIdfPairs), labelAndTfIdfPairs.classTag());
 
@@ -215,6 +219,23 @@ public class ProviderTypeNBModel {
 	    }
 	}
 	return labeledPoints.mapToPair(new getPredictionsAndLabels());
+    }
+
+    /*
+     * 	convertToTFVector: String -> Vector
+     * 	Takes an input HCPCS Description and converts it to a 
+     * 	TFIDF Vector based on the current TFIDF Models
+     */
+    @SuppressWarnings("unchecked")
+    protected Vector convertToTFVector(String document){
+	HashingTF tf = new HashingTF();
+	List<String> descriptionAsList = 
+		new ArrayList<String>(Arrays.asList(document.split(" ")));
+	Vector newTFVector = tf.transform(descriptionAsList);
+	JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
+	tfVectors = tfVectors.union(sc.parallelize(new ArrayList<Vector>(Arrays.asList(newTFVector))));
+	IDFModel idfModel = new IDF().fit(tfVectors);
+	return idfModel.transform(newTFVector);
     }
 
     /*
@@ -268,7 +289,10 @@ public class ProviderTypeNBModel {
 	Broadcast<HashMap<String,Integer>> labelMap = sc.broadcast(generateLabelMap(labels, numTypesAcc));
 	JavaRDD<LabeledPoint> labeledPoints = recordRDDtoLabeledPointRDD(dataParsed, labelMap);
 
-	JavaPairRDD<Double, Double> predictionAndLabel = getTrainingPredictions(model, labeledPoints);
-	System.out.println(predictionAndLabel.take(5).toString());
+	//JavaPairRDD<Double, Double> predictionAndLabel = getTrainingPredictions(model, labeledPoints);
+	//System.out.println(predictionAndLabel.take(5).toString());
+
+	Vector newVector = nbModel.convertToTFVector("foo foo foo bar foo");
+	System.out.println(model.predict(newVector));
     }
 }
