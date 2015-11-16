@@ -1,4 +1,4 @@
-package org.hunter.medicare.controller;
+package org.hunter.medicare.data;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.Accumulator;
@@ -25,9 +25,6 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import org.hunter.medicare.data.Record;
-import org.hunter.medicare.data.SparkConfig;
 
 import scala.Tuple2;
 
