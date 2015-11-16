@@ -24,6 +24,8 @@ public class CassandraQueryResponse {
     // private static String host = "54.191.107.167"; // ec2 josh
     private static String keyspace = "demo";
     private static String mvTable = "mv";
+    private static String USERNAME = "cassandra";
+    private static String PASSWORD = "cassandra";
 
     private static CassandraQueryResponse instance = null;
 
@@ -85,7 +87,8 @@ public class CassandraQueryResponse {
         return providers;
     }
 
-    public static ArrayList<String> getProviders(String state, String code, String order, int limit) {
+    public static ArrayList<String> getProviders(String state, String code, String order,
+            int limit) {
 
         // incremented until $limit or EOF
         int numberOfInstances = 0;
@@ -99,8 +102,8 @@ public class CassandraQueryResponse {
             session = cluster.connect(keyspace);
 
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
-                    + OPEN_STRING + state + CLOSE_STRING;
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
+                    + state + CLOSE_STRING;
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             if ((row = resultSet.one()) != null) {
@@ -182,8 +185,8 @@ public class CassandraQueryResponse {
             session = cluster.connect(keyspace);
 
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
-                    + OPEN_STRING + state + CLOSE_STRING;
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
+                    + state + CLOSE_STRING;
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             Double sumOfCosts = 0.0;
@@ -317,6 +320,166 @@ public class CassandraQueryResponse {
             System.out.println("session closed");
         }
         return provider;
+    }
+
+    /**
+     * NEW USE CASE #2 Provides the Top N treatments that have the
+     * largest/smallest gap between cost of treatment and what medicare pays
+     * 
+     * @param largest
+     *            true to return in descending order from largest to smallest
+     * @param numReturn
+     *            the top N to return
+     * @return
+     */
+    public List<CassandraProcedure> getChargedMedicarePayGap(boolean largest, int numReturn) {
+        if (mock) {
+            List<CassandraProcedure> lp = new ArrayList<CassandraProcedure>();
+            CassandraProcedure p1 = new CassandraProcedure();
+            p1.hcpcsCode = "22525";
+            p1.hcpcsDescription = "Injection of bone cement body of middle or lower spine bone";
+            p1.drugIndicator = false;
+            p1.submittedChrg = (float) 12744.692;
+            p1.medicarePay = (float) 4106.93;
+            p1.payGap = (float) 8637.762;
+
+            CassandraProcedure p2 = new CassandraProcedure();
+            p2.hcpcsCode = "22524";
+            p2.hcpcsDescription = "Injection of bone cement into cavity of body of lower spind bone";
+            p2.drugIndicator = false;
+            p2.submittedChrg = (float) 11605.895;
+            p2.medicarePay = (float) 5698.3804;
+            p2.payGap = (float) 5907.514;
+
+            CassandraProcedure p3 = new CassandraProcedure();
+            p3.hcpcsCode = "52648";
+            p3.hcpcsDescription = "Laser vaporization of prostate including control of bleeding";
+            p3.drugIndicator = false;
+            p3.submittedChrg = (float) 5000;
+            p3.medicarePay = (float) 1444.0548;
+            p3.payGap = (float) 3555.9453;
+            lp.add(p1);
+            lp.add(p2);
+            lp.add(p3);
+            return lp;
+
+        } else {
+            Cluster cluster = null;
+            Session session = null;
+            List<CassandraProcedure> procedureList = new ArrayList<CassandraProcedure>();
+            try {
+                cluster = Cluster.builder().addContactPoint(host)
+                        .withCredentials(USERNAME, PASSWORD).build();
+                session = cluster.connect(keyspace);
+
+                String ordering = "ASC";
+                if (largest) {
+                    ordering = "DESC";
+                }
+                String query = "SELECT * FROM mv_charged_medicare_payment_gap "
+                        + "WHERE mv_id = 2 ORDER BY charge_medicare_pay_gap " + ordering + " LIMIT "
+                        + numReturn + ";";
+
+                ResultSet result = session.execute(query);
+                for (Row row : result) {
+                    CassandraProcedure procedure = new CassandraProcedure(row);
+                    procedureList.add(procedure);
+                }
+            } catch (Exception e) {
+                System.out.println("An error occured " + e);
+            } finally {
+                if (session != null) {
+                    session.close();
+                }
+                if (cluster != null) {
+                    cluster.close();
+                }
+                System.out.println("session closed");
+            }
+            return procedureList;
+        }
+    }
+
+    /**
+     * NEW USE CASE #3 Provide the Top N treatments that have the
+     * largest/smallest gap between cost of treatment and what medicare pays in
+     * terms of percentage (the percent the patient is responsible for)
+     * 
+     * @param largest
+     *            when true results are in descending order from biggest gap
+     *            percentage to least, when false it is in ascending order
+     * @param numReturn
+     *            the top N returns
+     * @return
+     */
+    public List<CassandraProcedure> getPatientResponsibility(boolean largest, int numReturn) {
+        if (mock) {
+            List<CassandraProcedure> lp = new ArrayList<CassandraProcedure>();
+            CassandraProcedure p1 = new CassandraProcedure();
+            p1.hcpcsCode = "90853";
+            p1.hcpcsDescription = "Group psychotherapy";
+            p1.drugIndicator = false;
+            p1.allowedAmt = (float) 33.45;
+            p1.medicarePay = (float) 7.8686666;
+            p1.patientResponsibility = (float) 0.7653945;
+
+            CassandraProcedure p2 = new CassandraProcedure();
+            p2.hcpcsCode = "90804";
+            p2.hcpcsDescription = "Individual office or outpatient psychotherapy, approximately 20 to 30 minutes";
+            p2.drugIndicator = false;
+            p2.allowedAmt = (float) 53.1975;
+            p2.medicarePay = (float) 22.3465;
+            p2.patientResponsibility = (float) 0.46279326;
+
+            CassandraProcedure p3 = new CassandraProcedure();
+            p3.hcpcsCode = "90806";
+            p3.hcpcsDescription = "Individual office or outpatient psychotherapy, approximately 45 to 50 minutes";
+            p3.drugIndicator = false;
+            p3.allowedAmt = (float) 85.06606;
+            p3.medicarePay = (float) 45.82522;
+            p3.patientResponsibility = (float) 0.46279326;
+
+            lp.add(p1);
+            lp.add(p2);
+            lp.add(p3);
+            return lp;
+
+        } else {
+            Cluster cluster = null;
+            Session session = null;
+            List<CassandraProcedure> procedureList = new ArrayList<CassandraProcedure>();
+            try {
+                cluster = Cluster.builder().addContactPoint(host)
+                        .withCredentials(USERNAME, PASSWORD).build();
+                session = cluster.connect(keyspace);
+
+                String ordering = "ASC";
+                if (largest) {
+                    ordering = "DESC";
+                }
+                String query = "SELECT * FROM mv_patient_responsibility "
+                        + "WHERE mv_id = 1 ORDER BY fraction_responsible " + ordering + " LIMIT "
+                        + numReturn + ";";
+
+                ResultSet result = session.execute(query);
+                for (Row row : result) {
+                    CassandraProcedure procedure = new CassandraProcedure(row);
+                    procedureList.add(procedure);
+                }
+            } catch (Exception e) {
+                System.out.println("An error occured " + e);
+            } finally {
+                if (session != null) {
+                    session.close();
+                }
+                if (cluster != null) {
+                    cluster.close();
+                }
+                System.out.println("session closed");
+            }
+            return procedureList;
+        }
+
     }
 
     /**
