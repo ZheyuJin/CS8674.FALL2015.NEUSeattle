@@ -40,8 +40,9 @@ public class ProviderTypeNBModel {
 	this.sc = sc;
     }
 
-    public NaiveBayesModel trainNaiveBayesModel(){
+    public NaiveBayesModel trainNaiveBayesModel(String outputModelPath){
 	NaiveBayesModel model = null;
+	Path path = FileSystems.getDefault().getPath(outputModelPath);
 	try{
 	    JavaRDD<String> data = sc.textFile(DATAPATH);
 	    JavaRDD<Record> dataParsed = data.map(new parseCSV());
@@ -68,7 +69,7 @@ public class ProviderTypeNBModel {
 	    model = NaiveBayes.train(labeledPoints.rdd(), 1.0);
 	}
 	finally{
-	    //if (model != null){ model.save(sc.sc(), MODELPATH); }
+	    if (model != null && Files.notExists(path)){ model.save(sc.sc(), path.toString()); }
 	}
 	return model;
     }
@@ -178,8 +179,8 @@ public class ProviderTypeNBModel {
 	SparkConfig conf = new SparkConfig();
 	JavaSparkContext sc = conf.javaSparkContext();
 	ProviderTypeNBModel nbModel = new ProviderTypeNBModel(sc);
-	//NaiveBayesModel model = nbModel.trainNaiveBayesModel();
-	NaiveBayesModel model = nbModel.loadNaiveBayesModel(MODELPATH);
+	NaiveBayesModel model = nbModel.trainNaiveBayesModel(MODELPATH);
+	//NaiveBayesModel model = nbModel.loadNaiveBayesModel(MODELPATH);
 
 	Record one = new Record("one", "foo foo foo bar foo");
 	Record two = new Record("two", "foo foo buzz foo");
