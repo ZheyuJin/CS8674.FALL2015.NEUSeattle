@@ -56,18 +56,18 @@ public class ProviderTypeNBModel {
 	    JavaRDD<Record> dataParsed = data.map(new parseCSV());
 	    removeHeader(dataParsed);
 
-//	    TEST TRAINING SET
-//	    Record one = new Record("one", "foo foo foo bar foo");
-//	    Record two = new Record("two", "foo foo buzz foo");
-//	    Record three = new Record("one", "foo foo bar");
-//	    Record four = new Record("two", "foo buzz buzz foo");
-//	    Record[] recs = {one, two, three};
-//	    List<Record> list = new ArrayList<Record>();
-//	    list.add(one); 
-//	    list.add(two);
-//	    list.add(three);
-//	    list.add(four);
-//	    JavaRDD<Record> dataParsed = sc.parallelize(list);
+	    //	    TEST TRAINING SET
+	    //	    Record one = new Record("one", "foo foo foo bar foo");
+	    //	    Record two = new Record("two", "foo foo buzz foo");
+	    //	    Record three = new Record("one", "foo foo bar");
+	    //	    Record four = new Record("two", "foo buzz buzz foo");
+	    //	    Record[] recs = {one, two, three};
+	    //	    List<Record> list = new ArrayList<Record>();
+	    //	    list.add(one); 
+	    //	    list.add(two);
+	    //	    list.add(three);
+	    //	    list.add(four);
+	    //	    JavaRDD<Record> dataParsed = sc.parallelize(list);
 
 	    // Extract the Data Labels
 	    List<String> labels = getDistinctLabels(dataParsed);
@@ -75,7 +75,7 @@ public class ProviderTypeNBModel {
 	    // Get number of labels, and prepare a map of labels to integers
 	    Accumulator<Integer> numTypesAcc = sc.accumulator(labels.size());
 	    Broadcast<HashMap<String,Integer>> labelMap = sc.broadcast(generateLabelMap(labels, numTypesAcc));
-	    
+
 	    // Convert Records of Provider_Type labels, and HCPCSDescription values
 	    // to LabeledPoints of labels, and TFIDF vectors of the HCPCSDescriptions
 	    JavaRDD<LabeledPoint> labeledPoints = recordRDDtoLabeledPointRDD(dataParsed, labelMap);
@@ -97,17 +97,17 @@ public class ProviderTypeNBModel {
 	Path path = FileSystems.getDefault().getPath(modelPath);
 	NaiveBayesModel model = null;
 	try {
-	if (Files.exists(path)){
-	    // Load the model from given path
-	    model = NaiveBayesModel.load(sc.sc(), path.toString());
-	}
+	    if (Files.exists(path)){
+		// Load the model from given path
+		model = NaiveBayesModel.load(sc.sc(), path.toString());
+	    }
 	}catch(Exception e){
 	    System.err.println("Pre-existing NaiveBayesModel not found at given filepath!");
 	    e.printStackTrace();
 	}
 	return model;
     }
-    
+
     /*
      *  generateLabelMap: List<String>, Accumulator<Integer> -> HashMap<String, Integer>
      *  Takes a List of distinctLabels, and the number of distinct labels and creates a
@@ -127,7 +127,7 @@ public class ProviderTypeNBModel {
 	return labelMap;
     }
 
-   
+
     /*
      *  detDistinctLabels: JavaRDD<Record> -> List<String>
      *  Takes an RDD of Records and returns a List of the distinct labels in the RDD
@@ -140,7 +140,7 @@ public class ProviderTypeNBModel {
 	}
 	return dataParsed.map(new extractProviderType()).distinct().collect();
     }
-    
+
     /*
      * 	recordRDDtoLabelePointRDD: JavaRDD<Record>, Broadcast<HashMap<String, Integer>> 
      * 					-> JavaRDD<LabeledPoint>
@@ -150,9 +150,9 @@ public class ProviderTypeNBModel {
      */
 
     protected static JavaRDD<LabeledPoint> recordRDDtoLabeledPointRDD(
-	    					JavaRDD<Record> recordRDD, 
-	    					Broadcast<HashMap<String, Integer>> labelMap){
-    	class getLabels implements Function<Record, Integer>{
+	    JavaRDD<Record> recordRDD, 
+	    Broadcast<HashMap<String, Integer>> labelMap){
+	class getLabels implements Function<Record, Integer>{
 	    public Integer call(Record rec) throws Exception {
 		return mapLabel(rec.getProviderType(), labelMap);
 	    }
@@ -180,7 +180,7 @@ public class ProviderTypeNBModel {
 	return labelAndTfIdfRDD.map(new getLabeledPoint());
     }
 
-    
+
     /*
      * 	mapLabel: String HashMap<String, Integer> -> int
      * 	Maps the input key to its respective Integer as per the Broadcast HashMap, broadcastTypeLabels
@@ -188,7 +188,7 @@ public class ProviderTypeNBModel {
     protected static int mapLabel(String key, Broadcast<HashMap<String, Integer>> broadcastTypeLabels){
 	return broadcastTypeLabels.value().get(key);
     }
-    
+
     /*
      * 	removeHeader: JavaRDD<Record> -> JavaRDD<Record>
      * 	Removes the first line from the given RDD
@@ -201,7 +201,7 @@ public class ProviderTypeNBModel {
 	};
 	return rdd = rdd.filter(new filterHeader());
     }
-    
+
     /*
      * 	getTrainingPredictions: NaiveBayesModel JavaRDD<LabeledPoint> -> JavaPairRDD<Double, Double>
      * 	Given a NaiveBayesModel and an RDD of LabeledPoints where the values are TFIDF Vectors
