@@ -25,7 +25,7 @@ html, body {
 	margin: 0;
 	padding: .25em 0em .25em 0em; //
 	border: solid 1px #30c9e0;
-	background: #E00000;
+	background: #fcac4c;
 	width: 13.5em;
 	float: left;
 }
@@ -43,14 +43,25 @@ html, body {
 
 </head>
 <body>
+	<h2>This is an example of paging</h2>
 	<div id="side-bar" class="container">
-		<!-- <input value="Search Request" id="state" type="text"
-			name="state_request"> -->
-			<input id="search_button" type="submit" value="Reset Search">
+		<!-- <select id="state" class="selectpicker" data-style="btn-info">
+				<option label="Select the state" disabled>Select the state</option>
+				<option value="AZ">AZ</option>
+				<option value="CA">CA</option>
+				<option value="FL">FL</option>
+				<option value="GA">GA</option>
+				<option value="TX">TX</option>
+				<option value="NY">NY</option>
+			</select>-->
+		<input value="Search Request" id="state" type="text"
+			name="state_request"> <input id="search_button" type="submit"
+			value="Search">
 		<div id="facet-area"></div>
 	</div>
-	<h2>This is an example of paging</h2>
+
 	<div id="result-area"></div>
+
 	<br>
 
 	<div id="next" class="link">Next</div>
@@ -60,7 +71,7 @@ html, body {
 		var proc_code = "";
 		var state = "";
 		var zip_code = "";
-		var facet_type = "State";
+		var facet_type = "Zip";
 		var provider_type = "";
 		var query = "";
 
@@ -89,7 +100,6 @@ html, body {
 		$(document).on('click', '.facet', function() {
 			switch (facet_type) {
 			case "State":
-				facet_type = "Zip";
 				state = $(this).val();
 				break;
 			case "Zip":
@@ -160,8 +170,8 @@ html, body {
 
 		$(document).on('click', '#search_button', function() {
 			resetVars();
-			//state = $('#state').val();
-			//facet_type = "Zip";
+			state = $('#state').val();
+			facet_type = "Zip";
 			searchRequest();
 		});
 
