@@ -1,17 +1,9 @@
 package org.hunter.medicare.data;
 
-import org.hunter.medicare.controller.Views;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
 public class Procedure {
-    @JsonView(Views.Public.class)
     public String procCode;
-    @JsonView(Views.Public.class)
     public String desc;
-    @JsonView(Views.Public.class)
     public double avgCost;
-    @JsonView(Views.Public.class)
     public String state;
 
     public Procedure(String code, String desc, double avgcost, String state) {
