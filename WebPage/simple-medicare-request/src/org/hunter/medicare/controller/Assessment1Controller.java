@@ -1,12 +1,10 @@
 package org.hunter.medicare.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.hunter.medicare.data.CassandraQueryResponse;
 import org.hunter.medicare.data.Procedure;
 import org.hunter.medicare.data.Provider;
@@ -41,20 +39,25 @@ public class Assessment1Controller {
             @RequestParam(value = "proc_code", required = false) String proc_code,
             @RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "use_case", required = true) String use_case, Model model)
-            throws IOException, SolrServerException {
+            throws Exception {
         logger.debug("Received submit request");
 
         List<Provider> list = new ArrayList<Provider>();
 
-        switch (use_case) {
-        case "case_1":
-            list = CassandraQueryResponse.getInstance().getMostExpensive(10, state, proc_code); // mock
-            Collections.sort(list, new TopChargeSComp());
-            break;
-        case "case_2":
-            list = SolrProviderSource.getProviders(10, state, proc_code);
-            Collections.sort(list, new TopDayCountComp());
-            break;
+        try {
+            switch (use_case) {
+            case "case_1":
+                list = CassandraQueryResponse.getMostExpensive(10, state, proc_code); // mock
+                Collections.sort(list, new TopChargeSComp());
+                break;
+            case "case_2":
+                list = SolrProviderSource.getProviders(10, state, proc_code);
+                Collections.sort(list, new TopDayCountComp());
+                break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
 
         return list;
@@ -66,13 +69,14 @@ public class Assessment1Controller {
             @RequestParam(value = "keyword", required = true) String keyword,
             @RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "use_case", required = true) String use_case, Model model)
-            throws IOException, SolrServerException {
+            throws Exception {
         logger.debug("Received submit request for case 3");
         List<Procedure> output = new ArrayList<Procedure>();
         try {
             output = access.getProcedureAvgCost(state, keyword);
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
 
         return output;
