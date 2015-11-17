@@ -17,7 +17,7 @@ import com.datastax.driver.core.Session;
 
 public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
-    private static boolean mock = true;
+    private static boolean mock = false;
 
     // private static String host = "127.0.0.1"; // If mock=false and run local
     private static String host = "54.200.138.99"; // mock=false and EC2 brian
