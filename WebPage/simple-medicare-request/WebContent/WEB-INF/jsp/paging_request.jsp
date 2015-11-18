@@ -5,10 +5,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<script type="text/javascript"
-	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 <title>Find providers by navigational facets</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
@@ -56,28 +56,37 @@ html, body {
 		<div id="facet-area"></div>
 	</div>
 
-	<div id="result-header">
+	<div id="result-header" hidden=true>
 
 		<div id="breadcrumb">
-			<i> Query for providers and procedures: <span id="currentState">
+			<i> Query for providers and procedures: 
+			<span id="currentState">
 					state = <span id="stateVal"></span>
-			</span> <span id="currentZip">+ zip = <span id="zipVal"></span></span> <span
-				id="currentType">+ specialty = <span id="typeVal"></span></span>
+			</span> 
+			<span id="currentZip">+ zip = <span id="zipVal"></span></span> 
+			<span id="currentType">+ specialty = <span id="typeVal"></span></span>
 			</i>
 		</div>
+        <h4>Results:</h4>
 
-		<h4>Results:</h4>
-		<div id="result-area"></div>
-		
+    </div>
+
+    <div id="result-content">
+
+		<table id="result-table">	
+		</table>
+
+        <div id="result-area"></div>
+
 	</div>
 
 	<br>
 
-	<div id="next" class="link">Next</div>
+	<div id="next" class="link" hidden=true>Next</div>
 
 	<script>
     var start_index = 0;
-    var page_size = 15;
+    var page_size = 10;
     var end_index = page_size - 1;
 
     var proc_code = "";
@@ -89,7 +98,11 @@ html, body {
     $("#result-header").hide();
     $("#next").hide();
     $("#breadcrumb").hide();
+    $("#currentState").hide();
+    $("#currentZip").hide();
+    $("#currentType").hide();
 
+    
     var states = [ "AZ", "CA", "FL", "TX", "GA", "NY" ];
     var dropdown = $("#stateSelect");
     for (var i = 0; i < states.length; i++) {
@@ -150,7 +163,7 @@ html, body {
     function resetVars() {
 
       start_index = 0;
-      page_size = 15;
+      page_size = 10;
       end_index = page_size - 1;
 
       proc_code = "";
@@ -198,7 +211,7 @@ html, body {
         var curState = facetData.facetedCount[i].propertyValue;
         var curCount = facetData.facetedCount[i].propertyCount;
         dropdown.append(new Option(curState, curState + " ( " + curCount + " )"));
-      }      
+      }
     }
 
     function searchRequest() {
@@ -251,24 +264,53 @@ html, body {
 
     function handleResults(list) {
 
-      $("#result-area").replaceWith('<div id="result-area">' + formatResults(list) + '</div>');
+      //$("#result-area").replaceWith('<div id="result-area">' + formatResults(list) + '</div>');
 
+           //var table = $('#result-table');
+      
+      $('#result-table').html(formatResults(list));
+      $('#result-table').show();
+      
       if (list.length == page_size) {
 
         start_index = end_index + 1;
         end_index = start_index + page_size - 1;
-      }
+      }   
     }
 
     function formatResults(list) {
-      var output = "";
+      
+      var output = "<thead>" 
+      + "<th width='20%'>Name</th><th width='10%'>At</th><th width='15%'>Location</th><th width='60%'>Procedure</th>" 
+      + "</thead><tbody>";         
 
       for ( var i in list) {
-        output += '<div class="result">' + toNameCase(list[i].first_name) + " "
-            + toNameCase(list[i].last_or_org_name) + "  " + list[i].place_of_service + "  "
-            + toNameCase(list[i].city) + "  " + list[i].state + "  " + list[i].zip + "  "
-            + list[i].hcpcs_description + '</div>';
+        var officeOrFacility = "Facility";
+        
+        //alert(list[i].place_of_service);
+        if (list[i].place_of_service.indexOf("O") != -1)
+        {
+          officeOrFacility = "Office";
+        }
+        
+        output += '<tr class="result">' 
+            + '<td>' 
+            + toNameCase(list[i].first_name) + " "
+            + toNameCase(list[i].last_or_org_name) 
+            + '</td>'
+            + '<td>'            
+            + officeOrFacility 
+            + '</td>'
+            + '<td>'   
+            + toNameCase(list[i].city) + ", " + list[i].state + "  " + list[i].zip 
+            + '</td>'
+            + '<td>'   
+            + list[i].hcpcs_description + 
+            + '</td>'
+            + '</tr>';
       }
+      
+      output += "</tbody>";     
       return output;
     }
 
