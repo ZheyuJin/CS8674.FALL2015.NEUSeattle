@@ -46,18 +46,14 @@ html, body {
 
     <h3>Explore providers and procedures via state, zip and specialty</h3>
 	<div id="side-bar" class="container">
-		<!-- <select id="state" class="selectpicker" data-style="btn-info">
-				<option label="Select the state" disabled>Select the state</option>
-				<option value="AZ">AZ</option>
-				<option value="CA">CA</option>
-				<option value="FL">FL</option>
-				<option value="GA">GA</option>
-				<option value="TX">TX</option>
-				<option value="NY">NY</option>
-			</select>-->
-		<input value="Enter a state (ie: TX)" id="state" type="text"
-			name="state_request"> <input id="search_button" type="submit"
-			value="Search">
+	    
+		<select id="stateSelect" class="selectpicker">
+				<option label="Select the state" disabled>Select the state</option>				
+		</select>
+		<!--  <input value="Enter a state (ie: TX)" id="state" type="text"
+			name="state_request"> 
+			--> 
+		<input id="search_button" type="submit"	value="Search">
 			
 		<div id="facet-area"></div>
 	</div>
@@ -85,7 +81,14 @@ html, body {
        $("#result-header").hide();
        $("#next").hide();
 
-
+       var states = ["AZ", "CA", "FL", "TX", "GA", "NY"];
+       var dropdown = $("#stateSelect");  
+       for (var i = 0; i < states.length; i++) {         
+         dropdown.append(new Option(states[i], states[i]));
+       };  
+       // TODO: get states from facet query and populate dropdown
+       //getStates();
+       
 		$(document).on('mouseenter', '.result', function() {
 			$(this).addClass('result-hover');
 		});
@@ -106,6 +109,10 @@ html, body {
 			searchRequest();
 		});
 
+		//$(document).on('click', '#stateSelect', function() {
+		  //alert("click!");
+		//});
+		
 		$(document).on('click', '.facet', function() {
 
 		    switch (facet_type) {
@@ -147,6 +154,37 @@ html, body {
 	        $("#result-header").hide();
 		}
 
+
+        function getStates() {
+          
+          $.ajax({
+              url : "request",
+              data : {
+                  facet : "State"                  
+              }
+          }).done(function(data) {
+              alert(data.numProvidersTotal);
+              setDropdown(data.facets);
+          }).fail(function() { 
+              window.location ="../../error.html";
+          });
+        }        
+
+        
+        function setDropdown(facetData) {          
+          
+          var dropdown = $("#stateSelect");  
+          alert("here");
+          alert(facetData.facetType);
+          alert(facetData.facetedCount.length);
+          
+          for (var i = 0; i < facetData.facetedCount.length; i++) {
+            var curState = facetData.facetedCount[i].propertyValue;
+            var curCount = facetData.facetedCount[i].propertyCount;
+            dropdown.append(new Option(curState, curState + " ( " + curCount + " )"));
+          };          
+        }        
+        
 		function searchRequest() {
 			
 			$.ajax({
@@ -220,7 +258,8 @@ html, body {
 
 		$(document).on('click', '#search_button', function() {
 			resetVars();
-			state = $('#state').val();
+			//state = $('#state').val();
+			state = $('#stateSelect').val();
 			facet_type = "Zip";
 			searchRequest();
 		});
@@ -230,7 +269,7 @@ html, body {
 			var output = "";
 			for ( var i in list.facetedCount) {
 				output += '<div><span class="facet">'
-						+ list.facetedCount[i].propertyValue + '</span><span>( ' 
+						+ list.facetedCount[i].propertyValue + '</span><span> ( ' 
 						    + list.facetedCount[i].propertyCount + ' )</span></div>';
 			}
 			return output;
