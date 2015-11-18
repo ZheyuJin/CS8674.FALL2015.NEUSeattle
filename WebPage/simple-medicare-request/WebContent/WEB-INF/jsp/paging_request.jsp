@@ -10,7 +10,7 @@
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-<title>Paging/Faceting Example</title>
+<title>Find providers by navigational facets</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 <style>
@@ -43,7 +43,8 @@ html, body {
 
 </head>
 <body>
-	<h2>This is an example of paging</h2>
+
+    <h2>Explore providers via state, zip and type</h2>
 	<div id="side-bar" class="container">
 		<!-- <select id="state" class="selectpicker" data-style="btn-info">
 				<option label="Select the state" disabled>Select the state</option>
@@ -54,9 +55,10 @@ html, body {
 				<option value="TX">TX</option>
 				<option value="NY">NY</option>
 			</select>-->
-		<input value="Search Request" id="state" type="text"
+		<input value="Enter a state (ie: TX)" id="state" type="text"
 			name="state_request"> <input id="search_button" type="submit"
 			value="Search">
+			
 		<div id="facet-area"></div>
 	</div>
 
@@ -65,15 +67,18 @@ html, body {
 	<br>
 
 	<div id="next" class="link">Next</div>
-	<script>
-		var start_index = 0;
-		var end_index = 15;
-		var proc_code = "";
-		var state = "";
-		var zip_code = "";
-		var facet_type = "Zip";
-		var provider_type = "";
-		var query = "";
+	
+	<script> 
+       var start_index = 0;
+       var page_size = 15;
+       var end_index = page_size-1;
+    
+       var proc_code = "";
+       var state = "";
+       var zip_code = "";
+       var facet_type = "Zip";
+       var provider_type = "";
+       var query = "";
 
 		$(document).on('mouseenter', '.result', function() {
 			$(this).addClass('result-hover');
@@ -93,38 +98,46 @@ html, body {
 
 		$(document).on('click', '#next', function() {
 			searchRequest();
-			start_index = end_index;
-			end_index += 15;
+			start_index = end_index+1;
+			end_index += start_index+page_size-1;
 		});
 
 		$(document).on('click', '.facet', function() {
 			switch (facet_type) {
 			case "State":
+                facet_type = "Zip";
 				state = $(this).val();
 				break;
 			case "Zip":
 				facet_type = "ProviderType";
 				zip_code = $(this).val();
-				break;
+			    break;
 			case "ProviderType":
+                facet_type = "";
 				provider_type = $(this).val();
 				break;
 			case "Query":
+				facet_type = "";
 				query = $(this).val();
 				break;
 
 			}
-			start_index = parseInt($(this).text());
-			end_index = start_index + 15;
+			start_index = start_index;
+			end_index = start_index + page_size - 1;
 			searchRequest();
 		});
 
 		function resetVars() {
-			start_index = start_index;
-			end_index = end_index;
-			proc_code = "";
-			state = "";
-			zip_code = "";
+	        start_index = 0;
+	        page_size = 15;
+	        end_index = page_size-1;
+	        
+	        proc_code = "";
+	        state = "";
+	        zip_code = "";
+	        facet_type = "Zip";
+	        provider_type = "";
+	        query = "";
 		}
 
 		function searchRequest() {
@@ -136,8 +149,8 @@ html, body {
 					zip : zip_code,
 					query : query,
 					facet : facet_type,
-					start : 0,
-					end : 15
+					start : start_index,
+					end : end_index
 				}
 			}).done(function(data) {
 				responseHandler(data);
@@ -157,7 +170,7 @@ html, body {
 		function formatResults(list) {
 			var output = "";
 			for ( var i in list) {
-				output += '<div class="result">' + list[i].last_or_org_name
+				output += '<div class="result">' + toNameCase(list[i].last_or_org_name)
 						+ '</div>';
 			}
 			return output;
@@ -184,8 +197,20 @@ html, body {
 			}
 			return output;
 		}
+		
+	    function toNameCase(str) {
+	        return str.replace(/\w\S*/g, function(txt) {
+	            return txt.charAt(0).toUpperCase()
+	                + txt.substr(1).toLowerCase();
+	        });
+	    }
 	</script>
 	
-    <a href="/simple-medicare-request/index.html">Home</a>
-</body>
+    <footer>
+        <hr />
+        <p>
+           <a href="../../index.html">Home</a>
+        </p>
+    </footer>
+  </body>
 </html>

@@ -43,7 +43,7 @@ public class PagingController {
             @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
             @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
             throws Exception {
-
+        
         FacetedProviderResult ret = new FacetedProviderResult();
 
         // Input parameter processing...
@@ -112,7 +112,11 @@ public class PagingController {
             } else {
                 // Query Solr for the provider count per state
                 // TODO: maybe we should sort these?
-                FacetType facetOn = FacetType.valueOf(facetType);
+                FacetType facetOn = FacetType.Query;
+                if (!facetType.isEmpty())
+                {
+                    facetOn = FacetType.valueOf(facetType);
+                }
                 ret.facets.facetType = facetOn;
 
                 ret.numProvidersTotal = SolrProviderSource.getProvidersWithFacets(ret.providers,

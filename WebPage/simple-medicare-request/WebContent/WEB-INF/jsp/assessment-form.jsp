@@ -62,13 +62,6 @@
 			size="10"> <br>
 	</div>
 
-    <footer>
-        <hr />
-        <p>
-           <a href="../../index.html">Home</a>
-        </p>
-    </footer>
-
 	<script type="text/javascript">
 	
 		function submit() {
@@ -219,6 +212,12 @@
 			});
 		};
 	</script>
-
+	
+    <footer>
+        <hr />
+        <p>
+           <a href="../../index.html">Home</a>
+        </p>
+    </footer>
 </body>
 </html>
