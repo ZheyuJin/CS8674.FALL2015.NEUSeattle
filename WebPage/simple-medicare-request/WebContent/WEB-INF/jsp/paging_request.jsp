@@ -80,6 +80,7 @@ html, body {
        var provider_type = "";
        var query = "";
 
+
 		$(document).on('mouseenter', '.result', function() {
 			$(this).addClass('result-hover');
 		});
@@ -98,8 +99,6 @@ html, body {
 
 		$(document).on('click', '#next', function() {
 			searchRequest();
-			start_index = end_index+1;
-			end_index += start_index+page_size-1;
 		});
 
 		$(document).on('click', '.facet', function() {
@@ -122,13 +121,14 @@ html, body {
 				query = $(this).text();
 				break;
 			}
-			start_index = start_index;
+			start_index = 0;
 			end_index = start_index + page_size - 1;
 			searchRequest();
 		});
 
 		function resetVars() {
-	        start_index = 0;
+
+			start_index = 0;
 	        page_size = 15;
 	        end_index = page_size-1;
 	        
@@ -141,6 +141,7 @@ html, body {
 		}
 
 		function searchRequest() {
+			
 			$.ajax({
 				url : "request",
 				data : {
@@ -159,14 +160,24 @@ html, body {
             });
 		}
 
-		function responseHandler(data) {
+		function responseHandler(data) { 
 			handleResults(data.providers);
 			handleFacets(data.facets);
 		}
 
-		function handleResults(list) {
+		function handleResults(list) {		 
+			
 			$("#result-area").replaceWith(
 					'<div id="result-area">' + formatResults(list) + '</div>');
+			
+	        if (list.length == 15) {
+
+	           start_index = end_index+1;
+	           end_index = start_index+page_size-1;
+	        }
+	        else {
+	                
+	        }
 		}
 
 		function formatResults(list) {
