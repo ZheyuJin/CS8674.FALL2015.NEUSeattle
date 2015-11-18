@@ -50,15 +50,25 @@ html, body {
 		<select id="stateSelect" class="selectpicker">
 				<option label="Select the state" disabled>Select the state</option>				
 		</select>
-		<!--  <input value="Enter a state (ie: TX)" id="state" type="text"
-			name="state_request"> 
-			--> 
+
 		<input id="search_button" type="submit"	value="Search">
-			
+		
+		<br />
+		<div><b><span id="curFacet"></span></b></div>	
 		<div id="facet-area"></div>
 	</div>
 
     <div id="result-header">
+    
+    <div id="breadcrumb">
+      <i>
+        Query for providers and procedures:
+        <span id="currentState"> state = <span id="stateVal"></span></span>    
+        <span id="currentZip">+ zip = <span id="zipVal"></span></span>
+        <span id="currentType">+ specialty = <span id="typeVal"></span></span>
+      </i>
+    </div>
+    
     <h4>Results:</h4>
 	<div id="result-area"></div>
 	</div>
@@ -80,6 +90,7 @@ html, body {
        var query = "";
        $("#result-header").hide();
        $("#next").hide();
+       $("#breadcrumb").hide();
 
        var states = ["AZ", "CA", "FL", "TX", "GA", "NY"];
        var dropdown = $("#stateSelect");  
@@ -152,9 +163,17 @@ html, body {
 	        query = "";
 	        $("#next").hide();
 	        $("#result-header").hide();
+	        $("#breadcrumb").hide();
+	        
+	        $("#curFacet").text("");
+
+	        $("#currentState").hide();
+            $("#currentZip").hide();
+            $("#currentType").hide();
+
 		}
 
-
+	    // ToDo: get this working for dropdown population
         function getStates() {
           
           $.ajax({
@@ -168,9 +187,8 @@ html, body {
           }).fail(function() { 
               window.location ="../../error.html";
           });
-        }        
-
-        
+        } 
+		
         function setDropdown(facetData) {          
           
           var dropdown = $("#stateSelect");  
@@ -208,19 +226,34 @@ html, body {
 		function responseHandler(data) {
 		    
 		    $("#result-header").show();
+
 		    if (data.numProvidersTotal > end_index + 1) {
 		      $("#next").show();  
 		    }
 		    else {
 		      $("#next").hide();
 		    }		    
+
+            $("#breadcrumb").show();
+            if (state != "") {
+              $("#stateVal").text(state);
+              $("#currentState").show();
+              }
+            if (zip_code != "") {
+              $("#zipVal").text(zip_code);
+              $("#currentZip").show();
+            }
+            if (provider_type != "") {
+              $("#typeVal").text(provider_type);
+              $("#currentType").show();
+            }
 		    
 			handleResults(data.providers);
 			handleFacets(data.facets);
 		}
 
 		function handleResults(list) {		 
-			
+		  
 			$("#result-area").replaceWith(
 					'<div id="result-area">' + formatResults(list) + '</div>');
 			
@@ -228,9 +261,6 @@ html, body {
 
 	           start_index = end_index+1;
 	           end_index = start_index+page_size-1;	           
-	        }
-	        else {
-	          $("#next").hide();
 	        }
 		}
 
@@ -251,14 +281,24 @@ html, body {
 			return output;
 		}
 
-		function handleFacets(list) {
-			$("#facet-area").replaceWith(
+		function handleFacets(list) {	 		  
+          
+          if (list.facetType == "ProviderType") {
+            $("#curFacet").text("Specialty:");
+          }
+          else if (list.facetType == "Zip" || list.facetType == "State") {
+		    $("#curFacet").text(list.facetType + ":");
+          }
+          else {
+            $("#curFacet").text(" ");
+          }
+
+		  $("#facet-area").replaceWith(
 					'<div id="facet-area">' + formatFacets(list) + '</div>');
 		}
 
 		$(document).on('click', '#search_button', function() {
 			resetVars();
-			//state = $('#state').val();
 			state = $('#stateSelect').val();
 			facet_type = "Zip";
 			searchRequest();
