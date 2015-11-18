@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,12 +35,53 @@ public class ProviderTypeNBModel {
 
     // Hardcoding the data and model paths for now.
     private static String DATAPATH = "C:\\Users\\Brian\\Desktop\\PUFDataSample.csv";
+    //private static String DATAPATH = "s3:/bg-medicare/Medicare500.csv";
+    //private static String HDFSDNS = "hdfs://ec2-52-34-41-203.us-west-2.compute.amazonaws.com";
+    //private static String DATAPATH = HDFSDNS + "/user/root/medicareData/Medicare500.txt";
+    //private static String MOCKDATAPATH = "hdfs://ec2-52-34-41-203.us-west-2.compute.amazonaws.com:9010/user/root/medicareData/Mock5.txt";
+    private static String MOCKDATAPATH = "C:\\Users\\Brian\\Desktop\\Mock5.txt";
     private static String MODELPATH = "C:\\Users\\Brian\\Desktop\\NaiveBayesModel";
+    //private static String MODELPATH = HDFSDNS + "/user/root/medicareData/NaiveBayes";
+    //private static String TESTMODELPATH = HDFSDNS + "/user/root/medicareData/TestModel";
     private static String TFIDFPATH = "C:\\Users\\Brian\\Desktop\\TFIDFModel";
+    //private static String TFIDFPATH = HDFSDNS + "/user/root/medicareData/TFIDFModel";
+    
 
     public ProviderTypeNBModel(JavaSparkContext sc){
 	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
 	this.sc = sc;
+    }
+
+    /*
+     * 	trainNaiveBayesModel -> NaiveBayesModel
+     * 	Draws from data stored at preset filepath to train a NaiveBayesModel
+     * 	saves the model to the specified outputModelPath, unless
+     * 	a Model is already saved there
+     */
+    public NaiveBayesModel trainNaiveBayesModel(){
+	NaiveBayesModel model = null;
+	Path path = FileSystems.getDefault().getPath(MODELPATH);
+	try{
+	    //Configure SparkContext, and load and parse data, then remove header
+	    JavaRDD<String> data = sc.textFile(DATAPATH);
+	    JavaRDD<Record> dataParsed = data.map(new parseCSV());
+	    removeHeader(dataParsed);
+	    // Extract the Data Labels
+	    List<String> labels = getDistinctLabels(dataParsed);
+
+	    // Get number of labels, and prepare a map of labels to integers
+	    Accumulator<Integer> numTypesAcc = sc.accumulator(labels.size());
+	    Broadcast<HashMap<String,Integer>> labelMap = sc.broadcast(generateLabelMap(labels, numTypesAcc));
+
+	    // Convert Records of Provider_Type labels, and HCPCSDescription values
+	    // to LabeledPoints of labels, and TFIDF vectors of the HCPCSDescriptions
+	    JavaRDD<LabeledPoint> labeledPoints = recordRDDtoLabeledPointRDD(dataParsed, labelMap, false);
+	    model = NaiveBayes.train(labeledPoints.rdd(), 1.0);
+	}finally{
+	    // Save the model
+	    if (model != null && Files.notExists(path)){ model.save(sc.sc(), path.toString()); }
+	}
+	return model;
     }
 
     /*
@@ -48,27 +90,17 @@ public class ProviderTypeNBModel {
      * 	saves the model to the specified outputModelPath, unless
      * 	a Model is already saved there
      */
-    public NaiveBayesModel trainNaiveBayesModel(String outputModelPath){
+    public static NaiveBayesModel trainNaiveBayesModel(String outputModelPath, String inputDataPath, JavaSparkContext sc){
 	NaiveBayesModel model = null;
+	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
+	System.out.println("HERE1");
 	Path path = FileSystems.getDefault().getPath(outputModelPath);
+	System.out.println("HERE2");
 	try{
 	    //Configure SparkContext, and load and parse data, then remove header
-	    JavaRDD<String> data = sc.textFile(DATAPATH);
+	    JavaRDD<String> data = sc.textFile(inputDataPath);
 	    JavaRDD<Record> dataParsed = data.map(new parseCSV());
 	    removeHeader(dataParsed);
-
-	    //TEST TRAINING SET
-	    //	    Record one = new Record("one", "foo foo foo bar foo");
-	    //	    Record two = new Record("two", "foo foo buzz foo");
-	    //	    Record three = new Record("one", "foo foo bar");
-	    //	    Record four = new Record("two", "foo buzz buzz foo");
-	    //	    Record[] recs = {one, two, three};
-	    //	    List<Record> list = new ArrayList<Record>();
-	    //	    list.add(one); 
-	    //	    list.add(two);
-	    //	    list.add(three);
-	    //	    list.add(four);
-	    //	    JavaRDD<Record> dataParsed = sc.parallelize(list);
 
 	    // Extract the Data Labels
 	    List<String> labels = getDistinctLabels(dataParsed);
@@ -79,7 +111,7 @@ public class ProviderTypeNBModel {
 
 	    // Convert Records of Provider_Type labels, and HCPCSDescription values
 	    // to LabeledPoints of labels, and TFIDF vectors of the HCPCSDescriptions
-	    JavaRDD<LabeledPoint> labeledPoints = recordRDDtoLabeledPointRDD(dataParsed, labelMap);
+	    JavaRDD<LabeledPoint> labeledPoints = recordRDDtoLabeledPointRDD(dataParsed, labelMap, true);
 	    model = NaiveBayes.train(labeledPoints.rdd(), 1.0);
 	}
 	finally{
@@ -94,19 +126,36 @@ public class ProviderTypeNBModel {
      * 	Loads a pre-exisiting NaiveBayesModel from the given modelPath
      * 	Throws error if the file is not found
      */
-    public NaiveBayesModel loadNaiveBayesModel(String modelPath) throws FileNotFoundException{
-	Path path = FileSystems.getDefault().getPath(modelPath);
+    public static NaiveBayesModel loadNaiveBayesModel(URL modelPath, JavaSparkContext sc) throws FileNotFoundException{
+	//Path path = FileSystems.getDefault().getPath(modelPath);
+	//Path path = modelPath;
 	NaiveBayesModel model = null;
 	try {
-	    if (Files.exists(path)){
+	    if (modelPath != null){
 		// Load the model from given path
-		model = NaiveBayesModel.load(sc.sc(), path.toString());
+		model = NaiveBayesModel.load(sc.sc(), modelPath.toString());
 	    }
 	}catch(Exception e){
 	    System.err.println("Pre-existing NaiveBayesModel not found at given filepath!");
 	    e.printStackTrace();
 	}
 	return model;
+    }
+
+    /*
+     * 	convertToTFVector: String -> Vector
+     * 	Takes an input HCPCS Description and converts it to a 
+     * 	TFIDF Vector based on the current TFIDF Models
+     */
+    @SuppressWarnings("unchecked")
+    public static Vector convertStringArrRDDToTFVector(String[] document, JavaRDD<Vector> tfVectors){
+	HashingTF tf = new HashingTF();
+	List<String> hcpcsCodesAsList = 
+		new ArrayList<String>(Arrays.asList(document));
+	Vector newTFVector = tf.transform(hcpcsCodesAsList);
+	//tfVectors = tfVectors.union(sc.parallelize(new ArrayList<Vector>(Arrays.asList(newTFVector))));
+	IDFModel idfModel = new IDF().fit(tfVectors);
+	return idfModel.transform(newTFVector);
     }
 
     /*
@@ -143,16 +192,16 @@ public class ProviderTypeNBModel {
     }
 
     /*
-     * 	recordRDDtoLabelePointRDD: JavaRDD<Record>, Broadcast<HashMap<String, Integer>> 
+     * 	recordRDDtoLabeledPointRDD: JavaRDD<Record>, Broadcast<HashMap<String, Integer>> 
      * 					-> JavaRDD<LabeledPoint>
      * 	Takes an RDD of Records and returns an RDD of LabeledPoints, where the labels
      * 	are mapped to integers using labelMap, and the values are TFIDF vectors of the
      * 	HCPCS Descriptions
      */
-
     protected static JavaRDD<LabeledPoint> recordRDDtoLabeledPointRDD(
 	    JavaRDD<Record> recordRDD, 
-	    Broadcast<HashMap<String, Integer>> labelMap){
+	    Broadcast<HashMap<String, Integer>> labelMap,
+	    Boolean saveModel){
 	class getLabels implements Function<Record, Integer>{
 	    public Integer call(Record rec) throws Exception {
 		return mapLabel(rec.getProviderType(), labelMap);
@@ -168,7 +217,7 @@ public class ProviderTypeNBModel {
 	    }
 	}
 	JavaRDD<Vector> tfVectors = recordRDD.map(new getTF());
-	//tfVectors.saveAsObjectFile(TFIDFPATH);
+	if(saveModel) tfVectors.saveAsObjectFile(TFIDFPATH);
 
 	IDFModel idfModel = new IDF().fit(tfVectors);
 
@@ -211,7 +260,6 @@ public class ProviderTypeNBModel {
      * 	Given a NaiveBayesModel and an RDD of LabeledPoints where the values are TFIDF Vectors
      * 	returns the predicted label, and actual label. Useful for testing the accuracy of the model
      */
-
     protected static JavaPairRDD<Double, Double> getTrainingPredictions(NaiveBayesModel model, JavaRDD<LabeledPoint> labeledPoints ){
 	class getPredictionsAndLabels implements PairFunction<LabeledPoint, Double, Double>{
 	    public Tuple2<Double, Double> call (LabeledPoint p) {
@@ -219,23 +267,6 @@ public class ProviderTypeNBModel {
 	    }
 	}
 	return labeledPoints.mapToPair(new getPredictionsAndLabels());
-    }
-
-    /*
-     * 	convertToTFVector: String -> Vector
-     * 	Takes an input HCPCS Description and converts it to a 
-     * 	TFIDF Vector based on the current TFIDF Models
-     */
-    @SuppressWarnings("unchecked")
-    protected Vector convertToTFVector(String document){
-	HashingTF tf = new HashingTF();
-	List<String> descriptionAsList = 
-		new ArrayList<String>(Arrays.asList(document.split(" ")));
-	Vector newTFVector = tf.transform(descriptionAsList);
-	JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
-	tfVectors = tfVectors.union(sc.parallelize(new ArrayList<Vector>(Arrays.asList(newTFVector))));
-	IDFModel idfModel = new IDF().fit(tfVectors);
-	return idfModel.transform(newTFVector);
     }
 
     /*
@@ -249,7 +280,8 @@ public class ProviderTypeNBModel {
 	@Override
 	public Record call(String line){
 	    String[] features = CSV.split(line);
-	    Record record = new Record(features[13], features[17]);
+	    Record record = new Record(features[0], features[1]);
+	    //Record record = new Record(features[0], features[13], features[16]);
 	    return record;
 	}
     }
@@ -264,35 +296,38 @@ public class ProviderTypeNBModel {
 	public Boolean call(Tuple2<Double, Double> p){ return p._1().equals(p._2()); }
     }
 
-    public static void main(String[] args){
+    /*
+     * 	getPrediction: String[] -> Double
+     * 	Given a list of HCPCS codes, predicts its label using the existing NaiveBayesModel
+     */
+    public static Double getPrediction(String[] hcpcsCodes) throws FileNotFoundException{
+
 	SparkConfig conf = new SparkConfig();
 	JavaSparkContext sc = conf.javaSparkContext();
-	ProviderTypeNBModel nbModel = new ProviderTypeNBModel(sc);
-	NaiveBayesModel model = nbModel.trainNaiveBayesModel(MODELPATH);
-	//NaiveBayesModel model = nbModel.loadNaiveBayesModel(MODELPATH);
+	String classpathLocation = MODELPATH;
+	URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
+	NaiveBayesModel nbModel = ProviderTypeNBModel.loadNaiveBayesModel(classpathResource, sc);
 
-	Record one = new Record("one", "foo foo foo bar foo");
-	Record two = new Record("two", "foo foo buzz foo");
-	Record three = new Record("one", "foo foo bar");
-	Record four = new Record("two", "foo buzz buzz foo");
-	Record[] recs = {one, two, three};
-	List<Record> list = new ArrayList<Record>();
-	list.add(one); 
-	list.add(two);
-	list.add(three);
-	list.add(four);
-	JavaRDD<Record> dataParsed = sc.parallelize(list);
+	JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
+	Vector hcpcsAsTFIDF = convertStringArrRDDToTFVector(hcpcsCodes, tfVectors);
+	return nbModel.predict(hcpcsAsTFIDF);
 
-	List<String> labels = getDistinctLabels(dataParsed);
-
-	Accumulator<Integer> numTypesAcc = sc.accumulator(labels.size());
-	Broadcast<HashMap<String,Integer>> labelMap = sc.broadcast(generateLabelMap(labels, numTypesAcc));
-	JavaRDD<LabeledPoint> labeledPoints = recordRDDtoLabeledPointRDD(dataParsed, labelMap);
-
-	//JavaPairRDD<Double, Double> predictionAndLabel = getTrainingPredictions(model, labeledPoints);
-	//System.out.println(predictionAndLabel.take(5).toString());
-
-	Vector newVector = nbModel.convertToTFVector("foo foo foo bar foo");
-	System.out.println(model.predict(newVector));
+    }
+    
+    public static void main(String[] args) throws FileNotFoundException{
+	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
+	SparkConfig conf = new SparkConfig();
+	JavaSparkContext sc = conf.javaSparkContext();
+	//String classpathLocation = "C:\\Users\\Brian\\Documents\\GitHub\\CS8674.FALL2015.NEUSeattle\\WebPage\\simple-medicare-request\\target\\classes\\org\\hunter\\medicare\\data\\NaiveBayesModel";
+	String classpathLocation = "org/hunter/medicare/data/NaiveBayesModel";
+	URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
+	System.out.println(Thread.currentThread().getContextClassLoader().getResource(classpathLocation));
+	NaiveBayesModel model = loadNaiveBayesModel(classpathResource, sc);
+	//NaiveBayesModel model = trainNaiveBayesModel(MODELPATH, MOCKDATAPATH, sc);
+	String[] hcpcsCodes = {"foo foo foo bar foo"};
+	JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
+	System.out.println(tfVectors.take(5).toString());
+	Vector hcpcsAsTFIDF = convertStringArrRDDToTFVector(hcpcsCodes, tfVectors);
+	System.out.println(model.predict(hcpcsAsTFIDF));
     }
 }

@@ -1,6 +1,9 @@
 package org.hunter.medicare.controller;
 
+import java.io.FileNotFoundException;
+
 import org.apache.log4j.Logger;
+import org.hunter.medicare.data.ProviderTypeNBModel;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +25,10 @@ public class MachineLearning1Controller {
 	@RequestMapping(value = "/request", method = RequestMethod.GET, params = {"fixed_queries[]"})
 	public @ResponseBody String[] search(
 			@RequestParam(value = "fixed_queries[]", required = false) String[] fixed_queries,
-			Model model) {
+			Model model) throws FileNotFoundException{
 		System.out.println("Received ML1 query request");
 		
-		
+		//return ProviderTypeNBModel.getPrediction(fixed_queries).toString();
 		return fixed_queries;
 	}
 	

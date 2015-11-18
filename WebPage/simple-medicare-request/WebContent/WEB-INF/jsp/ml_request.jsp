@@ -46,10 +46,10 @@ html, body {
 	<h6>The user input delimits based on semi-colons</h6>
 	<input value="" id="user_input" type="text" name="state_request"
 		width="100%"> <br>
-	<input type="checkbox" name="descr_box" value="This is HCPSI Code #1" />This is HCPSI Code #1<br>
-	<input type="checkbox" name="descr_box" value="This is HCPSI Code #2" />This is HCPSI Code #2<br>
-	<input type="checkbox" name="descr_box" value="This is HCPSI Code #3" />This is HCPSI Code #3<br>
-	<input type="checkbox" name="descr_box" value="This is HCPSI Code #4" />This is HCPSI Code #4<br>
+	<input type="checkbox" name="descr_box" value="foo foo bar bar" />This is HCPCS Code #1<br>
+	<input type="checkbox" name="descr_box" value="bar buzz bar bar" />This is HCPCS Code #2<br>
+	<input type="checkbox" name="descr_box" value="buzz buzz foo bar" />This is HCPCS Code #3<br>
+	<input type="checkbox" name="descr_box" value="foo foo bar bar" />This is HCPCS Code #4<br>
 
 	<input id="request_button" type="submit" value="Search">
 
