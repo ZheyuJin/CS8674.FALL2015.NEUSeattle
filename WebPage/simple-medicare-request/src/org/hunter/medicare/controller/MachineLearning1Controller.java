@@ -22,14 +22,14 @@ public class MachineLearning1Controller {
 		return "ml_request";
 	}
 
-	@RequestMapping(value = "/request", method = RequestMethod.GET, params = {"fixed_queries[]"})
-	public @ResponseBody String[] search(
-			@RequestParam(value = "fixed_queries[]", required = false) String[] fixed_queries,
+	@RequestMapping(value = "/request", method = RequestMethod.GET, params = {"queries"})
+	public @ResponseBody String search(
+			@RequestParam(value = "queries", required = false) String queries,
 			Model model) throws FileNotFoundException{
 		System.out.println("Received ML1 query request");
 		
-		//return ProviderTypeNBModel.getPrediction(fixed_queries).toString();
-		return fixed_queries;
+
+		return "Hello";
 	}
 	
 	

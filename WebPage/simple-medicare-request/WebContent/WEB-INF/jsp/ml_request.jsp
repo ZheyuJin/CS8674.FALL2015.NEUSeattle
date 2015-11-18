@@ -59,37 +59,30 @@ html, body {
 	<br>
 
 	<script>
-		var input_query = [];
-		var fixed_input = [];
+		var input_query = "";
 
 		$(document).on('click', '#request_button', function() {
-			//user_input = [];
+			input_query = $('#user_input').val();
 			gatherAllInputs();
-			updateSearchQuery();
+			if(input_query.length == 0){
+				alert("Please enter input.")
+				return;				
+			}
 			searchRequest();
 		})
 
 		function gatherAllInputs() {
-			fixed_input = [];
 			$("input:checkbox[name=descr_box]:checked").each(function() {
-				fixed_input.push($(this).val());
+				input_query += '; ' + $(this).val();
 			});
 		}
 
-		function updateSearchQuery() {
-			if($('#user_input').val().length == 0)
-				return;
-			input_query = $('#user_input').val().split(";");
-			for(var s in input_query)
-				fixed_input.push(s);
-		}
 
 		function searchRequest() {
-			alert(JSON.stringify(fixed_input));
 			$.ajax({
 				url : "request",
 				data : {
-					fixed_queries : fixed_input
+					queries : input_query
 				}
 			}).done(function(data) {
 				responseHandler(data);
@@ -97,9 +90,8 @@ html, body {
 		}
 
 		function responseHandler(data) {
-			alert(JSON.stringify(data));
 			$("#result_area").replaceWith(
-					'<div id="result_area">' + FormatResults(data) + '</div>');
+					'<div id="result_area">' + JSON.stringify(data) + '</div>');
 		}
 
 		function FormatResults(list) {

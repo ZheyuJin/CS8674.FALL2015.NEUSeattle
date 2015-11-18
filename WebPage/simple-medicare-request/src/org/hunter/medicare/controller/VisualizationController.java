@@ -25,15 +25,6 @@ public class VisualizationController {
 
 	@RequestMapping(value = "/request", method = RequestMethod.GET)
 	public String getCase1Form() {
-		return "vis-page";
+		return "urbanrural_map";
 	}
-
-	@RequestMapping(value = "/request", method = RequestMethod.GET, params = {"state"})
-	public @ResponseBody String search(
-			@RequestParam(value = "state", required = true) String state, Model model) throws Exception {
-		MainController main = new MainController();
-		return "hello";
-	}
-	
-	
 }
