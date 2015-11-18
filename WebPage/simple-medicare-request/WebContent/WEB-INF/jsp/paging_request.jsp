@@ -121,7 +121,6 @@ html, body {
 				facet_type = "";
 				query = $(this).text();
 				break;
-
 			}
 			start_index = start_index;
 			end_index = start_index + page_size - 1;
@@ -171,9 +170,17 @@ html, body {
 		}
 
 		function formatResults(list) {
-			var output = "";
+			var output = "";	
+				
 			for ( var i in list) {
-				output += '<div class="result">' + toNameCase(list[i].last_or_org_name)
+				output += '<div class="result">' + 
+				toNameCase(list[i].first_name) + " " 
+				+ toNameCase(list[i].last_or_org_name) + "  "
+				+ list[i].place_of_service + "  "
+                + toNameCase(list[i].city) + "  "
+                + list[i].state + "  "
+                + list[i].zip + "  "	
+                + list[i].hcpcs_description
 						+ '</div>';
 			}
 			return output;
