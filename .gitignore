@@ -20,5 +20,6 @@ hs_err_pid*
 
 # Ignore this file (ie: don't check in, seems to be a build result
 WebPage/simple-medicare-request/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+WebPage/simple-medicare-request/bak
 
 

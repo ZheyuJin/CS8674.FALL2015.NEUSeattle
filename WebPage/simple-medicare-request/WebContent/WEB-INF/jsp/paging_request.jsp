@@ -44,7 +44,7 @@ html, body {
 </head>
 <body>
 
-    <h2>Explore providers via state, zip and type</h2>
+    <h3>Explore providers and procedures via state, zip and specialty</h3>
 	<div id="side-bar" class="container">
 		<!-- <select id="state" class="selectpicker" data-style="btn-info">
 				<option label="Select the state" disabled>Select the state</option>
@@ -62,7 +62,10 @@ html, body {
 		<div id="facet-area"></div>
 	</div>
 
+    <div id="result-header">
+    <h4>Results:</h4>
 	<div id="result-area"></div>
+	</div>
 
 	<br>
 
@@ -79,6 +82,8 @@ html, body {
        var facet_type = "Zip";
        var provider_type = "";
        var query = "";
+       $("#result-header").hide();
+       $("#next").hide();
 
 
 		$(document).on('mouseenter', '.result', function() {
@@ -138,6 +143,8 @@ html, body {
 	        facet_type = "Zip";
 	        provider_type = "";
 	        query = "";
+	        $("#next").hide();
+	        $("#result-header").hide();
 		}
 
 		function searchRequest() {
@@ -160,7 +167,16 @@ html, body {
             });
 		}
 
-		function responseHandler(data) { 
+		function responseHandler(data) {
+		    
+		    $("#result-header").show();
+		    if (data.numProvidersTotal > end_index + 1) {
+		      $("#next").show();  
+		    }
+		    else {
+		      $("#next").hide();
+		    }		    
+		    
 			handleResults(data.providers);
 			handleFacets(data.facets);
 		}
@@ -170,13 +186,13 @@ html, body {
 			$("#result-area").replaceWith(
 					'<div id="result-area">' + formatResults(list) + '</div>');
 			
-	        if (list.length == 15) {
+			if (list.length == page_size) {
 
 	           start_index = end_index+1;
-	           end_index = start_index+page_size-1;
+	           end_index = start_index+page_size-1;	           
 	        }
 	        else {
-	                
+	          $("#next").hide();
 	        }
 		}
 
@@ -213,8 +229,9 @@ html, body {
 			//alert(JSON.stringify(list));
 			var output = "";
 			for ( var i in list.facetedCount) {
-				output += '<div class="facet">'
-						+ list.facetedCount[i].propertyValue + '</div>';
+				output += '<div><span class="facet">'
+						+ list.facetedCount[i].propertyValue + '</span><span>( ' 
+						    + list.facetedCount[i].propertyCount + ' )</span></div>';
 			}
 			return output;
 		}

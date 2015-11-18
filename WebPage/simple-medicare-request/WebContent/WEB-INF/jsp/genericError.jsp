@@ -22,8 +22,8 @@
 </head>
 <body>
 
-<!--  At the moment, this is the same as error.html
-      but if the controllers wanted to dump in more error
+<!--  At the moment, this is effectively the same as error.html.
+      If the controllers wanted to dump in more error
       info, this jsp page is the place to do it. -->
 <h3>Unfortunately....</h3>
     <div>An error occurred while processing your request.  
