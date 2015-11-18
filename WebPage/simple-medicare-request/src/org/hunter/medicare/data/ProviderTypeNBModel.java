@@ -40,10 +40,10 @@ public class ProviderTypeNBModel {
     //private static String DATAPATH = HDFSDNS + "/user/root/medicareData/Medicare500.txt";
     //private static String MOCKDATAPATH = "hdfs://ec2-52-34-41-203.us-west-2.compute.amazonaws.com:9010/user/root/medicareData/Mock5.txt";
     private static String MOCKDATAPATH = "C:\\Users\\Brian\\Desktop\\Mock5.txt";
-    private static String MODELPATH = "C:\\Users\\Brian\\Desktop\\NaiveBayesModel";
+    private static String MODELPATH = "NaiveBayesModel";
     //private static String MODELPATH = HDFSDNS + "/user/root/medicareData/NaiveBayes";
     //private static String TESTMODELPATH = HDFSDNS + "/user/root/medicareData/TestModel";
-    private static String TFIDFPATH = "C:\\Users\\Brian\\Desktop\\TFIDFModel";
+    private static String TFIDFPATH = "TFIDFModel";
     //private static String TFIDFPATH = HDFSDNS + "/user/root/medicareData/TFIDFModel";
     
 
@@ -126,14 +126,13 @@ public class ProviderTypeNBModel {
      * 	Loads a pre-exisiting NaiveBayesModel from the given modelPath
      * 	Throws error if the file is not found
      */
-    public static NaiveBayesModel loadNaiveBayesModel(URL modelPath, JavaSparkContext sc) throws FileNotFoundException{
+    public static NaiveBayesModel loadNaiveBayesModel(String modelPath, JavaSparkContext sc) throws FileNotFoundException{
 	//Path path = FileSystems.getDefault().getPath(modelPath);
-	//Path path = modelPath;
 	NaiveBayesModel model = null;
 	try {
 	    if (modelPath != null){
 		// Load the model from given path
-		model = NaiveBayesModel.load(sc.sc(), modelPath.toString());
+		model = NaiveBayesModel.load(sc.sc(), modelPath);
 	    }
 	}catch(Exception e){
 	    System.err.println("Pre-existing NaiveBayesModel not found at given filepath!");
@@ -304,30 +303,35 @@ public class ProviderTypeNBModel {
 
 	SparkConfig conf = new SparkConfig();
 	JavaSparkContext sc = conf.javaSparkContext();
-	String classpathLocation = MODELPATH;
-	URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
-	NaiveBayesModel nbModel = ProviderTypeNBModel.loadNaiveBayesModel(classpathResource, sc);
-
+	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
+	//String classpathLocation = MODELPATH;
+	//URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
+	NaiveBayesModel model = loadNaiveBayesModel(MODELPATH, sc); 
 	JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
+	//System.out.println(tfVectors.take(5).toString());
 	Vector hcpcsAsTFIDF = convertStringArrRDDToTFVector(hcpcsCodes, tfVectors);
-	return nbModel.predict(hcpcsAsTFIDF);
+	//System.out.println(model.predict(hcpcsAsTFIDF));
+	return model.predict(hcpcsAsTFIDF);
 
     }
     
     public static void main(String[] args) throws FileNotFoundException{
+	
 	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
-	SparkConfig conf = new SparkConfig();
-	JavaSparkContext sc = conf.javaSparkContext();
-	//String classpathLocation = "C:\\Users\\Brian\\Documents\\GitHub\\CS8674.FALL2015.NEUSeattle\\WebPage\\simple-medicare-request\\target\\classes\\org\\hunter\\medicare\\data\\NaiveBayesModel";
-	String classpathLocation = "org/hunter/medicare/data/NaiveBayesModel";
-	URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
-	System.out.println(Thread.currentThread().getContextClassLoader().getResource(classpathLocation));
-	NaiveBayesModel model = loadNaiveBayesModel(classpathResource, sc);
-	//NaiveBayesModel model = trainNaiveBayesModel(MODELPATH, MOCKDATAPATH, sc);
 	String[] hcpcsCodes = {"foo foo foo bar foo"};
-	JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
-	System.out.println(tfVectors.take(5).toString());
-	Vector hcpcsAsTFIDF = convertStringArrRDDToTFVector(hcpcsCodes, tfVectors);
-	System.out.println(model.predict(hcpcsAsTFIDF));
+	System.out.println(getPrediction(hcpcsCodes));
+ 	//SparkConfig conf = new SparkConfig();
+	//JavaSparkContext sc = conf.javaSparkContext();
+//	//String classpathLocation = "C:\\Users\\Brian\\Documents\\GitHub\\CS8674.FALL2015.NEUSeattle\\WebPage\\simple-medicare-request\\target\\classes\\org\\hunter\\medicare\\data\\NaiveBayesModel";
+//	String classpathLocation = "org/hunter/medicare/data/NaiveBayesModel";
+//	//URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
+//	//System.out.println(Thread.currentThread().getContextClassLoader().getResource(classpathLocation));
+	//NaiveBayesModel model = loadNaiveBayesModel(MODELPATH, sc); 
+//	//NaiveBayesModel model = trainNaiveBayesModel(MODELPATH, MOCKDATAPATH, sc);
+	//JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
+//	System.out.println(tfVectors.take(5).toString());
+	//Vector hcpcsAsTFIDF = convertStringArrRDDToTFVector(hcpcsCodes, tfVectors);
+//	System.out.println(hcpcsAsTFIDF.toString());
+	//System.out.println(model.predict(hcpcsAsTFIDF));
     }
 }
