@@ -25,7 +25,7 @@ html, body {
 	margin: 0;
 	padding: .25em 0em .25em 0em; //
 	border: solid 1px #30c9e0;
-	background: #fcac4c;
+	background: #cc0000;
 	width: 13.5em;
 	float: left;
 }
