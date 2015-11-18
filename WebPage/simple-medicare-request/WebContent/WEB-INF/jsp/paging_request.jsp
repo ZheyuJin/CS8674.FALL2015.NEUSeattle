@@ -23,7 +23,7 @@ html, body {
 #side-bar {
 	height: 100%;
 	margin: 0;
-	padding: .25em 0em .25em 0em; //
+	padding: .25em 0em .25em 0em; 
 	border: solid 1px #30c9e0;
 	background: #cc0000;
 	width: 13.5em;
@@ -103,22 +103,23 @@ html, body {
 		});
 
 		$(document).on('click', '.facet', function() {
-			switch (facet_type) {
+
+		    switch (facet_type) {
 			case "State":
                 facet_type = "Zip";
-				state = $(this).val();
+				state = $(this).text();
 				break;
 			case "Zip":
 				facet_type = "ProviderType";
-				zip_code = $(this).val();
+				zip_code = $(this).text();
 			    break;
 			case "ProviderType":
                 facet_type = "";
-				provider_type = $(this).val();
+				provider_type = $(this).text();
 				break;
 			case "Query":
 				facet_type = "";
-				query = $(this).val();
+				query = $(this).text();
 				break;
 
 			}
@@ -154,7 +155,9 @@ html, body {
 				}
 			}).done(function(data) {
 				responseHandler(data);
-			});
+			}).fail(function() { 
+				window.location ="../../error.html";
+            });
 		}
 
 		function responseHandler(data) {
@@ -178,7 +181,7 @@ html, body {
 
 		function handleFacets(list) {
 			$("#facet-area").replaceWith(
-					'<div id="facet-area">' + FormatFacets(list) + '</div>');
+					'<div id="facet-area">' + formatFacets(list) + '</div>');
 		}
 
 		$(document).on('click', '#search_button', function() {
@@ -188,7 +191,7 @@ html, body {
 			searchRequest();
 		});
 
-		function FormatFacets(list) {
+		function formatFacets(list) {
 			//alert(JSON.stringify(list));
 			var output = "";
 			for ( var i in list.facetedCount) {
