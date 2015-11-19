@@ -45,7 +45,7 @@ html, body {
 </head>
 <body>
 	<h2>This Page Is For Testing Use Cases 2 and 3</h2>	
-	Amount ('N'): <input value="" id="Number" type="text" name="amount"
+	Amount ('N'): <input value="5" id="Number" type="text" name="amount"
 		width="100%"> <br>
 	<input type="checkbox" name="doHighestToLowest" value="setOrder" id="doHighestToLowest" checked />Check this box to return highest to lowest<br>
 	<input type="checkbox" name="percent" value="setAsPercent" id="percentBox" />Check this box to return values as a percentage<br>
@@ -80,16 +80,41 @@ html, body {
 				}
 			}).done(function(data) {
 				//alert(JSON.stringify(data));
-				responseHandler(data);
+				responseHandler(data, isPercent);
 			}).fail(function() {
 		        window.location = "../../error.html";
 		    });
 		}
 
-		function responseHandler(data) {
+		function responseHandler(data, isPercent) {
 			//alert(JSON.stringify(data));
-			$("#result_area").replaceWith(
-					'<div id="result_area">' + JSON.stringify(data) + '</div>');
+			//$("#result_area").replaceWith(
+			//		'<div id="result_area">' + JSON.stringify(data) + '</div>');
+			var output = "";
+			
+		    for (var i = 0; i < data.length; i++) {
+		    	// Patient responsibility is a percentage,
+		    	// Pay gap is the amount diff
+	            var percentPayGapOrAmountDiff = data[i].payGap;	
+		    	var dollarSign = "$";
+		    	var percentageSign = "";
+	            
+	            if (isPercent) {
+	                var percentPayGapOrAmountDiff = data[i].patientResponsibility;	                
+	                var dollarSign = "";
+	                var percentageSign = "%";
+	            }
+		    
+		    	output += "<div>" 
+		    	    + data[i].procCode
+		    	    + " "
+		    	    + data[i].desc
+		    	    + " " + dollarSign + " "
+		    	    + percentPayGapOrAmountDiff
+		    	    + " " + percentageSign
+		    	    + "</div>";
+		    }
+			$('#result_area').html(output);
 		}
 		</script>
 </body>
