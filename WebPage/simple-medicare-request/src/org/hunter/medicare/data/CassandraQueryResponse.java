@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-
-
 //import org.apache.log4j.BasicConfigurator;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ColumnDefinitions;
@@ -403,17 +401,17 @@ public class CassandraQueryResponse {
 		for (Row row : result) {
 		    // TODO: Check on this - trying to get the right slice
 		    i++;
-		    if (i < start) {
-			continue; // keep looping
-		    }
+		    //if (i < start) {
+			//continue; // keep looping
+		    //}
 
 		    // Add this row to the slice we will return
 		    ProcedureDetails procedure = new CassandraProcedure(row);
 		    procedureList.add(procedure);
 
-		    if (i >= start + numReturn - 1) {
-			break;
-		    }
+		    //if (i >= start + numReturn - 1) {
+			//break;
+		    //}
 		}
 	    } catch (Exception e) {
 		System.out.println("An error occured " + e);
@@ -507,19 +505,19 @@ public class CassandraQueryResponse {
 		ResultSet result = session.execute(query);
 		int i = -1;
 		for (Row row : result) {
-		    // TODO: Check on this - trying to get the right slice
+
 		    i++;
-		    if (i < start) {
-			continue; // keep looping
-		    }
+		    //if (i < start) {
+			//continue; // keep looping
+		    //}
 
 		    // Add this row to the slice we will return
 		    ProcedureDetails procedure = new CassandraProcedure(row);
 		    procedureList.add(procedure);
 
-		    if (i >= start + numReturn - 1) {
-			break;
-		    }
+		    //if (i >= start + numReturn - 1) {
+			//break;
+		    //}
 		}
 	    } catch (Exception e) {
 		System.out.println("An error occured " + e);
