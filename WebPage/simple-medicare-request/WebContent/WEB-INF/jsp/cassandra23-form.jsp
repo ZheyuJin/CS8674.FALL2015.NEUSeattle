@@ -77,24 +77,15 @@ html, body {
 				}
 			}).done(function(data) {
 				alert(JSON.stringify(data));
-				//responseHandler(data);
+				responseHandler(data);
 			});
 		}
 
 		function responseHandler(data) {
 			alert(JSON.stringify(data));
 			$("#result_area").replaceWith(
-					'<div id="result_area">' + FormatResults(data) + '</div>');
+					'<div id="result_area">' + JSON.stringify(data) + '</div>');
 		}
-
-		function FormatResults(list) {
-			var output = "";
-			
-			for ( var i in list) {
-				output += '<div class="result">' + list[i] + '</div>';
-			}
-			return output;
-		}
-	</script>
+		</script>
 </body>
 </html>

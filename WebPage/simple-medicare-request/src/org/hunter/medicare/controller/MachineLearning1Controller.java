@@ -28,7 +28,6 @@ public class MachineLearning1Controller {
 			Model model) throws FileNotFoundException{
 		System.out.println("Received ML1 query request");
 		
-
 		return "Hello";
 	}
 	
