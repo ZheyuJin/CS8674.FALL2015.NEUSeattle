@@ -33,7 +33,7 @@ public class CassandraProcedure extends ProcedureDetails {
         if (columns.contains("fraction_responsible")) {
             patientResponsibility = row.getFloat("fraction_responsible");
         }
-        System.out.println(row.getColumnDefinitions().contains("hcpcs_code"));
+        // System.out.println(row.getColumnDefinitions().contains("hcpcs_code"));
     }
 
     public CassandraProcedure() {

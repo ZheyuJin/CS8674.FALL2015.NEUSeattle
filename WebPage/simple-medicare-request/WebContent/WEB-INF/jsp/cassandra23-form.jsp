@@ -10,7 +10,7 @@
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-<title>Use case 2 and 3</title>
+<title>Provider payment gap</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 <style>
@@ -44,15 +44,15 @@ html, body {
 
 </head>
 <body>
-	<h2>This Page Is For Testing Use Cases 2 and 3</h2>	
-	Number of top or bottom rows: <input value="5" id="numRows" type="text" name="numRows"
+	<h3>Treatment payment gap: Patient payment responsibility</h3>	
+	Number of treatments: <input value="5" id="numRows" type="text" name="numRows"
 		width="100%">
 		 <br>
     Starting at: <input value="0" id="startIndex" type="text" name="startIndex"
         width="100%"> 
         <br>		
-	<input type="checkbox" name="doHighestToLowest" value="setOrder" id="doHighestToLowest" checked />Sort ascending?<br>
-	<input type="checkbox" name="percent" value="setAsPercent" id="percentBox" />Return gap as percentage?<br>
+	<input type="checkbox" name="doHighestToLowest" value="setOrder" id="doHighestToLowest" checked />Sort ascending (= treatments with highest patient responsibility on top)<br>
+	<input type="checkbox" name="percent" value="setAsPercent" id="percentBox" />Return gap as percentage of the overall charge?<br>
 	<input id="request_button" type="submit" value="Search">
 	<div id="result_area"></div>	
 	<div id="graph_area"></div>

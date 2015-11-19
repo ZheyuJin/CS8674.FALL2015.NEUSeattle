@@ -341,7 +341,7 @@ html, body {
     function formatResults(list) {
       
       var output = "<thead>" 
-      + "<th width='20%'>Name</th><th width='10%'>At</th><th width='15%'>Location</th><th width='60%'>Procedure</th>" 
+      + "<th width='15%'>Name</th><th width='12%'>Specialty</th><th width='8%'>At</th><th width='15%'>Location</th><th width='55%'>Procedure</th>" 
       + "</thead><tbody>";         
 
       for ( var i in list) {
@@ -356,7 +356,10 @@ html, body {
         output += '<tr class="result">' 
             + '<td>' 
             + toNameCase(list[i].first_name) + " "
-            + toNameCase(list[i].last_or_org_name) 
+            + toNameCase(list[i].last_or_org_name)
+            + '</td>'
+            + '<td>'
+            + list[i].provider_type  
             + '</td>'
             + '<td>'            
             + officeOrFacility 
@@ -365,7 +368,7 @@ html, body {
             + toNameCase(list[i].city) + ", " + list[i].state + "  " + list[i].zip 
             + '</td>'
             + '<td>'   
-            + list[i].hcpcs_description + 
+            + list[i].hcpcs_description 
             + '</td>'
             + '</tr>';
       }
