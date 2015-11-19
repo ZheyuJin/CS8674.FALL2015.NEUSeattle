@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -16,6 +17,7 @@ import org.apache.spark.Accumulator;
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.*;
 import org.apache.spark.broadcast.Broadcast;
+import org.apache.spark.launcher.SparkLauncher;
 import org.apache.spark.mllib.feature.HashingTF;
 import org.apache.spark.mllib.feature.IDF;
 import org.apache.spark.mllib.feature.IDFModel;
@@ -45,7 +47,7 @@ public class ProviderTypeNBModel {
     //private static String TESTMODELPATH = HDFSDNS + "/user/root/medicareData/TestModel";
     private static String TFIDFPATH = "TFIDFModel";
     //private static String TFIDFPATH = HDFSDNS + "/user/root/medicareData/TFIDFModel";
-    
+
 
     public ProviderTypeNBModel(JavaSparkContext sc){
 	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
@@ -303,35 +305,33 @@ public class ProviderTypeNBModel {
 
 	SparkConfig conf = new SparkConfig();
 	JavaSparkContext sc = conf.javaSparkContext();
+	String testString = "This is a test";
+	ArrayList test = new ArrayList(Arrays.asList(testString.split(" ")));
+	System.out.println(sc.parallelize(test).take(10));
 	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
-	//String classpathLocation = MODELPATH;
-	//URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
 	NaiveBayesModel model = loadNaiveBayesModel(MODELPATH, sc); 
 	JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
-	//System.out.println(tfVectors.take(5).toString());
 	Vector hcpcsAsTFIDF = convertStringArrRDDToTFVector(hcpcsCodes, tfVectors);
-	//System.out.println(model.predict(hcpcsAsTFIDF));
 	return model.predict(hcpcsAsTFIDF);
 
     }
-    
-    public static void main(String[] args) throws FileNotFoundException{
-	
+
+    public static void main(String[] args) throws IOException, InterruptedException{
 	System.setProperty("hadoop.home.dir", "D:\\winutils\\");
 	String[] hcpcsCodes = {"foo foo foo bar foo"};
 	System.out.println(getPrediction(hcpcsCodes));
- 	//SparkConfig conf = new SparkConfig();
+	//SparkConfig conf = new SparkConfig();
 	//JavaSparkContext sc = conf.javaSparkContext();
-//	//String classpathLocation = "C:\\Users\\Brian\\Documents\\GitHub\\CS8674.FALL2015.NEUSeattle\\WebPage\\simple-medicare-request\\target\\classes\\org\\hunter\\medicare\\data\\NaiveBayesModel";
-//	String classpathLocation = "org/hunter/medicare/data/NaiveBayesModel";
-//	//URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
-//	//System.out.println(Thread.currentThread().getContextClassLoader().getResource(classpathLocation));
+	//	//String classpathLocation = "C:\\Users\\Brian\\Documents\\GitHub\\CS8674.FALL2015.NEUSeattle\\WebPage\\simple-medicare-request\\target\\classes\\org\\hunter\\medicare\\data\\NaiveBayesModel";
+	//	String classpathLocation = "org/hunter/medicare/data/NaiveBayesModel";
+	//	//URL classpathResource = Thread.currentThread().getContextClassLoader().getResource(classpathLocation);
+	//	//System.out.println(Thread.currentThread().getContextClassLoader().getResource(classpathLocation));
 	//NaiveBayesModel model = loadNaiveBayesModel(MODELPATH, sc); 
-//	//NaiveBayesModel model = trainNaiveBayesModel(MODELPATH, MOCKDATAPATH, sc);
+	//	//NaiveBayesModel model = trainNaiveBayesModel(MODELPATH, MOCKDATAPATH, sc);
 	//JavaRDD<Vector> tfVectors = sc.objectFile(TFIDFPATH);
-//	System.out.println(tfVectors.take(5).toString());
+	//	System.out.println(tfVectors.take(5).toString());
 	//Vector hcpcsAsTFIDF = convertStringArrRDDToTFVector(hcpcsCodes, tfVectors);
-//	System.out.println(hcpcsAsTFIDF.toString());
+	//	System.out.println(hcpcsAsTFIDF.toString());
 	//System.out.println(model.predict(hcpcsAsTFIDF));
     }
 }

@@ -17,7 +17,7 @@ public class SparkConfig {
 
     public JavaSparkContext javaSparkContext(){
 	
-	master = "local";
+	master = "spark://ec2-52-34-97-105.us-west-2.compute.amazonaws.com:7077";
 
 	LOGGER.info("Creating SparkContext. Master=" + master);;
 	SparkConf conf = new SparkConf().setAppName("NaiveBayesProviderType")
