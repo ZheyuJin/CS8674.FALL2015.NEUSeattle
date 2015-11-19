@@ -76,13 +76,15 @@ html, body {
 		<table id="result-table">	
 		</table>
 
-        <div id="result-area"></div>
+        <br />
+        <div id="result-nav">
+            <span id="prev" class="link" hidden=true>Prev</span>
 
+            <span id="next" class="link" hidden=true>Next</span>
+        </div>
 	</div>
 
 	<br>
-
-	<div id="next" class="link" hidden=true>Next</div>
 
 	<script>
     var start_index = 0;
@@ -96,6 +98,8 @@ html, body {
     var provider_type = "";
     var query = "";
     $("#result-header").hide();
+    $("#prev").hide();
+    
     $("#next").hide();
     $("#breadcrumb").hide();
     $("#currentState").hide();
@@ -128,9 +132,26 @@ html, body {
     });
 
     $(document).on('click', '#next', function() {
+        start_index = end_index + 1;
+        end_index = start_index + page_size - 1;
+ 
       searchRequest();
     });
 
+    $(document).on('click', '#prev', function() {
+    	if (start_index >= page_size) {
+    		start_index = start_index - page_size;
+    		
+    	}
+    	else {
+    		start_index = 0;
+    	}
+
+        end_index = start_index + page_size - 1;
+ 
+        searchRequest();
+      });
+    
     //$(document).on('click', '#stateSelect', function() {
     //alert("click!");
     //});
@@ -155,6 +176,8 @@ html, body {
         query = $(this).text();
         break;
       }
+      
+      // Reset our row counters for this new query/filter
       start_index = 0;
       end_index = start_index + page_size - 1;
       searchRequest();
@@ -173,6 +196,8 @@ html, body {
       provider_type = "";
       query = "";
       $("#next").hide();
+      $("#prev").hide();
+      
       $("#result-header").hide();
       $("#breadcrumb").hide();
 
@@ -238,6 +263,12 @@ html, body {
 
       $("#result-header").show();
 
+      if (start_index == 0) {
+    	  $("#prev").hide();
+      }
+      else {
+    	  $("#prev").show();
+      }
       if (data.numProvidersTotal > end_index + 1) {
         $("#next").show();
       } else {
@@ -271,11 +302,6 @@ html, body {
       $('#result-table').html(formatResults(list));
       $('#result-table').show();
       
-      if (list.length == page_size) {
-
-        start_index = end_index + 1;
-        end_index = start_index + page_size - 1;
-      }   
     }
 
     function formatResults(list) {
