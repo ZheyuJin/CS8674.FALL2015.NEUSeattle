@@ -45,10 +45,14 @@ html, body {
 </head>
 <body>
 	<h2>This Page Is For Testing Use Cases 2 and 3</h2>	
-	Amount ('N'): <input value="5" id="Number" type="text" name="amount"
-		width="100%"> <br>
-	<input type="checkbox" name="doHighestToLowest" value="setOrder" id="doHighestToLowest" checked />Check this box to return highest to lowest<br>
-	<input type="checkbox" name="percent" value="setAsPercent" id="percentBox" />Check this box to return values as a percentage<br>
+	Number of top or bottom rows: <input value="5" id="numRows" type="text" name="numRows"
+		width="100%">
+		 <br>
+    Starting at: <input value="0" id="startIndex" type="text" name="startIndex"
+        width="100%"> 
+        <br>		
+	<input type="checkbox" name="doHighestToLowest" value="setOrder" id="doHighestToLowest" checked />Sort ascending?<br>
+	<input type="checkbox" name="percent" value="setAsPercent" id="percentBox" />Return gap as percentage?<br>
 	<input id="request_button" type="submit" value="Search">
 	<div id="result_area"></div>	
 	<div id="graph_area"></div>
@@ -57,12 +61,14 @@ html, body {
 	<script>
 		var getLargest = true;
 		var isPercent = false;
-		var amount = 10;
+		var numRows = 10;
+		var startIndex = 0;
 		
 		// We might want some validation here (amount > 0 for example)
 
 		$(document).on('click', '#request_button', function() {
-			amount = $('#Number').val();
+			numRows = $('#numRows').val();
+			startIndex = $('#startIndex').val();
 			isPercent = $('#percentBox').is(":checked");
 			getLargest = $('#doHighestToLowest').is(":checked");
 			searchRequest();
@@ -74,7 +80,8 @@ html, body {
 			$.ajax({
 				url : "request",
 				data : {
-					amount: amount,
+					numRows: numRows,
+					start: startIndex,
 					sortDesc: getLargest,
 					isPercentage: isPercent
 				}
@@ -99,7 +106,14 @@ html, body {
 		    	var dollarSign = "$";
 		    	var percentageSign = "";
 	            
-	            if (isPercent) {
+		    	// There's a header value in the data (by accident)
+		    	// Weed that one out.
+		    	if (data[i].procCode === "hcpcs_code")
+		    	{
+		    	  continue;
+		    	}
+		    	
+		    	if (isPercent) {
 	                var percentPayGapOrAmountDiff = data[i].patientResponsibility;	                
 	                var dollarSign = "";
 	                var percentageSign = "%";

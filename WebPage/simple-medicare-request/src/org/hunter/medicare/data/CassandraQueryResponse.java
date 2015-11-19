@@ -14,6 +14,8 @@ import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.Statement;
 
 public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
@@ -56,205 +58,209 @@ public class CassandraQueryResponse {
     public static final String LIMIT = "limit";
 
     public static CassandraQueryResponse getInstance() {
-	if (instance == null) {
-	    instance = new CassandraQueryResponse();
-	}
-	return instance;
+        if (instance == null) {
+            instance = new CassandraQueryResponse();
+        }
+        return instance;
     }
 
-    public static List<Provider> getMostExpensive(Integer numRows, String state, String procedure) throws Exception {
-	List<Provider> providers = new ArrayList<Provider>();
+    public static List<Provider> getMostExpensive(Integer numRows, String state, String procedure)
+            throws Exception {
+        List<Provider> providers = new ArrayList<Provider>();
 
-	if (mock) {
-	    System.err.println("Warning: Cassandra mock flag is ON");
+        if (mock) {
+            System.err.println("Warning: Cassandra mock flag is ON");
 
-	    providers = buildMockResponse(state, procedure);
-	    /*
-	     * assign values from 1 to n to proviser's charge. need this for
-	     * mocking.
-	     */
-	    int charge = 1;
-	    for (Provider p : providers) {
-		p.providerDetails = p.new ExtendedInfo();
-		p.providerDetails.averageSubmittedChargeAmount = charge;
-		charge++;
-	    }
-	} else {
-	    List<String> ids = getProviders(state, procedure, MOST, numRows);
-	    for (String id : ids) {
-		Provider p = getProviderById(id);
-		providers.add(p);
-	    }
-	}
-	return providers;
+            providers = buildMockResponse(state, procedure);
+            /*
+             * assign values from 1 to n to proviser's charge. need this for
+             * mocking.
+             */
+            int charge = 1;
+            for (Provider p : providers) {
+                p.providerDetails = p.new ExtendedInfo();
+                p.providerDetails.averageSubmittedChargeAmount = charge;
+                charge++;
+            }
+        } else {
+            List<String> ids = getProviders(state, procedure, MOST, numRows);
+            for (String id : ids) {
+                Provider p = getProviderById(id);
+                providers.add(p);
+            }
+        }
+        return providers;
     }
 
     public static ArrayList<String> getProviders(String state, String code, String order, int limit) {
 
-	// incremented until $limit or EOF
-	int numberOfInstances = 0;
-	ArrayList<String> orderedIds = new ArrayList<String>();
+        // incremented until $limit or EOF
+        int numberOfInstances = 0;
+        ArrayList<String> orderedIds = new ArrayList<String>();
 
-	Cluster cluster = null;
-	Session session = null;
+        Cluster cluster = null;
+        Session session = null;
 
-	try {
-	    cluster = Cluster.builder().addContactPoint(host).build();
-	    session = cluster.connect(keyspace);
+        try {
+            cluster = Cluster.builder().addContactPoint(host).build();
+            session = cluster.connect(keyspace);
 
-	    String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE + mvTable + SPACE + WHERE
-		    + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING + state + CLOSE_STRING;
-	    ResultSet resultSet = session.execute(selectCostsByStateQuery);
-	    Row row;
-	    if ((row = resultSet.one()) != null) {
+            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
+                    + OPEN_STRING + state + CLOSE_STRING;
+            ResultSet resultSet = session.execute(selectCostsByStateQuery);
+            Row row;
+            if ((row = resultSet.one()) != null) {
 
-		ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
-		List<Definition> columns = columnDefinitions.asList();
+                ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
+                List<Definition> columns = columnDefinitions.asList();
 
-		if (order.equals(LEAST)) {
-		    // columnsIndex starts at 1 because 0 is the index for
-		    // 'nppes_provider_state'
-		    for (int columnsIndex = 1; columnsIndex < columns.size(); columnsIndex++) {
-			Definition column = columns.get(columnsIndex);
-			String columnName = column.getName();
-			String ids = row.getString(columnName);
-			if (ids != null) {
-			    String[] idsArray = ids.split(",");
-			    for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
-				String id = idsArray[idsIndex];
-				int idLength = id.length();
-				// start at 11 because 10 for npi, 1 for
-				// office/faculty. subtract 4 to peel the year.
-				String idCode = id.substring(11, idLength - 4);
-				if (idCode.equals(code) && numberOfInstances < limit) {
-				    orderedIds.add(id);
-				    numberOfInstances++;
-				}
-			    }
-			}
-		    }
-		} else if (order.equals(MOST)) {
-		    // columnsIndex ends at 1 because 0 is the index for
-		    // 'nppes_provider_state'
-		    for (int columnsIndex = columns.size() - 1; columnsIndex > 0; columnsIndex--) {
-			Definition column = columns.get(columnsIndex);
-			String columnName = column.getName();
-			String ids = row.getString(columnName);
-			if (ids != null) {
-			    String[] idsArray = ids.split(",");
-			    for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
-				String id = idsArray[idsIndex];
-				int idLength = id.length();
-				// start at 11 because 10 for npi, 1 for
-				// place_of_service
-				// subtract 4 from the end to peel the year.
-				String idCode = id.substring(11, idLength - 4);
-				if (idCode.equals(code) && numberOfInstances < limit) {
-				    orderedIds.add(id);
-				    numberOfInstances++;
-				}
-			    }
-			}
-		    }
-		}
-	    }
-	} catch (Exception e) {
-	    // TODO seperate out exceptions
-	    System.out.println("An error occured:  " + e);
+                if (order.equals(LEAST)) {
+                    // columnsIndex starts at 1 because 0 is the index for
+                    // 'nppes_provider_state'
+                    for (int columnsIndex = 1; columnsIndex < columns.size(); columnsIndex++) {
+                        Definition column = columns.get(columnsIndex);
+                        String columnName = column.getName();
+                        String ids = row.getString(columnName);
+                        if (ids != null) {
+                            String[] idsArray = ids.split(",");
+                            for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
+                                String id = idsArray[idsIndex];
+                                int idLength = id.length();
+                                // start at 11 because 10 for npi, 1 for
+                                // office/faculty. subtract 4 to peel the year.
+                                String idCode = id.substring(11, idLength - 4);
+                                if (idCode.equals(code) && numberOfInstances < limit) {
+                                    orderedIds.add(id);
+                                    numberOfInstances++;
+                                }
+                            }
+                        }
+                    }
+                } else if (order.equals(MOST)) {
+                    // columnsIndex ends at 1 because 0 is the index for
+                    // 'nppes_provider_state'
+                    for (int columnsIndex = columns.size() - 1; columnsIndex > 0; columnsIndex--) {
+                        Definition column = columns.get(columnsIndex);
+                        String columnName = column.getName();
+                        String ids = row.getString(columnName);
+                        if (ids != null) {
+                            String[] idsArray = ids.split(",");
+                            for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
+                                String id = idsArray[idsIndex];
+                                int idLength = id.length();
+                                // start at 11 because 10 for npi, 1 for
+                                // place_of_service
+                                // subtract 4 from the end to peel the year.
+                                String idCode = id.substring(11, idLength - 4);
+                                if (idCode.equals(code) && numberOfInstances < limit) {
+                                    orderedIds.add(id);
+                                    numberOfInstances++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // TODO seperate out exceptions
+            System.out.println("An error occured:  " + e);
             e.printStackTrace();
             throw e;
-	} finally {
-	    if (session != null) {
-		session.close();
-	    }
-	    if (cluster != null) {
-		cluster.close();
-	    }
-	    System.out.println("session closed");
-	}
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
+            System.out.println("session closed");
+        }
 
-	return orderedIds;
+        return orderedIds;
     }
 
     public static Double getAverage(String state, String code) {
 
-	Double average = 0.0;
-	Cluster cluster = null;
-	Session session = null;
+        Double average = 0.0;
+        Cluster cluster = null;
+        Session session = null;
 
-	try {
-	    cluster = Cluster.builder().addContactPoint(host).build();
-	    session = cluster.connect(keyspace);
+        try {
+            cluster = Cluster.builder().addContactPoint(host).build();
+            session = cluster.connect(keyspace);
 
-	    String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE + mvTable + SPACE + WHERE
-		    + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING + state + CLOSE_STRING;
-	    ResultSet resultSet = session.execute(selectCostsByStateQuery);
-	    Row row;
-	    Double sumOfCosts = 0.0;
-	    Double numberOfInstances = 0.0;
+            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
+                    + OPEN_STRING + state + CLOSE_STRING;
+            ResultSet resultSet = session.execute(selectCostsByStateQuery);
+            Row row;
+            Double sumOfCosts = 0.0;
+            Double numberOfInstances = 0.0;
 
-	    if ((row = resultSet.one()) != null) {
-		ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
-		List<Definition> columns = columnDefinitions.asList();
+            if ((row = resultSet.one()) != null) {
+                ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
+                List<Definition> columns = columnDefinitions.asList();
 
-		// columnsIndex starts at 1 because 0 is the index for
-		// 'nppes_provider_state'
-		for (int columnsIndex = 1; columnsIndex < columns.size(); columnsIndex++) {
-		    Definition column = columns.get(columnsIndex);
-		    String columnName = column.getName();
-		    String ids = row.getString(columnName);
-		    if (ids != null) {
-			String[] idsArray = ids.split(",");
-			for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
-			    String id = idsArray[idsIndex];
-			    int idLength = id.length();
-			    // start at 11 because 10 for npi, 1 for
-			    // office/faculty.
-			    // subtract 4 to peel the year.
-			    String idCode = id.substring(11, idLength - 4);
-			    if (idCode.equals(code)) {
-				double cost = Double.parseDouble(columnName.substring(1));
-				sumOfCosts += cost;
-				numberOfInstances++;
-			    }
-			}
-		    }
-		}
+                // columnsIndex starts at 1 because 0 is the index for
+                // 'nppes_provider_state'
+                for (int columnsIndex = 1; columnsIndex < columns.size(); columnsIndex++) {
+                    Definition column = columns.get(columnsIndex);
+                    String columnName = column.getName();
+                    String ids = row.getString(columnName);
+                    if (ids != null) {
+                        String[] idsArray = ids.split(",");
+                        for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
+                            String id = idsArray[idsIndex];
+                            int idLength = id.length();
+                            // start at 11 because 10 for npi, 1 for
+                            // office/faculty.
+                            // subtract 4 to peel the year.
+                            String idCode = id.substring(11, idLength - 4);
+                            if (idCode.equals(code)) {
+                                double cost = Double.parseDouble(columnName.substring(1));
+                                sumOfCosts += cost;
+                                numberOfInstances++;
+                            }
+                        }
+                    }
+                }
 
-		if (numberOfInstances == 0.0) {
-		    return -1.0;
-		}
-		average = sumOfCosts / numberOfInstances;
+                if (numberOfInstances == 0.0) {
+                    return -1.0;
+                }
+                average = sumOfCosts / numberOfInstances;
 
-	    }
-	} catch (Exception e) {
-	    // TODO seperate out exceptions
-	    System.out.println("An error occured:  " + e);
+            }
+        } catch (Exception e) {
+            // TODO seperate out exceptions
+            System.out.println("An error occured:  " + e);
             e.printStackTrace();
             throw e;
-	} finally {
-	    if (session != null) {
-		session.close();
-	    }
-	    if (cluster != null) {
-		cluster.close();
-	    }
-	    System.out.println("session closed");
-	}
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
+            System.out.println("session closed");
+        }
 
-	return average;
+        return average;
     }
 
-    public static HashMap<String, Double> getCodeToAvgCostMappingForState(Set<String> codes, String state) {
-	HashMap<String, Double> codeToAvgCostMappingForState = new HashMap<String, Double>();
-	Iterator<String> codesIterator = codes.iterator();
-	while (codesIterator.hasNext()) {
-	    String code = codesIterator.next();
-	    Double avgCost = getAverage(state, code);
-	    codeToAvgCostMappingForState.put(code, avgCost);
-	}
+    public static HashMap<String, Double> getCodeToAvgCostMappingForState(Set<String> codes,
+            String state) {
+        HashMap<String, Double> codeToAvgCostMappingForState = new HashMap<String, Double>();
+        Iterator<String> codesIterator = codes.iterator();
+        while (codesIterator.hasNext()) {
+            String code = codesIterator.next();
+            Double avgCost = getAverage(state, code);
+            codeToAvgCostMappingForState.put(code, avgCost);
+        }
 
-	return codeToAvgCostMappingForState;
+        return codeToAvgCostMappingForState;
     }
 
     /**
@@ -270,59 +276,60 @@ public class CassandraQueryResponse {
     // matches the id
     // or if the connection is bad
     public static Provider getProviderById(String id) {
-	// TODO Logger
-	// uncomment this to use logger
-	// BasicConfigurator.configure();
+        // TODO Logger
+        // uncomment this to use logger
+        // BasicConfigurator.configure();
 
-	Provider provider = null;
+        Provider provider = null;
 
-	// connect to server
-	Cluster cluster;
-	Session session = null;
-	cluster = Cluster.builder().addContactPoint(host).build();
-	// pick KEYSPACE
-	try {
-	    session = cluster.connect(keyspace);
-	    System.out.println("connecting to cassandra");
-	    // compose query
-	    String query1 = "SELECT * FROM proceduresstats" + " WHERE id = '" + id + "';";
+        // connect to server
+        Cluster cluster;
+        Session session = null;
+        cluster = Cluster.builder().addContactPoint(host).build();
+        // pick KEYSPACE
+        try {
+            session = cluster.connect(keyspace);
+            System.out.println("connecting to cassandra");
+            // compose query
+            String query1 = "SELECT * FROM proceduresstats" + " WHERE id = '" + id + "';";
 
-	    ResultSet procedureResult = session.execute(query1);
-	    Row procedureRow = procedureResult.one();
-	    if (procedureRow == null) {
-		System.out.println("failed to return a result");
-	    }
+            ResultSet procedureResult = session.execute(query1);
+            Row procedureRow = procedureResult.one();
+            if (procedureRow == null) {
+                System.out.println("failed to return a result");
+            }
 
-	    String npi = procedureRow.getString("npi");
-	    String hcpcs_code = procedureRow.getString("hcpcs_code");
+            String npi = procedureRow.getString("npi");
+            String hcpcs_code = procedureRow.getString("hcpcs_code");
 
-	    String query2 = "SELECT * FROM proceduresinfo" + " WHERE hcpcs_code = '" + hcpcs_code + "';";
+            String query2 = "SELECT * FROM proceduresinfo" + " WHERE hcpcs_code = '" + hcpcs_code
+                    + "';";
 
-	    ResultSet procedureInfoResult = session.execute(query2);
-	    Row procedureInfoRow = procedureInfoResult.one();
+            ResultSet procedureInfoResult = session.execute(query2);
+            Row procedureInfoRow = procedureInfoResult.one();
 
-	    String query3 = "SELECT * FROM providers " + " WHERE npi = '" + npi + "';";
+            String query3 = "SELECT * FROM providers " + " WHERE npi = '" + npi + "';";
 
-	    ResultSet providerResult = session.execute(query3);
-	    Row providerRow = providerResult.one();
+            ResultSet providerResult = session.execute(query3);
+            Row providerRow = providerResult.one();
 
-	    provider = new Provider(providerRow, procedureRow, procedureInfoRow);
+            provider = new Provider(providerRow, procedureRow, procedureInfoRow);
 
-	} catch (Exception e) {
-	    // TODO seperate out exceptions
-	    System.out.println("An error occured:  " + e);
+        } catch (Exception e) {
+            // TODO seperate out exceptions
+            System.out.println("An error occured:  " + e);
             e.printStackTrace();
             throw e;
-	} finally {
-	    if (session != null) {
-		session.close();
-	    }
-	    if (cluster != null) {
-		cluster.close();
-	    }
-	    System.out.println("session closed");
-	}
-	return provider;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
+            System.out.println("session closed");
+        }
+        return provider;
     }
 
     /**
@@ -336,98 +343,113 @@ public class CassandraQueryResponse {
      * @return
      */
     public static List<ProcedureDetails> getChargedMedicarePayGap(boolean largest, int numReturn) {
-	return getChargedMedicarePayGap(largest, 0, numReturn);
+        return getChargedMedicarePayGap(largest, 0, numReturn);
     }
 
-    public static List<ProcedureDetails> getChargedMedicarePayGap(boolean largest, int start, int numReturn) {
+    public static List<ProcedureDetails> getChargedMedicarePayGap(boolean largest, int start,
+            int numReturn) {
 
-	if (start < 0) {
-	    start = 0; // Fix start if it's negative
-	}
-	if (numReturn == 0) {
-	    return new ArrayList<ProcedureDetails>();
-	}
+        if (start < 0) {
+            start = 0; // Fix start if it's negative
+        }
+        if (numReturn == 0) {
+            return new ArrayList<ProcedureDetails>();
+        }
 
-	if (mock) {
-	    System.err.println("Warning: Cassandra mock flag is ON");
+        if (mock) {
+            System.err.println("Warning: Cassandra mock flag is ON");
 
-	    List<ProcedureDetails> lp = new ArrayList<ProcedureDetails>();
-	    ProcedureDetails p1 = new CassandraProcedure();
-	    p1.procCode = "22525";
-	    p1.desc = "Injection of bone cement body of middle or lower spine bone";
-	    p1.drugIndicator = false;
-	    p1.submittedChrg = (float) 12744.692;
-	    p1.medicarePay = (float) 4106.93;
-	    p1.payGap = (float) 8637.762;
+            List<ProcedureDetails> lp = new ArrayList<ProcedureDetails>();
+            ProcedureDetails p1 = new CassandraProcedure();
+            p1.procCode = "22525";
+            p1.desc = "Injection of bone cement body of middle or lower spine bone";
+            p1.drugIndicator = false;
+            p1.submittedChrg = (float) 12744.692;
+            p1.medicarePay = (float) 4106.93;
+            p1.payGap = (float) 8637.762;
 
-	    ProcedureDetails p2 = new CassandraProcedure();
-	    p2.procCode = "22524";
-	    p2.desc = "Injection of bone cement into cavity of body of lower spind bone";
-	    p2.drugIndicator = false;
-	    p2.submittedChrg = (float) 11605.895;
-	    p2.medicarePay = (float) 5698.3804;
-	    p2.payGap = (float) 5907.514;
+            ProcedureDetails p2 = new CassandraProcedure();
+            p2.procCode = "22524";
+            p2.desc = "Injection of bone cement into cavity of body of lower spind bone";
+            p2.drugIndicator = false;
+            p2.submittedChrg = (float) 11605.895;
+            p2.medicarePay = (float) 5698.3804;
+            p2.payGap = (float) 5907.514;
 
-	    ProcedureDetails p3 = new CassandraProcedure();
-	    p3.procCode = "52648";
-	    p3.desc = "Laser vaporization of prostate including control of bleeding";
-	    p3.drugIndicator = false;
-	    p3.submittedChrg = (float) 5000;
-	    p3.medicarePay = (float) 1444.0548;
-	    p3.payGap = (float) 3555.9453;
-	    lp.add(p1);
-	    lp.add(p2);
-	    lp.add(p3);
-	    return lp;
+            ProcedureDetails p3 = new CassandraProcedure();
+            p3.procCode = "52648";
+            p3.desc = "Laser vaporization of prostate including control of bleeding";
+            p3.drugIndicator = false;
+            p3.submittedChrg = (float) 5000;
+            p3.medicarePay = (float) 1444.0548;
+            p3.payGap = (float) 3555.9453;
+            lp.add(p1);
+            lp.add(p2);
+            lp.add(p3);
+            return lp;
 
-	} else {
-	    Cluster cluster = null;
-	    Session session = null;
-	    List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
-	    try {
-		cluster = Cluster.builder().addContactPoint(host).withCredentials(USERNAME, PASSWORD).build();
-		session = cluster.connect(keyspaceMain);
+        } else {
+            Cluster cluster = null;
+            Session session = null;
+            List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
+            try {
+                cluster = Cluster.builder().addContactPoint(host)
+                        .withCredentials(USERNAME, PASSWORD).build();
+                session = cluster.connect(keyspaceMain);
 
-		String ordering = "ASC";
-		if (largest) {
-		    ordering = "DESC";
-		}
-		String query = "SELECT * FROM mv_charged_medicare_payment_gap "
-			+ "WHERE mv_id = 2 ORDER BY charge_medicare_pay_gap " + ordering + " LIMIT " + numReturn + ";";
+                String ordering = "ASC";
+                if (largest) {
+                    ordering = "DESC";
+                }
+                String query = "SELECT * FROM mv_charged_medicare_payment_gap "
+                        + "WHERE mv_id = 2 ORDER BY charge_medicare_pay_gap " + ordering;
+                // + " LIMIT " + numReturn + ";";
 
-		ResultSet result = session.execute(query);
+                // ResultSet result = session.execute(query);
+                // See
+                // https://datastax.github.io/java-driver/2.0.10/features/paging/
+                // for java driver + paging/iteration
+                Statement stmt = new SimpleStatement(query);
+                stmt.setFetchSize(100);
+                ResultSet result = session.execute(stmt);
+                int i = -1;
+                int remaining = result.getAvailableWithoutFetching();
+                for (Row row : result) {
+                    i++;
+                    if (i < start) {
+                        continue; // keep looping
+                    }
 
-		int i = -1;
-		for (Row row : result) {
-		    // TODO: Check on this - trying to get the right slice
-		    i++;
-		    //if (i < start) {
-			//continue; // keep looping
-		    //}
+                    // Add this row to the slice we will return
+                    ProcedureDetails procedure = new CassandraProcedure(row);
+                    procedureList.add(procedure);
 
-		    // Add this row to the slice we will return
-		    ProcedureDetails procedure = new CassandraProcedure(row);
-		    procedureList.add(procedure);
+                    if (i >= start + numReturn - 1) {
+                        // We have our slice
+                        break;
+                    }
 
-		    //if (i >= start + numReturn - 1) {
-			//break;
-		    //}
-		}
-	    } catch (Exception e) {
-		System.out.println("An error occured " + e);
+                    --remaining;
+                    if (remaining == 0) {
+                        // No rows left in result
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("An error occured " + e);
                 e.printStackTrace();
                 throw e;
-	    } finally {
-		if (session != null) {
-		    session.close();
-		}
-		if (cluster != null) {
-		    cluster.close();
-		}
-		System.out.println("session closed");
-	    }
-	    return procedureList;
-	}
+            } finally {
+                if (session != null) {
+                    session.close();
+                }
+                if (cluster != null) {
+                    cluster.close();
+                }
+                System.out.println("session closed");
+            }
+            return procedureList;
+        }
     }
 
     /**
@@ -443,97 +465,114 @@ public class CassandraQueryResponse {
      * @return
      */
     public static List<ProcedureDetails> getPatientResponsibility(boolean largest, int numReturn) {
-	return getPatientResponsibility(largest, 0, numReturn);
+        return getPatientResponsibility(largest, 0, numReturn);
     }
 
-    public static List<ProcedureDetails> getPatientResponsibility(boolean largest, int start, int numReturn) {
-	if (start < 0) {
-	    start = 0; // Fix start if it's negative
-	}
-	if (numReturn == 0) {
-	    return new ArrayList<ProcedureDetails>();
-	}
+    public static List<ProcedureDetails> getPatientResponsibility(boolean largest, int start,
+            int numReturn) {
+        if (start < 0) {
+            start = 0; // Fix start if it's negative
+        }
+        if (numReturn == 0) {
+            return new ArrayList<ProcedureDetails>();
+        }
 
-	if (mock) {
-	    System.err.println("Warning: Cassandra mock flag is ON");
+        if (mock) {
+            System.err.println("Warning: Cassandra mock flag is ON");
 
-	    List<ProcedureDetails> lp = new ArrayList<ProcedureDetails>();
-	    ProcedureDetails p1 = new CassandraProcedure();
-	    p1.procCode = "90853";
-	    p1.desc = "Group psychotherapy";
-	    p1.drugIndicator = false;
-	    p1.allowedAmt = (float) 33.45;
-	    p1.medicarePay = (float) 7.8686666;
-	    p1.patientResponsibility = (float) 0.7653945;
+            List<ProcedureDetails> lp = new ArrayList<ProcedureDetails>();
+            ProcedureDetails p1 = new CassandraProcedure();
+            p1.procCode = "90853";
+            p1.desc = "Group psychotherapy";
+            p1.drugIndicator = false;
+            p1.allowedAmt = (float) 33.45;
+            p1.medicarePay = (float) 7.8686666;
+            p1.patientResponsibility = (float) 0.7653945;
 
-	    ProcedureDetails p2 = new CassandraProcedure();
-	    p2.procCode = "90804";
-	    p2.desc = "Individual office or outpatient psychotherapy, approximately 20 to 30 minutes";
-	    p2.drugIndicator = false;
-	    p2.allowedAmt = (float) 53.1975;
-	    p2.medicarePay = (float) 22.3465;
-	    p2.patientResponsibility = (float) 0.46279326;
+            ProcedureDetails p2 = new CassandraProcedure();
+            p2.procCode = "90804";
+            p2.desc = "Individual office or outpatient psychotherapy, approximately 20 to 30 minutes";
+            p2.drugIndicator = false;
+            p2.allowedAmt = (float) 53.1975;
+            p2.medicarePay = (float) 22.3465;
+            p2.patientResponsibility = (float) 0.46279326;
 
-	    ProcedureDetails p3 = new CassandraProcedure();
-	    p3.procCode = "90806";
-	    p3.desc = "Individual office or outpatient psychotherapy, approximately 45 to 50 minutes";
-	    p3.drugIndicator = false;
-	    p3.allowedAmt = (float) 85.06606;
-	    p3.medicarePay = (float) 45.82522;
-	    p3.patientResponsibility = (float) 0.46279326;
+            ProcedureDetails p3 = new CassandraProcedure();
+            p3.procCode = "90806";
+            p3.desc = "Individual office or outpatient psychotherapy, approximately 45 to 50 minutes";
+            p3.drugIndicator = false;
+            p3.allowedAmt = (float) 85.06606;
+            p3.medicarePay = (float) 45.82522;
+            p3.patientResponsibility = (float) 0.46279326;
 
-	    lp.add(p1);
-	    lp.add(p2);
-	    lp.add(p3);
-	    return lp;
+            lp.add(p1);
+            lp.add(p2);
+            lp.add(p3);
+            return lp;
 
-	} else {
-	    Cluster cluster = null;
-	    Session session = null;
-	    List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
-	    try {
-		cluster = Cluster.builder().addContactPoint(host).withCredentials(USERNAME, PASSWORD).build();
-		session = cluster.connect(keyspaceMain);
+        } else {
+            Cluster cluster = null;
+            Session session = null;
+            List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
+            try {
+                cluster = Cluster.builder().addContactPoint(host)
+                        .withCredentials(USERNAME, PASSWORD).build();
+                session = cluster.connect(keyspaceMain);
 
-		String ordering = "ASC";
-		if (largest) {
-		    ordering = "DESC";
-		}
-		String query = "SELECT * FROM mv_patient_responsibility "
-			+ "WHERE mv_id = 1 ORDER BY fraction_responsible " + ordering + " LIMIT " + numReturn + ";";
+                String ordering = "ASC";
+                if (largest) {
+                    ordering = "DESC";
+                }
+                String query = "SELECT * FROM mv_patient_responsibility "
+                        + "WHERE mv_id = 1 ORDER BY fraction_responsible " + ordering;
+                // + " LIMIT "
+                // + numReturn + ";";
 
-		ResultSet result = session.execute(query);
-		int i = -1;
-		for (Row row : result) {
+                // ResultSet result = session.execute(query);
+                // See
+                // https://datastax.github.io/java-driver/2.0.10/features/paging/
+                // for java driver + paging/iteration
+                Statement stmt = new SimpleStatement(query);
+                stmt.setFetchSize(100);
+                ResultSet result = session.execute(stmt);
+                int i = -1;
+                int remaining = result.getAvailableWithoutFetching();
+                for (Row row : result) {
+                    i++;
+                    if (i < start) {
+                        continue; // keep looping
+                    }
 
-		    i++;
-		    //if (i < start) {
-			//continue; // keep looping
-		    //}
+                    // Add this row to the slice we will return
+                    ProcedureDetails procedure = new CassandraProcedure(row);
+                    procedureList.add(procedure);
 
-		    // Add this row to the slice we will return
-		    ProcedureDetails procedure = new CassandraProcedure(row);
-		    procedureList.add(procedure);
+                    if (i >= start + numReturn - 1) {
+                        // We have our slice
+                        break;
+                    }
 
-		    //if (i >= start + numReturn - 1) {
-			//break;
-		    //}
-		}
-	    } catch (Exception e) {
-		System.out.println("An error occured " + e);
+                    --remaining;
+                    if (remaining == 0) {
+                        // No rows left in result
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("An error occured " + e);
                 e.printStackTrace();
-	        throw e;
-	    } finally {
-		if (session != null) {
-		    session.close();
-		}
-		if (cluster != null) {
-		    cluster.close();
-		}
-		System.out.println("session closed");
-	    }
-	    return procedureList;
-	}
+                throw e;
+            } finally {
+                if (session != null) {
+                    session.close();
+                }
+                if (cluster != null) {
+                    cluster.close();
+                }
+                System.out.println("session closed");
+            }
+            return procedureList;
+        }
 
     }
 
@@ -545,31 +584,32 @@ public class CassandraQueryResponse {
      * @return
      * @throws Exception
      */
-    private static List<Provider> buildMockResponse(String state, String procedure) throws Exception {
-	List<Provider> providers = new ArrayList<Provider>();
+    private static List<Provider> buildMockResponse(String state, String procedure)
+            throws Exception {
+        List<Provider> providers = new ArrayList<Provider>();
 
-	try {
-	    // always mock in this way.
-	    providers = SolrProviderSource.getProviders(10, state, procedure);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    throw e;
-	}
+        try {
+            // always mock in this way.
+            providers = SolrProviderSource.getProviders(10, state, procedure);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
 
-	return providers;
+        return providers;
     }
 
     // for testing
     public static void main(String[] args) {
-	ArrayList<String> x = getProviders("CA", "99223", LEAST, 10);
-	System.out.println(x);
-	getProviderById(x.get(0));
+        ArrayList<String> x = getProviders("CA", "99223", LEAST, 10);
+        System.out.println(x);
+        getProviderById(x.get(0));
 
-	HashSet<String> asdf = new HashSet<String>();
-	asdf.add("99238");
-	asdf.add("99204");
-	asdf.add("99223");
-	System.out.println(getCodeToAvgCostMappingForState(asdf, "CA"));
+        HashSet<String> asdf = new HashSet<String>();
+        asdf.add("99238");
+        asdf.add("99204");
+        asdf.add("99223");
+        System.out.println(getCodeToAvgCostMappingForState(asdf, "CA"));
 
     }
 

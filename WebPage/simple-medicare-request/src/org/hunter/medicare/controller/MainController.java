@@ -388,8 +388,8 @@ public class MainController {
     @ResponseBody
     public List<ProcedureDetails> getProcedureMedicarePayGap(
             @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
-            @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
-            @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
+            @RequestParam(value = "start", required = false, defaultValue = "-1") int start,
+            @RequestParam(value = "end", required = false, defaultValue = "-1") int end)
             throws Exception {
 
         // Input parameter processing...
@@ -429,8 +429,8 @@ public class MainController {
     @ResponseBody
     public List<ProcedureDetails> getProcedurePatientCopay(
             @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
-            @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
-            @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
+            @RequestParam(value = "start", required = false, defaultValue = "-1") int start,
+            @RequestParam(value = "end", required = false, defaultValue = "-1") int end)
             throws Exception {
 
         // Input parameter processing...
