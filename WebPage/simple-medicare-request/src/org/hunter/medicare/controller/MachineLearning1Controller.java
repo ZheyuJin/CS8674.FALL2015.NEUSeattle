@@ -27,9 +27,8 @@ public class MachineLearning1Controller {
 			@RequestParam(value = "queries", required = false) String queries,
 			Model model) throws FileNotFoundException{
 		System.out.println("Received ML1 query request");
-		
-		return "Hello";
+		String queryAsArray[] = queries.split("; ");
+		Double response = ProviderTypeNBModel.getPrediction(queryAsArray);
+		return Double.toString(response);
 	}
-	
-	
 }

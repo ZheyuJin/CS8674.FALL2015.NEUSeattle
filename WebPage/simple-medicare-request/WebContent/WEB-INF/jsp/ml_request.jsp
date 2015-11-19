@@ -61,6 +61,30 @@ html, body {
 	<script>
 		var input_query = "";
 
+		$(document).ready(function() {
+
+			  $('body').append('<div id="ajaxBusy"><p><img src="http://mentalized.net/activity-indicators/indicators/pacific-assault/loader.gif"></p></div>');
+
+			  $('#ajaxBusy').css({
+			    display:"none",
+			    margin:"0px",
+			    paddingLeft:"0px",
+			    paddingRight:"0px",
+			    paddingTop:"0px",
+			    paddingBottom:"0px",
+			    position:"absolute",
+			    right:"3px",
+			    top:"3px",
+			     width:"auto"
+			  });
+			});
+
+			$(document).ajaxStart(function(){ 
+			  $('#ajaxBusy').show(); 
+			}).ajaxStop(function(){ 
+			  $('#ajaxBusy').hide();
+			});
+		
 		$(document).on('click', '#request_button', function() {
 			input_query = $('#user_input').val();
 			gatherAllInputs();
