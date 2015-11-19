@@ -10,7 +10,7 @@
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-<title>Machine Learning Use Case 1 Example</title>
+<title>Use case 2 and 3</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 <style>
@@ -45,9 +45,9 @@ html, body {
 </head>
 <body>
 	<h2>This Page Is For Testing Use Cases 2 and 3</h2>	
-	Amount ('N'): <input value="" id="Number" type="text" name="amount"
+	Amount ('N'): <input value="5" id="Number" type="text" name="amount"
 		width="100%"> <br>
-	<input type="checkbox" name="lowestToHighest" value="setInOrder" id="inOrderBox" checked />Check this box to return highest to lowest<br>
+	<input type="checkbox" name="doHighestToLowest" value="setOrder" id="doHighestToLowest" checked />Check this box to return highest to lowest<br>
 	<input type="checkbox" name="percent" value="setAsPercent" id="percentBox" />Check this box to return values as a percentage<br>
 	<input id="request_button" type="submit" value="Search">
 	<div id="result_area"></div>	
@@ -55,36 +55,66 @@ html, body {
 	<br>
 
 	<script>
-		var inOrder = true;
+		var getLargest = true;
 		var isPercent = false;
 		var amount = 10;
+		
+		// We might want some validation here (amount > 0 for example)
 
 		$(document).on('click', '#request_button', function() {
-			isPercent = $('percentBox').is(":checked");
-			inOrder = $('inOrderBox').is(":checked");
+			amount = $('#Number').val();
+			isPercent = $('#percentBox').is(":checked");
+			getLargest = $('#doHighestToLowest').is(":checked");
 			searchRequest();
 		});
 
 		function searchRequest() {
-			alert("here");
+			//alert("here");
 			
 			$.ajax({
 				url : "request",
 				data : {
 					amount: amount,
-					inOrder: inOrder,
+					sortDesc: getLargest,
 					isPercentage: isPercent
 				}
 			}).done(function(data) {
-				alert(JSON.stringify(data));
-				responseHandler(data);
-			});
+				//alert(JSON.stringify(data));
+				responseHandler(data, isPercent);
+			}).fail(function() {
+		        window.location = "../../error.html";
+		    });
 		}
 
-		function responseHandler(data) {
-			alert(JSON.stringify(data));
-			$("#result_area").replaceWith(
-					'<div id="result_area">' + JSON.stringify(data) + '</div>');
+		function responseHandler(data, isPercent) {
+			//alert(JSON.stringify(data));
+			//$("#result_area").replaceWith(
+			//		'<div id="result_area">' + JSON.stringify(data) + '</div>');
+			var output = "";
+			
+		    for (var i = 0; i < data.length; i++) {
+		    	// Patient responsibility is a percentage,
+		    	// Pay gap is the amount diff
+	            var percentPayGapOrAmountDiff = data[i].payGap;	
+		    	var dollarSign = "$";
+		    	var percentageSign = "";
+	            
+	            if (isPercent) {
+	                var percentPayGapOrAmountDiff = data[i].patientResponsibility;	                
+	                var dollarSign = "";
+	                var percentageSign = "%";
+	            }
+		    
+		    	output += "<div>" 
+		    	    + data[i].procCode
+		    	    + " "
+		    	    + data[i].desc
+		    	    + " " + dollarSign + " "
+		    	    + percentPayGapOrAmountDiff
+		    	    + " " + percentageSign
+		    	    + "</div>";
+		    }
+			$('#result_area').html(output);
 		}
 		</script>
 </body>

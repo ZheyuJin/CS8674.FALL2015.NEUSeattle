@@ -457,7 +457,6 @@ public class MainController {
             logger.debug("Exception querying Cassandra; rethrowing...");
             throw e;
         }
-
     }
 
     // Test the exception page

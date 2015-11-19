@@ -23,27 +23,32 @@ public class Cassandra2and3Controller {
 		return "cassandra23-form";
 	}
 
-	@RequestMapping(value = "/request", method = RequestMethod.GET, params = {
-			"amount", "inOrder", "isPercentage" })
-	public @ResponseBody List<Procedure> search(
-			@RequestParam(value = "amount", required = false) int amount,
-			@RequestParam(value = "inOrder", required = false) boolean inOrder,
-			@RequestParam(value = "isPercentage", required = false) boolean isPercentage,
-
-			Model model) {
+	@RequestMapping(value = "/request", method = RequestMethod.GET, 
+	        params = {"amount", "sortDesc", "isPercentage" })
+	public @ResponseBody List<ProcedureDetails> search(
+			@RequestParam(value = "amount", required = true, defaultValue="10") int amount,
+			@RequestParam(value = "sortDesc", required = false, defaultValue="true") boolean sortDesc,
+			@RequestParam(value = "isPercentage", required = false, defaultValue="false") boolean isPercentage) throws Exception {
 		System.out.println("Received Cassandra2/3 Request");
 		System.out.println("Reading Amount as " + Integer.toString(amount) + " inOrder as " + 
-					Boolean.toString(inOrder) + " and isPercentage " + Boolean.toString(isPercentage));
+					Boolean.toString(sortDesc) + " and isPercentage " + Boolean.toString(isPercentage));
 		if(isPercentage){
 		} else {
 		}
 		MainController main = new MainController();
-		List<Procedure> procedures = new ArrayList<Procedure>();
+		List<ProcedureDetails> procedures = new ArrayList<ProcedureDetails>();
         try {
-            procedures = main.getProcedureAvgCost("", "");
-
+            if (isPercentage)
+            {
+                procedures = main.getProcedurePatientCopay(sortDesc, 0, amount);
+            }
+            else {
+                procedures = main.getProcedureMedicarePayGap(sortDesc,  0, amount);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
 		
 		return procedures;
