@@ -51,6 +51,8 @@ html, body {
 			<option label="Select the state" disabled>Select the state</option>
 		</select> 
 		<br />
+		<br />
+		
 		<div>
 			<b><span id="curFacet"></span></b>
 		</div>
@@ -61,11 +63,11 @@ html, body {
 
 		<div id="breadcrumb">
 			<i> Query for providers and procedures: 
-			<span id="currentState">
+			<span id="currentState" class="link">
 					state = <span id="stateVal"></span>
 			</span> 
-			<span id="currentZip">+ zip = <span id="zipVal"></span></span> 
-			<span id="currentType">+ specialty = <span id="typeVal"></span></span>
+			&nbsp;<span id="currentZip" class="link">+ zip = <span id="zipVal"></span></span> 
+			&nbsp;<span id="currentType" class="link">+ specialty = <span id="typeVal"></span></span>
 			</i>
 		</div>
         <h4>Results:</h4>
@@ -92,7 +94,6 @@ html, body {
     var page_size = 10;
     var end_index = page_size - 1;
 
-    var proc_code = "";
     var state = "";
     var zip_code = "";
     var facet_type = "Zip";
@@ -130,25 +131,8 @@ html, body {
       }).ajaxStop(function(){ 
         $('#ajaxBusy').hide();
       });
-     
-     $(document).on('click', '#request_button', function() {
-      input_query = $('#user_input').val();
-      gatherAllInputs();
-      if(input_query.length == 0){
-       alert("Please enter input.")
-       return;    
-      }
-      searchRequest();
-     })
-    
-    
-    var states = [ "AZ", "CA", "FL", "TX", "GA", "NY" ];
-    var dropdown = $("#stateSelect");
-    for (var i = 0; i < states.length; i++) {
-      dropdown.append(new Option(states[i], states[i]));
-    };
-    // TODO: get states from facet query and populate dropdown
-    //getStates();
+ 
+    getStates();
 
     $(document).on('mouseenter', '.result', function() {
       $(this).addClass('result-hover');
@@ -187,12 +171,43 @@ html, body {
         searchRequest();
       });
     
+    $(document).on('click', '#currentState', function() {
+      var curState = $("#stateVal").text();
+      resetVars();
+      facet_type = "Zip";
+      state = curState;
+      searchRequest();
+    });
+    
+    $(document).on('click', '#currentZip', function() {
+      var curState = $("#stateVal").text();
+      var curZip = $("#zipVal").text();
+      resetVars();
+      facet_type = "ProviderType";
+      state = curState;
+      zip_code = curZip;
+      searchRequest();
+    });
+    
+    $(document).on('click', '#currentType', function() {
+      var curState = $("#stateVal").text();
+      var curZip = $("#zipVal").text();
+      var curType = $("#typeVal").text();
+      resetVars();
+      facet_type = "Query";
+      state = curState;      
+      zip_code = curZip;
+      provider_type = curType;
+ 
+      searchRequest();
+    });
+    
     $('#stateSelect').change(function() {
-      var val = $("#stateSelect option:selected").text();
+      var val = $("#stateSelect option:selected").val();
       //alert(val);
       
       resetVars();
-      state = $('#stateSelect').val();
+      state = val.toUpperCase();
       facet_type = "Zip";
       searchRequest();      
   });
@@ -229,7 +244,6 @@ html, body {
       start_index = 0;
       end_index = page_size - 1;
 
-      proc_code = "";
       state = "";
       zip_code = "";
       facet_type = "Zip";
@@ -249,33 +263,39 @@ html, body {
 
     }
 
-    // ToDo: get this working for dropdown population
     function getStates() {
 
       $.ajax({
-        url : "request",
-        data : {
-          facet : "State"
-        }
+        url : "../main/provider/count/states",
       }).done(function(data) {
-        alert(data.numProvidersTotal);
-        setDropdown(data.facets);
+        //alert(data.facetedCount.length);
+        setDropdown(data.facetedCount);
       }).fail(function() {
-        window.location = "../../error.html";
+        
+        // Fill in some defaults.
+        var states = [ "AZ", "CA", "FL", "TX", "GA", "NY" ];
+        var dropdown = $("#stateSelect");
+        for (var i = 0; i < states.length; i++) {
+          dropdown.append(new Option(states[i], states[i]));
+        };
+        
       });
     }
 
-    function setDropdown(facetData) {
+    function setDropdown(facetList) {
 
       var dropdown = $("#stateSelect");
-      alert("here");
-      alert(facetData.facetType);
-      alert(facetData.facetedCount.length);
+      //alert(facetList.length);
 
-      for (var i = 0; i < facetData.facetedCount.length; i++) {
-        var curState = facetData.facetedCount[i].propertyValue;
-        var curCount = facetData.facetedCount[i].propertyCount;
-        dropdown.append(new Option(curState, curState + " ( " + curCount + " )"));
+      for (var i = 0; i < facetList.length; i++) {
+        var curState = facetList[i].propertyValue;
+        var curCount = facetList[i].propertyCount;
+        if (curCount === 0) {
+          //alert("State has zero facet count?");
+        }
+        else {
+          dropdown.append(new Option(curState.toUpperCase() + " ( " + curCount + " )", curState));          
+        }
       }
     }
 
@@ -394,6 +414,7 @@ html, body {
       } else if (list.facetType == "Zip" || list.facetType == "State") {
         $("#curFacet").text(list.facetType + ":");
       } else {
+        //alert("No facet type?");
         $("#curFacet").text(" ");
       }
 
@@ -404,8 +425,15 @@ html, body {
       //alert(JSON.stringify(list));
       var output = "";
       for ( var i in list.facetedCount) {
-        output += '<div><span class="facet">' + list.facetedCount[i].propertyValue
-            + '</span><span> ( ' + list.facetedCount[i].propertyCount + ' )</span></div>';
+        
+        if (list.facetedCount[i].propertyCount === 0)
+        {
+          alert("Facet has zero facet count?");
+        }
+        else {        
+          output += '<div><span class="facet">' + list.facetedCount[i].propertyValue
+              + '</span><span> ( ' + list.facetedCount[i].propertyCount + ' )</span></div>';
+        }
       }
       return output;
     }
@@ -422,6 +450,7 @@ html, body {
 		<p>
 			<a href="../../index.html">Home</a>
 		</p>
+		
 	</footer>
 </body>
 </html>
