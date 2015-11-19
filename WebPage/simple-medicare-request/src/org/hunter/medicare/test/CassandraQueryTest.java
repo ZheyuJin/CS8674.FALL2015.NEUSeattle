@@ -11,7 +11,7 @@ import org.hunter.medicare.data.Provider;
  */
 public class CassandraQueryTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         System.out.println("gonna print test result");
 
         for (Provider p : CassandraQueryResponse.getInstance().getMostExpensive(10, "CA", "*")) {

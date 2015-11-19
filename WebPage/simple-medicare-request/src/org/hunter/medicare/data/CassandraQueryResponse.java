@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
+
 //import org.apache.log4j.BasicConfigurator;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ColumnDefinitions;
@@ -19,7 +21,7 @@ public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
     private static boolean mock = false;
 
-    private static String host = "52.32.209.104";
+    private static String host = "52.32.209.104"; // Tim's
     // private static String host = "127.0.0.1"; // If mock=false and run local
     // private static String host = "54.200.138.99"; // mock=false and EC2 brian
     // private static String host = "54.191.107.167"; // ec2 josh
@@ -62,7 +64,7 @@ public class CassandraQueryResponse {
 	return instance;
     }
 
-    public static List<Provider> getMostExpensive(Integer numRows, String state, String procedure) {
+    public static List<Provider> getMostExpensive(Integer numRows, String state, String procedure) throws Exception {
 	List<Provider> providers = new ArrayList<Provider>();
 
 	if (mock) {
@@ -161,6 +163,8 @@ public class CassandraQueryResponse {
 	} catch (Exception e) {
 	    // TODO seperate out exceptions
 	    System.out.println("An error occured:  " + e);
+            e.printStackTrace();
+            throw e;
 	} finally {
 	    if (session != null) {
 		session.close();
@@ -228,6 +232,8 @@ public class CassandraQueryResponse {
 	} catch (Exception e) {
 	    // TODO seperate out exceptions
 	    System.out.println("An error occured:  " + e);
+            e.printStackTrace();
+            throw e;
 	} finally {
 	    if (session != null) {
 		session.close();
@@ -307,6 +313,8 @@ public class CassandraQueryResponse {
 	} catch (Exception e) {
 	    // TODO seperate out exceptions
 	    System.out.println("An error occured:  " + e);
+            e.printStackTrace();
+            throw e;
 	} finally {
 	    if (session != null) {
 		session.close();
@@ -409,6 +417,8 @@ public class CassandraQueryResponse {
 		}
 	    } catch (Exception e) {
 		System.out.println("An error occured " + e);
+                e.printStackTrace();
+                throw e;
 	    } finally {
 		if (session != null) {
 		    session.close();
@@ -513,6 +523,8 @@ public class CassandraQueryResponse {
 		}
 	    } catch (Exception e) {
 		System.out.println("An error occured " + e);
+                e.printStackTrace();
+	        throw e;
 	    } finally {
 		if (session != null) {
 		    session.close();
@@ -535,7 +547,7 @@ public class CassandraQueryResponse {
      * @return
      * @throws Exception
      */
-    private static List<Provider> buildMockResponse(String state, String procedure) {
+    private static List<Provider> buildMockResponse(String state, String procedure) throws Exception {
 	List<Provider> providers = new ArrayList<Provider>();
 
 	try {
@@ -543,6 +555,7 @@ public class CassandraQueryResponse {
 	    providers = SolrProviderSource.getProviders(10, state, procedure);
 	} catch (Exception e) {
 	    e.printStackTrace();
+	    throw e;
 	}
 
 	return providers;
