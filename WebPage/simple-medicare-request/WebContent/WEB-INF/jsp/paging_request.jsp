@@ -49,7 +49,8 @@ html, body {
 
 		<select id="stateSelect" class="selectpicker">
 			<option label="Select the state" disabled>Select the state</option>
-		</select> <input id="search_button" type="submit" value="Search"> <br />
+		</select> 
+		<br />
 		<div>
 			<b><span id="curFacet"></span></b>
 		</div>
@@ -186,9 +187,15 @@ html, body {
         searchRequest();
       });
     
-    //$(document).on('click', '#stateSelect', function() {
-    //alert("click!");
-    //});
+    $('#stateSelect').change(function() {
+      var val = $("#stateSelect option:selected").text();
+      //alert(val);
+      
+      resetVars();
+      state = $('#stateSelect').val();
+      facet_type = "Zip";
+      searchRequest();      
+  });
 
     $(document).on('click', '.facet', function() {
 
@@ -220,7 +227,6 @@ html, body {
     function resetVars() {
 
       start_index = 0;
-      page_size = 10;
       end_index = page_size - 1;
 
       proc_code = "";
@@ -347,10 +353,14 @@ html, body {
       for ( var i in list) {
         var officeOrFacility = "Facility";
         
-        //alert(list[i].place_of_service);
         if (list[i].place_of_service.indexOf("O") != -1)
         {
           officeOrFacility = "Office";
+        }
+        
+        var formattedZip = list[i].zip;
+        if (formattedZip.length === 9) {
+          formattedZip = formattedZip.substr(0,5) + "-" + formattedZip.substr(5,4);
         }
         
         output += '<tr class="result">' 
@@ -365,7 +375,7 @@ html, body {
             + officeOrFacility 
             + '</td>'
             + '<td>'   
-            + toNameCase(list[i].city) + ", " + list[i].state + "  " + list[i].zip 
+            + toNameCase(list[i].city) + ", " + list[i].state + "  " + formattedZip 
             + '</td>'
             + '<td>'   
             + list[i].hcpcs_description 
@@ -389,13 +399,6 @@ html, body {
 
       $("#facet-area").replaceWith('<div id="facet-area">' + formatFacets(list) + '</div>');
     }
-
-    $(document).on('click', '#search_button', function() {
-      resetVars();
-      state = $('#stateSelect').val();
-      facet_type = "Zip";
-      searchRequest();
-    });
 
     function formatFacets(list) {
       //alert(JSON.stringify(list));

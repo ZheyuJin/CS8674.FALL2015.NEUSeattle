@@ -38,98 +38,103 @@ html, body {
 	color: blue;
 	text-decoration: underline;
 }
-
-
 </style>
 
 </head>
 <body>
-	<h3>Treatment payment gap: Patient payment responsibility</h3>	
-	Number of treatments: <input value="5" id="numRows" type="text" name="numRows"
+	<h3>Treatment payment gap: Patient payment responsibility</h3>
+	Number of treatments:
+	<input value="5" id="numRows" type="text" name="numRows" width="100%">
+	<br> Starting at:
+	<input value="0" id="startIndex" type="text" name="startIndex"
 		width="100%">
-		 <br>
-    Starting at: <input value="0" id="startIndex" type="text" name="startIndex"
-        width="100%"> 
-        <br>		
-	<input type="checkbox" name="doHighestToLowest" value="setOrder" id="doHighestToLowest" checked />Sort ascending (= treatments with highest patient responsibility on top)<br>
-	<input type="checkbox" name="percent" value="setAsPercent" id="percentBox" />Return gap as percentage of the overall charge?<br>
+	<br>
+	<input type="checkbox" name="doHighestToLowest" value="setOrder"
+		id="doHighestToLowest" checked />Sort ascending (= treatments with
+	highest patient responsibility on top)
+	<br>
+	<input type="checkbox" name="percent" value="setAsPercent"
+		id="percentBox" />Return gap as percentage of the overall charge?
+	<br>
 	<input id="request_button" type="submit" value="Search">
-	<div id="result_area"></div>	
+	<div id="result_area"></div>
 	<div id="graph_area"></div>
 	<br>
 
 	<script>
-		var getLargest = true;
-		var isPercent = false;
-		var numRows = 10;
-		var startIndex = 0;
-		
-		// We might want some validation here (amount > 0 for example)
+    var getLargest = true;
+    var isPercent = false;
+    var numRows = 10;
+    var startIndex = 0;
 
-		$(document).on('click', '#request_button', function() {
-			numRows = $('#numRows').val();
-			startIndex = $('#startIndex').val();
-			isPercent = $('#percentBox').is(":checked");
-			getLargest = $('#doHighestToLowest').is(":checked");
-			searchRequest();
-		});
+    // We might want some validation here (amount > 0 for example)
 
-		function searchRequest() {
-			//alert("here");
-			
-			$.ajax({
-				url : "request",
-				data : {
-					numRows: numRows,
-					start: startIndex,
-					sortDesc: getLargest,
-					isPercentage: isPercent
-				}
-			}).done(function(data) {
-				//alert(JSON.stringify(data));
-				responseHandler(data, isPercent);
-			}).fail(function() {
-		        window.location = "../../error.html";
-		    });
-		}
+    $(document).on('click', '#request_button', function() {
+      numRows = $('#numRows').val();
+      startIndex = $('#startIndex').val();
+      isPercent = $('#percentBox').is(":checked");
+      getLargest = $('#doHighestToLowest').is(":checked");
+      searchRequest();
+    });
 
-		function responseHandler(data, isPercent) {
-			//alert(JSON.stringify(data));
-			//$("#result_area").replaceWith(
-			//		'<div id="result_area">' + JSON.stringify(data) + '</div>');
-			var output = "";
-			
-		    for (var i = 0; i < data.length; i++) {
-		    	// Patient responsibility is a percentage,
-		    	// Pay gap is the amount diff
-	            var percentPayGapOrAmountDiff = data[i].payGap;	
-		    	var dollarSign = "$";
-		    	var percentageSign = "";
-	            
-		    	// There's a header value in the data (by accident)
-		    	// Weed that one out.
-		    	if (data[i].procCode === "hcpcs_code")
-		    	{
-		    	  continue;
-		    	}
-		    	
-		    	if (isPercent) {
-	                var percentPayGapOrAmountDiff = data[i].patientResponsibility;	                
-	                var dollarSign = "";
-	                var percentageSign = "%";
-	            }
-		    
-		    	output += "<div>" 
-		    	    + data[i].procCode
-		    	    + " "
-		    	    + data[i].desc
-		    	    + " " + dollarSign + " "
-		    	    + percentPayGapOrAmountDiff
-		    	    + " " + percentageSign
-		    	    + "</div>";
-		    }
-			$('#result_area').html(output);
-		}
-		</script>
+    function searchRequest() {
+      //alert("here");
+
+      $.ajax({
+        url : "request",
+        data : {
+          numRows : numRows,
+          start : startIndex,
+          sortDesc : getLargest,
+          isPercentage : isPercent
+        }
+      }).done(function(data) {
+        //alert(JSON.stringify(data));
+        responseHandler(data, isPercent);
+      }).fail(function() {
+        window.location = "../../error.html";
+      });
+    }
+
+    function responseHandler(data, isPercent) {
+      var output = "<hr />";
+
+      if (data.length === 0) {
+        output += "No results in the range specified";
+      }
+
+      for (var i = 0; i < data.length; i++) {
+
+        // Patient responsibility is a percentage,
+        // Pay gap is the amount diff
+        var percentPayGapOrAmountDiff = data[i].payGap;
+        var dollarSign = "$";
+        var percentageSign = "";
+
+        // There's a header value in the data (by accident)
+        // Weed that one out.
+        if (data[i].procCode === "hcpcs_code") {
+          continue;
+        }
+
+        if (isPercent) {
+          var percentPayGapOrAmountDiff = data[i].patientResponsibility;
+          var dollarSign = "";
+          var percentageSign = "%";
+        }
+
+        output += "<div>" + data[i].procCode + " " + data[i].desc + " " + dollarSign + " "
+            + percentPayGapOrAmountDiff + " " + percentageSign + "</div>";
+      }
+      $('#result_area').html(output);
+    }
+  </script>
+
+	<footer>
+		<hr />
+		<p>
+			<a href="../../index.html">Home</a>
+		</p>
+	</footer>
 </body>
 </html>
