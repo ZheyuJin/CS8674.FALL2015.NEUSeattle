@@ -63,15 +63,25 @@ html, body {
 	color: blue;
 	text-decoration: underline;
 }
+
+div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  width: 75px;                  
+  height: 40px;                 
+  padding: 2px;             
+  font: 12px sans-serif;        
+  background: lightsteelblue;   
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}
 </style>
 </head>
 <body>
 	<h3 id="hello">Treatment payment gap: Patient payment
 		responsibility</h3>
 <div class="container">
-  <h3>Tooltip Example</h3>
-  <div data-toggle="tooltip" title="Hooray!">Hover over me</div>
-</div>
 	Number of treatments:
 	<input value="5" id="numRows" type="text" name="numRows" width="100%">
 	<br> Starting at:
@@ -207,6 +217,8 @@ html, body {
 
 
 		function createGraph(data, isPercent) {
+			
+			
 			var sign = "$";
 			var amount = "Difference";
 			if (isPercent == true) {
@@ -216,6 +228,12 @@ html, body {
 
 			$('#graph_area').replaceWith('<div id="graph_area"></div>');
 
+			var formatTime = d3.time.format("%e %B");
+			
+			var div = d3.select("body").append("div")   
+		    .attr("class", "tooltip")               
+		    .style("opacity", 0);
+			
 			var margin = {
 				top : 20,
 				right : 20,
@@ -247,9 +265,12 @@ html, body {
 						return returnPayGapOrDiff(d, isPercent);
 					}) ]).range([ 0, h ]);
 
-			var svg = d3.select("#graph_area").append("svg").attr("width",
-					width + margin.left + margin.right).attr("height",
-					height + margin.top + margin.bottom).append("g").attr(
+			var svg = d3.select("#graph_area")
+			.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height",
+					height + margin.top + margin.bottom)
+				.append("g").attr(
 					"transform",
 					"translate(" + margin.left + "," + margin.top + ")");
 
@@ -272,7 +293,20 @@ html, body {
 				return y(returnPayGapOrDiff(d, isPercent));
 			}).attr("height", function(d) {
 				return height - y(returnPayGapOrDiff(d, isPercent));
-			});
+			})
+			        .on("mouseover", function(d) {      
+            div.transition()        
+                .duration(200)      
+                .style("opacity", .9); 
+            div .html("Procedure Code: " + d.procCode)  
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");    
+            })                  
+        .on("mouseout", function(d) {       
+            div.transition()        
+                .duration(500)      
+                .style("opacity", 0);   
+        });
 			
 			
 		}
