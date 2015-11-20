@@ -1,0 +1,17 @@
+
+If you decide to use any of these I recommend you talk to me (Tim).
+I promise to clean this up later.
+
+Included is not just table creation, but some useful troubleshooting tools
+
+Run josh's table creation files to make the "neapolitan" table scheme before trying to insert data
+
+
+There is a divide by zero bug in the MVPatientResponsibility I promise to fix this later. creates 5 bad entries
+since 5 procedures are totally free.
+
+each class has a description at the top, hopefully this is all you need to know to run them
+
+I ran all of these from eclipse so I didn't make any scripts. Its easy to do, but not worth the effort
+since I plan on changing all of this. Which is also why I didn't pretty it up for you guys. 
+
