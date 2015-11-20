@@ -26,13 +26,15 @@
       If the controllers wanted to dump in more error
       info, this jsp page is the place to do it. -->
 <h3>Unfortunately....</h3>
-    <div>An error occurred while processing your request.  
-    Press the back button to retry the operation.</div>
-
+    <div>Chaos reigns within.<br/>
+         Reflect, repent, and reboot.<br/>
+         Order shall return.</div>
     <footer>
     <hr />
         <p>
-            <a href="../../index.html">Home</a>
+            <a href="../../index.html">Home</a></p>
+            <p>
+            <a href="http://www.gnu.org/fun/jokes/error-haiku.html" target="_blank">Show me more error haikus!</a>
             </p>
     </footer>
 </body>
