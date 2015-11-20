@@ -22,8 +22,8 @@ public class SolrProviderSource {
 
     // ToDo: get this from config instead?
     // public static String solrUrlBase = "http://localhost:8983/solr/";
-    public static String solrUrlBase = "http://54.200.138.99:8983/solr/";
-    //private static String solrUrlBase = "http://52.32.209.104:8983/solr/"; // Tim's
+    //public static String solrUrlBase = "http://54.200.138.99:8983/solr/";
+    private static String solrUrlBase = "http://52.32.209.104:8983/solr/"; // Tim's
 
     public static String collectionName = "csvtest";
     public static String solrQueryBase = solrUrlBase + collectionName;
