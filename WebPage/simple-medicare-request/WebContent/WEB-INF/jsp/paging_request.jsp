@@ -110,7 +110,7 @@ html, body {
 
     $(document).ready(function() {
 
-        $('body').append('<div id="ajaxBusy"><p><img src="http://mentalized.net/activity-indicators/indicators/pacific-assault/loader.gif"></p></div>');
+        $('body').append('<div id="ajaxBusy"><p><img src="http://chimplyimage.appspot.com/images/samples/misc-spinner/animatedSkull.gif"></p></div>');
 
         $('#ajaxBusy').css({
           display:"none",

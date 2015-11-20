@@ -6,17 +6,13 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
 
-
-<link rel="stylesheet" type="text/css" href="../../tooltipster.css" />
-
-<script type="text/javascript" src="../../jquery.tooltipster.min.js"></script>
-
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<script type="text/javascript"
-	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script type="text/javascript" src="chart_with_labels_files/d3.js"></script>
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <title>Provider payment gap</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
@@ -68,12 +64,14 @@ html, body {
 	text-decoration: underline;
 }
 </style>
-
 </head>
 <body>
-	<h3 class="box" id="hello">Treatment payment gap: Patient payment
+	<h3 id="hello">Treatment payment gap: Patient payment
 		responsibility</h3>
-	<div class="box">HELLO THIS IS A TEST</div>
+<div class="container">
+  <h3>Tooltip Example</h3>
+  <div data-toggle="tooltip" title="Hooray!">Hover over me</div>
+</div>
 	Number of treatments:
 	<input value="5" id="numRows" type="text" name="numRows" width="100%">
 	<br> Starting at:
@@ -101,6 +99,30 @@ html, body {
 
 		// We might want some validation here (amount > 0 for example)
 
+		$(document).ready(function() {
+
+        $('body').append('<div id="ajaxBusy"><p><img src="http://chimplyimage.appspot.com/images/samples/misc-spinner/animatedSkull.gif"></p></div>');
+
+        $('#ajaxBusy').css({
+          display:"none",
+          margin:"0px",
+          paddingLeft:"0px",
+          paddingRight:"0px",
+          paddingTop:"0px",
+          paddingBottom:"0px",
+          position:"absolute",
+          right:"3px",
+          top:"3px",
+           width:"auto"
+        });
+      });
+
+      $(document).ajaxStart(function(){ 
+        $('#ajaxBusy').show(); 
+      }).ajaxStop(function(){ 
+        $('#ajaxBusy').hide();
+      });
+		
 		$(document).on('click', '#request_button', function() {
 			numRows = +$('#numRows').val();
 			startIndex = +$('#startIndex').val();
@@ -110,8 +132,8 @@ html, body {
 		});
 
 		function searchRequest() {
-			if (startIndex >= numRows || numRows <= 0
-					|| (numRows - startIndex) > 100) {
+			if (startIndex < 0 || numRows <= 0
+					|| numRows > 100) {
 				alert("Please enter valid search parameters");
 				return;
 			}
@@ -138,6 +160,16 @@ html, body {
 
 			if (data.length === 0) {
 				output += "No results in the range specified";
+			} else {
+				output +=   '<div class="container"><div class="table-responsive">' 
+				+ '<table class="table"><thead>';
+				if(isPercent == true){
+					output += '<thead><tr><th>Code</th><th>Description</th>'
+					+ '<th>Percent</th></tr></thead>';
+				} else {
+					output += '<thead><tr><th>Code</th><th>Description</th>'
+						+ '<th>Percent</th></tr></thead>';					
+				}
 			}
 
 			for (var i = 0; i < data.length; i++) {
@@ -160,12 +192,19 @@ html, body {
 					var percentageSign = "%";
 				}
 
-				output += "<div>" + data[i].procCode + " " + data[i].desc + " "
+				output += "<tr><td>" + data[i].procCode + "</td><td>" + data[i].desc + "</td><td>"
+						+ dollarSign + "" + percentPayGapOrAmountDiff + "" 
+						+ percentageSign + "</td></tr>"
+				/*output += "<div>" + data[i].procCode + " " + data[i].desc + " "
 						+ dollarSign + " " + percentPayGapOrAmountDiff + " "
-						+ percentageSign + "</div>";
+						+ percentageSign + "</div>"*/
 			}
+			if (data.length != 0) {
+				  output += '</table></div></div>'
+				}
 			$('#result_area').html(output);
 		}
+
 
 		function createGraph(data, isPercent) {
 			var sign = "$";
@@ -175,7 +214,6 @@ html, body {
 				amount = "Percent Paid";
 			}
 
-			//data.splice(0, 1);
 			$('#graph_area').replaceWith('<div id="graph_area"></div>');
 
 			var margin = {
@@ -215,14 +253,19 @@ html, body {
 					"transform",
 					"translate(" + margin.left + "," + margin.top + ")");
 
-			svg.append("g").attr("class", "x axis").attr("transform",
-					"translate(0," + height + ")").call(xAxis);
+			svg.append("g").attr("class", "x axis")
+						.attr("transform",
+					"translate(0," + height + ")")
+					.call(xAxis);
 
 			svg.append("g").attr("class", "y axis").call(yAxis).append("text")
 					.attr("transform", "rotate(-90)").attr("y", 6).attr("dy",
 							".71em").style("text-anchor", "end").text(amount);
 
-			svg.selectAll(".bar").data(data).enter().append("rect").attr(
+			svg.selectAll(".bar").data(data)
+								.enter()
+								.append("rect")
+								.attr(
 					"class", "bar").attr("x", function(d) {
 				return x(d.procCode);
 			}).attr("width", x.rangeBand()).attr("y", function(d) {
@@ -230,7 +273,8 @@ html, body {
 			}).attr("height", function(d) {
 				return height - y(returnPayGapOrDiff(d, isPercent));
 			});
-
+			
+			
 		}
 
 		function returnPayGapOrDiff(data, isPercent) {
@@ -241,9 +285,6 @@ html, body {
 			}
 
 		}
-		  $(function() {
-			    $( document ).tooltip();
-			  });
 		
 	</script>
 
