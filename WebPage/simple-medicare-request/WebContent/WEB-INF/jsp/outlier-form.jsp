@@ -17,9 +17,6 @@
 		<label for="proc_code"> Procedure Code </label> 		
 		<input id="proc_code"  name="proc_code" type="text" class="form-control" />
 		
-		<label for="state"> State </label> 		
-		<input id="state" type="text"  name="state" class="form-control" />
-		
 		<label for="percentage"> Percentage </label> 		
 		<input id="percentage" type="text"  name="percentage" class="form-control" /> 
 		 

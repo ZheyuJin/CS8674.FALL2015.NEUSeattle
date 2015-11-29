@@ -27,7 +27,7 @@ public class CassandraQueryResponse {
     // private static String host = "54.191.107.167"; // ec2 josh
     private static String keyspace = "demo";
     private static String keyspaceMain = "main";
-    private static String mvTable = "mv";
+    private static String mvTable = "providers";
     private static String USERNAME = "cassandra";
     private static String PASSWORD = "cassandra";
 
@@ -108,6 +108,9 @@ public class CassandraQueryResponse {
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
                     + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
                     + OPEN_STRING + state + CLOSE_STRING;
+            
+            System.out.println("zzz selectCostsByStateQuery \t" + selectCostsByStateQuery);
+            
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             if ((row = resultSet.one()) != null) {
@@ -292,7 +295,7 @@ public class CassandraQueryResponse {
             System.out.println("connecting to cassandra");
             // compose query
             String query1 = "SELECT * FROM proceduresstats" + " WHERE id = '" + id + "';";
-
+            System.out.println("zzz query: "+ query1);
             ResultSet procedureResult = session.execute(query1);
             Row procedureRow = procedureResult.one();
             if (procedureRow == null) {

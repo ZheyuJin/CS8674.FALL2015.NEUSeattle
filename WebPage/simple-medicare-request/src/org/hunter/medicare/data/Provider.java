@@ -60,6 +60,9 @@ public class Provider {
     // Set this to null for Solr queries?
     public ExtendedInfo providerDetails;
 
+    public Provider() {
+    }
+    
     public Provider(String id) {
         this.id = id;
     }
