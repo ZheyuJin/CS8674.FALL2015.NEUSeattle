@@ -29,7 +29,7 @@ public class Cassandra2and3Controller {
             @RequestParam(value = "start", required = false, defaultValue = "true") int start,
             @RequestParam(value = "sortDesc", required = false, defaultValue = "true") boolean sortDesc,
             @RequestParam(value = "isPercentage", required = false, defaultValue = "false") boolean isPercentage)
-            throws Exception {
+                    throws Exception {
         System.out.println("Received Cassandra2/3 Request");
         System.out.println("Reading numRows as " + Integer.toString(numRows) + " start as "
                 + Integer.toString(start) + " sortDesc as " + Boolean.toString(sortDesc)

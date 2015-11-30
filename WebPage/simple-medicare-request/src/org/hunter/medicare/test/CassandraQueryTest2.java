@@ -51,13 +51,13 @@ public class CassandraQueryTest2 {
         System.out.println("street2: " + test.providerDetails.streetAddress2);
         System.out.println("participation: " + test.providerDetails.medicare_participation);
         System.out.println("line count: " + test.line_service_count);
-        System.out.println("avg medicare payment :"
-                + test.providerDetails.averageMedicarePaymentAmount);
-        System.out.println("avg medicare allowed :"
-                + test.providerDetails.averageMedicareAllowedAmount);
+        System.out.println(
+                "avg medicare payment :" + test.providerDetails.averageMedicarePaymentAmount);
+        System.out.println(
+                "avg medicare allowed :" + test.providerDetails.averageMedicareAllowedAmount);
         System.out.println("hcpcs_drug_indicator is: " + test.providerDetails.hcpcs_drug_indicator);
-        System.out.println("avg submitted charge is "
-                + test.providerDetails.averageSubmittedChargeAmount);
+        System.out.println(
+                "avg submitted charge is " + test.providerDetails.averageSubmittedChargeAmount);
 
     }
 

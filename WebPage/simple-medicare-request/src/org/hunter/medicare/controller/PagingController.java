@@ -24,15 +24,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/paging")
 public class PagingController {
-	static Logger logger = Logger.getLogger("PagingController");
+    static Logger logger = Logger.getLogger("PagingController");
 
-	@RequestMapping(value = "/request", method = RequestMethod.GET)
-	public String getCase1Form() {
-		System.out.println("made it here");
-		return "paging_request";
-	}
+    @RequestMapping(value = "/request", method = RequestMethod.GET)
+    public String getCase1Form() {
+        System.out.println("made it here");
+        return "paging_request";
+    }
 
-	@RequestMapping(value = "/request", method = RequestMethod.GET, params = {"state"})
+    @RequestMapping(value = "/request", method = RequestMethod.GET, params = { "state" })
     @ResponseBody
     public FacetedProviderResult getProvidersWithFacets(
             @RequestParam(value = "state", required = false, defaultValue = "") String state,
@@ -42,8 +42,8 @@ public class PagingController {
             @RequestParam(value = "facet", required = false, defaultValue = "Query") String facetType,
             @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
             @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
-            throws Exception {
-        
+                    throws Exception {
+
         FacetedProviderResult ret = new FacetedProviderResult();
 
         // Input parameter processing...
@@ -84,8 +84,8 @@ public class PagingController {
             ret.facets.facetFilters.add(new FilterPair(FacetType.State.toString(), state));
         }
         if (provider_type != null && !provider_type.isEmpty()) {
-            ret.facets.facetFilters.add(new FilterPair(FacetType.ProviderType.toString(),
-                    provider_type));
+            ret.facets.facetFilters
+                    .add(new FilterPair(FacetType.ProviderType.toString(), provider_type));
         }
 
         // TODO: remove this (but Hunter might need it early on for UI)
@@ -113,8 +113,7 @@ public class PagingController {
                 // Query Solr for the provider count per state
                 // TODO: maybe we should sort these?
                 FacetType facetOn = FacetType.Query;
-                if (!facetType.isEmpty())
-                {
+                if (!facetType.isEmpty()) {
                     facetOn = FacetType.valueOf(facetType);
                 }
                 ret.facets.facetType = facetOn;
@@ -134,5 +133,4 @@ public class PagingController {
 
     }
 
-	
 }
