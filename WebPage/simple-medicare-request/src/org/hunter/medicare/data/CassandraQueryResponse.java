@@ -27,7 +27,7 @@ public class CassandraQueryResponse {
     // private static String host = "54.191.107.167"; // ec2 josh
     private static String keyspace = "demo";
     private static String keyspaceMain = "main";
-    private static String mvTable = "mv";
+    private static String mvTable = "providers";
     private static String USERNAME = "cassandra";
     private static String PASSWORD = "cassandra";
 
@@ -92,7 +92,8 @@ public class CassandraQueryResponse {
         return providers;
     }
 
-    public static ArrayList<String> getProviders(String state, String code, String order, int limit) {
+    public static ArrayList<String> getProviders(String state, String code, String order,
+            int limit) {
 
         // incremented until $limit or EOF
         int numberOfInstances = 0;
@@ -106,8 +107,11 @@ public class CassandraQueryResponse {
             session = cluster.connect(keyspace);
 
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
-                    + OPEN_STRING + state + CLOSE_STRING;
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
+                    + state + CLOSE_STRING;
+
+            System.out.println("zzz selectCostsByStateQuery \t" + selectCostsByStateQuery);
+
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             if ((row = resultSet.one()) != null) {
@@ -191,8 +195,8 @@ public class CassandraQueryResponse {
             session = cluster.connect(keyspace);
 
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE
-                    + OPEN_STRING + state + CLOSE_STRING;
+                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
+                    + state + CLOSE_STRING;
             ResultSet resultSet = session.execute(selectCostsByStateQuery);
             Row row;
             Double sumOfCosts = 0.0;
@@ -292,7 +296,7 @@ public class CassandraQueryResponse {
             System.out.println("connecting to cassandra");
             // compose query
             String query1 = "SELECT * FROM proceduresstats" + " WHERE id = '" + id + "';";
-
+            System.out.println("zzz query: " + query1);
             ResultSet procedureResult = session.execute(query1);
             Row procedureRow = procedureResult.one();
             if (procedureRow == null) {
@@ -403,7 +407,7 @@ public class CassandraQueryResponse {
                 }
                 String query = "SELECT * FROM mv_charged_medicare_payment_gap "
                         + "WHERE mv_id = 2 ORDER BY charge_medicare_pay_gap " + ordering;
-                // + " LIMIT " + numReturn + ";";
+                        // + " LIMIT " + numReturn + ";";
 
                 // ResultSet result = session.execute(query);
                 // See
@@ -525,8 +529,8 @@ public class CassandraQueryResponse {
                 }
                 String query = "SELECT * FROM mv_patient_responsibility "
                         + "WHERE mv_id = 1 ORDER BY fraction_responsible " + ordering;
-                // + " LIMIT "
-                // + numReturn + ";";
+                        // + " LIMIT "
+                        // + numReturn + ";";
 
                 // ResultSet result = session.execute(query);
                 // See

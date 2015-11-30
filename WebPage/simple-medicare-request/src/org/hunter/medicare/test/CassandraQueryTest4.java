@@ -5,7 +5,7 @@ import java.util.List;
 import org.hunter.medicare.data.CassandraQueryResponse;
 import org.hunter.medicare.data.ProcedureDetails;
 
-public class CassandraQueryTest3 {
+public class CassandraQueryTest4 {
 
     public static void main(String[] args) {
         CassandraQueryResponse cr = new CassandraQueryResponse();

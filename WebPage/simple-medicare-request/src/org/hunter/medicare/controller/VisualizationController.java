@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/vis")
 public class VisualizationController {
-	static Logger logger = Logger.getLogger("VisualizationController");
+    static Logger logger = Logger.getLogger("VisualizationController");
 
-	@RequestMapping(value = "/request", method = RequestMethod.GET)
-	public String getCase1Form() {
-		return "urbanrural_map";
-	}
+    @RequestMapping(value = "/request", method = RequestMethod.GET)
+    public String getCase1Form() {
+        return "urbanrural_map";
+    }
 }

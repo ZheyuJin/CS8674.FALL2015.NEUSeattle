@@ -234,7 +234,7 @@ public class MainController {
             @RequestParam(value = "facet", required = false, defaultValue = "Query") String facetType,
             @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
             @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
-            throws Exception {
+                    throws Exception {
 
         FacetedProviderResult ret = new FacetedProviderResult();
 
@@ -276,8 +276,8 @@ public class MainController {
             ret.facets.facetFilters.add(new FilterPair(FacetType.State.toString(), state));
         }
         if (provider_type != null && !provider_type.isEmpty()) {
-            ret.facets.facetFilters.add(new FilterPair(FacetType.ProviderType.toString(),
-                    provider_type));
+            ret.facets.facetFilters
+                    .add(new FilterPair(FacetType.ProviderType.toString(), provider_type));
         }
 
         // TODO: remove this (but Hunter might need it early on for UI)
@@ -390,7 +390,7 @@ public class MainController {
             @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
             @RequestParam(value = "start", required = false, defaultValue = "-1") int start,
             @RequestParam(value = "end", required = false, defaultValue = "-1") int end)
-            throws Exception {
+                    throws Exception {
 
         // Input parameter processing...
 
@@ -431,7 +431,7 @@ public class MainController {
             @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
             @RequestParam(value = "start", required = false, defaultValue = "-1") int start,
             @RequestParam(value = "end", required = false, defaultValue = "-1") int end)
-            throws Exception {
+                    throws Exception {
 
         // Input parameter processing...
 
@@ -498,8 +498,8 @@ class ProcedureComp implements Comparator<Procedure> {
 class TopChargeSComp implements Comparator<Provider> {
     @Override
     public int compare(Provider o1, Provider o2) {
-        return (o1.providerDetails.averageSubmittedChargeAmount - o2.providerDetails.averageSubmittedChargeAmount) > 0 ? -1
-                : 1;
+        return (o1.providerDetails.averageSubmittedChargeAmount
+                - o2.providerDetails.averageSubmittedChargeAmount) > 0 ? -1 : 1;
     }
 }
 

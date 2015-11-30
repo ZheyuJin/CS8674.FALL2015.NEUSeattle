@@ -15,14 +15,14 @@ public class SparkConfig {
 
     private String master;
 
-    public JavaSparkContext javaSparkContext(){
-	
-	master = "local";
+    public JavaSparkContext javaSparkContext() {
 
-	LOGGER.info("Creating SparkContext. Master=" + master);;
-	SparkConf conf = new SparkConf().setAppName("NaiveBayesProviderType")
-		.setMaster(master);
+        master = "spark://ec2-52-34-97-105.us-west-2.compute.amazonaws.com:7077";
 
-	return new JavaSparkContext(conf);
+        LOGGER.info("Creating SparkContext. Master=" + master);
+        ;
+        SparkConf conf = new SparkConf().setAppName("NaiveBayesProviderType").setMaster(master);
+
+        return new JavaSparkContext(conf);
     }
 }

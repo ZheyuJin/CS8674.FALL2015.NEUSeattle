@@ -14,7 +14,7 @@ public class CassandraQueryTest {
     public static void main(String[] args) throws Exception {
         System.out.println("gonna print test result");
 
-        for (Provider p : CassandraQueryResponse.getInstance().getMostExpensive(10, "CA", "*")) {
+        for (Provider p : CassandraQueryResponse.getInstance().getMostExpensive(10, "*", "*")) {
             System.out.println(p.providerDetails.averageSubmittedChargeAmount);
         }
     }

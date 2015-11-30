@@ -39,7 +39,7 @@ public class Assessment1Controller {
             @RequestParam(value = "proc_code", required = false) String proc_code,
             @RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "use_case", required = true) String use_case, Model model)
-            throws Exception {
+                    throws Exception {
         logger.debug("Received submit request");
 
         List<Provider> list = new ArrayList<Provider>();
@@ -69,7 +69,7 @@ public class Assessment1Controller {
             @RequestParam(value = "keyword", required = true) String keyword,
             @RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "use_case", required = true) String use_case, Model model)
-            throws Exception {
+                    throws Exception {
         logger.debug("Received submit request for case 3");
         List<Procedure> output = new ArrayList<Procedure>();
         try {
