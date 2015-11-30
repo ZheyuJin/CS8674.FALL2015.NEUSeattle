@@ -15,7 +15,7 @@
 		<input id="proc_code"  name="proc_code" type="text" class="form-control" />
 		
 		<label for="percentage"> Percentage </label> 		
-		<input id="percentage" type="number" min="1" max="100"  name="percentage" class="form-control" /> 
+		<input id="percentage" type="number" min="0" max="100" step="0.01" name="percentage" class="form-control" /> 
 		 
 		<button type="submit" class="btn btn-default">Submit</button>
 			
