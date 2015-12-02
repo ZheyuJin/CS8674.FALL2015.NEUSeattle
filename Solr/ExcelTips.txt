@@ -1,0 +1,33 @@
+﻿id	year	NPI	NPPES_PROVIDER_LAST_ORG_NAME	NPPES_PROVIDER_FIRST_NAME	NPPES_PROVIDER_MI	NPPES_CREDENTIALS	NPPES_PROVIDER_GENDER	NPPES_ENTITY_CODE	NPPES_PROVIDER_STREET1	NPPES_PROVIDER_STREET2	NPPES_PROVIDER_CITY	NPPES_PROVIDER_ZIP	NPPES_PROVIDER_STATE	NPPES_PROVIDER_COUNTRY	PROVIDER_TYPE	MEDICARE_PARTICIPATION_INDICATOR	PLACE_OF_SERVICE	HCPCS_CODE	HCPCS_DESCRIPTION	HCPCS_DRUG_INDICATOR	LINE_SRVC_CNT	BENE_UNIQUE_CNT	BENE_DAY_SRVC_CNT	AVERAGE_MEDICARE_ALLOWED_AMT	STDEV_MEDICARE_ALLOWED_AMT	AVERAGE_SUBMITTED_CHRG_AMT	STDEV_SUBMITTED_CHRG_AMT	AVERAGE_MEDICARE_PAYMENT_AMT	STDEV_MEDICARE_PAYMENT_AMT
+
+paste in data cells
+copy in header (adding two first columns if need be)
+
+then put this in A2
+=CONCATENATE($C2,$I2,$R2,$S2,$B2)
+
+put year in B2 (2012)
+
+Get rid of currency and thousands separator:
+format line cnt as numeric with one decimal place
+format benefit counts as numeric, zero decimal places 
+format all average and stdev amounts as numeric, two decimal places
+
+
+Solr queries for testing (used by web site):
+
+Get top busiest providers by state:
+http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3Aaz+AND+HCPCS_CODE%3A99213&rows=10&start=0&sort=id+desc
+
+Get procedures using a keyword:
+http://localhost:8983/solr/csvtest/select?q=HCPCS_DESCRIPTION%3Aknee&fl=id%2CHCPCS_CODE%2CHCPCS_DESCRIPTION%2CBENE_UNIQUE_CNT&rows=10&start=0&sort=BENE_UNIQUE_CNT+desc
+
+Get state facet count for providers:
+SolrJ query = http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&facet=true&fl=NPPES_PROVIDER_STATE&facet.field=NPPES_PROVIDER_STATE
+
+Get zip facet count for state:
+SolrJ query = http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3ACA&rows=10&start=0&facet.field=NPPES_PROVIDER_ZIP&facet=true
+
+Get providers and procedures for zip (pageable response):
+SolrJ query = http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_ZIP%3A921039001+AND+NPPES_PROVIDER_STATE%3ACA&rows=10&start=0&facet.field=provider_type_exact&facet=true
+

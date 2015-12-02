@@ -12,6 +12,7 @@ import org.hunter.medicare.gaussian.GMM;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,17 +46,21 @@ public class OutlierController {
      * @param percentage
      * @param model
      * @return JSP page as view.
+     * @throws Exception
      */
     @RequestMapping(value = "/result-jsp", method = RequestMethod.GET)
     public String getOutlier_ResultJSP(
             @RequestParam(value = "proc_code", required = true) String proc_code,
-            @RequestParam(value = "percentage", required = true) String percentage, Model model) {
+            @RequestParam(value = "percentage", required = true) String percentage, Model model)
+            throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
             list = getGaussianOutliers(proc_code, Double.parseDouble(percentage));
         } catch (Exception e) {
             e.printStackTrace();
+            log.debug("Exception getting outlier results; rethrowing...");
+            throw e;
         }
 
         // Add to model
@@ -70,18 +75,22 @@ public class OutlierController {
      * @param percentage
      * @param model
      * @return JSON result.
+     * @throws Exception
      */
     @RequestMapping(value = "/result-json", method = RequestMethod.GET)
     @ResponseBody
     public List<Provider> getOutlier_ResultJson(
             @RequestParam(value = "proc_code", required = true) String proc_code,
-            @RequestParam(value = "percentage", required = true) String percentage, Model model) {
+            @RequestParam(value = "percentage", required = true) String percentage, Model model)
+            throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
             list = getGaussianOutliers(proc_code, Double.parseDouble(percentage));
         } catch (Exception e) {
             e.printStackTrace();
+            log.debug("Exception getting outlier json; rethrowing...");
+            throw e;
         }
 
         // Add to model
@@ -125,8 +134,8 @@ public class OutlierController {
     private List<Provider> filterByPrice(double price) throws IOException {
         List<Provider> ret = new ArrayList<>();
         // TODO will feed input read from Cassandra in the future.
-        try (CSVReader stream = new CSVReader(new InputStreamReader(
-                new ClassPathResource("resources/22524.txt").getInputStream()), '\t');) {
+        try (CSVReader stream = new CSVReader(new InputStreamReader(new ClassPathResource(
+                "resources/22524.txt").getInputStream()), '\t');) {
             String[] ss = null;
 
             while (null != (ss = stream.readNext())) {
@@ -193,6 +202,22 @@ public class OutlierController {
         return p;
     }
 
+    // Test the exception page
+    @RequestMapping(value = "/exception", method = RequestMethod.GET)
+    public void getExceptionPage() throws Exception {
+        throw new Exception("This is an error");
+    }
+
+    @ExceptionHandler({ Exception.class })
+    public String genericError() {
+        // Returns the logical view name of an error page, passed to
+        // the view-resolver(s) in usual way.
+        // See
+        // https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc
+        // for more options.
+        return "genericError";
+    }
+
     /**
      * for test only
      * 
@@ -201,8 +226,7 @@ public class OutlierController {
      */
     public static void main(String[] args) throws Exception {
         OutlierController con = new OutlierController();
-        for (Object obj : con.getGaussianOutliers("22524" /* spine procedure */,
-                0.1 /* percent */)) {
+        for (Object obj : con.getGaussianOutliers("22524" /* spine procedure */, 0.1 /* percent */)) {
             System.out.println(obj);
         }
     }
