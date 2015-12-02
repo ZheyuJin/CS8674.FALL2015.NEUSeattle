@@ -12,3 +12,22 @@ Get rid of currency and thousands separator:
 format line cnt as numeric with one decimal place
 format benefit counts as numeric, zero decimal places 
 format all average and stdev amounts as numeric, two decimal places
+
+
+Solr queries for testing (used by web site):
+
+Get top busiest providers by state:
+http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3Aaz+AND+HCPCS_CODE%3A99213&rows=10&start=0&sort=id+desc
+
+Get procedures using a keyword:
+http://localhost:8983/solr/csvtest/select?q=HCPCS_DESCRIPTION%3Aknee&fl=id%2CHCPCS_CODE%2CHCPCS_DESCRIPTION%2CBENE_UNIQUE_CNT&rows=10&start=0&sort=BENE_UNIQUE_CNT+desc
+
+Get state facet count for providers:
+SolrJ query = http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&facet=true&fl=NPPES_PROVIDER_STATE&facet.field=NPPES_PROVIDER_STATE
+
+Get zip facet count for state:
+SolrJ query = http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3ACA&rows=10&start=0&facet.field=NPPES_PROVIDER_ZIP&facet=true
+
+Get providers and procedures for zip (pageable response):
+SolrJ query = http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_ZIP%3A921039001+AND+NPPES_PROVIDER_STATE%3ACA&rows=10&start=0&facet.field=provider_type_exact&facet=true
+
