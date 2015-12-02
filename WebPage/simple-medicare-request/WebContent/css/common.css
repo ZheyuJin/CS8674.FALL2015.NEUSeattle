@@ -1,0 +1,68 @@
+.bar {
+	fill: steelblue;
+}
+
+.bar:hover {
+	fill: brown;
+}
+
+.axis {
+	font: 10px sans-serif;
+}
+
+.axis path, .axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.x.axis path {
+	display: none;
+}
+
+html, body {
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
+#side-bar {
+	height: 100%;
+	margin: 0;
+	padding: .25em 0em .25em 0em;
+	border: solid 1px #30c9e0;
+	background: #cc0000;
+	width: 13.5em;
+	float: left;
+}
+
+#ajaxBusy {
+	display: none;
+	margin: 0px;
+	paddingLeft: 0px;
+	paddingRight: 0px;
+	paddingTop: 0px;
+	paddingBottom: 0px;
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: auto;
+}
+
+.link {
+	color: blue;
+	text-decoration: underline;
+}
+
+div.tooltip {
+	position: absolute;
+	text-align: center;
+	width: 75px;
+	height: 40px;
+	padding: 2px;
+	font: 12px sans-serif;
+	background: lightsteelblue;
+	border: 0px;
+	border-radius: 8px;
+	pointer-events: none;
+}
