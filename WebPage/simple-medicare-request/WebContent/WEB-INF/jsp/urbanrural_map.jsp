@@ -61,7 +61,7 @@
 </style>
 </head>
 <body>
-<h2> Use Case 6: Urban vs Rural</h2>
+<h2> Urban vs Rural</h2>
   <script type="text/javascript">
 
 
