@@ -92,11 +92,6 @@ var quantize = d3.scale.quantize()
     .defer(d3.tsv, "../../normal_dist.tsv", function(d) { rateById.set(d.id, +d.rate); })
     .await(ready);
 
-     //   var rateById = {};
-
-
-//q8-9 { fill:rgb(8,48,107); }
-
     function findFill(data){
       if(rateById.get(data.properties.zip) == null){
         return "blank";
