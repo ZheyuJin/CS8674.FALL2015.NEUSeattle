@@ -235,6 +235,9 @@
          This ensures the facets are the original text values, not the transformed text -->
     <field name="provider_type_exact" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
     <copyField source="PROVIDER_TYPE" dest="provider_type_exact" />
+
+    <field name="hcpcs_description_exact" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
+    <copyField source="hcpcs_description" dest="hcpcs_description_exact" />
     
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
