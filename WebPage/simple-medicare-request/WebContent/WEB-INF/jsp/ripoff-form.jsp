@@ -4,18 +4,18 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Outliers</title>
+<title>Is this price a Ripoff ?</title>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" >
 </head>
 <body class="container main center">
 	<h1>Outlier detection by percentage.</h1>
-	<form action="result-jsp" method="get" class="form-inline"> 
+	<form action="result-json" method="get" class="form-inline"> 
 		
 		<label for="proc_code"> Procedure Code </label> 		
 		<input id="proc_code"  name="proc_code" type="text" class="form-control" />
 		
-		<label for="percentage"> Percentage </label> 		
-		<input id="percentage" type="number" min="0" max="100" step="0.01" name="percentage" class="form-control" /> 
+		<label for="percentage"> Price </label> 		
+		<input id="percentage" type="number" min="0"  step="1" name="price" class="form-control" /> 
 		 
 		<button type="submit" class="btn btn-success">Submit</button>
 			
