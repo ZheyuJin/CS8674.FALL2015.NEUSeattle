@@ -14,9 +14,11 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.NamedList;
 
 public class SolrProviderSource {
 
@@ -98,8 +100,7 @@ public class SolrProviderSource {
             for (int i = 0; i < list.size(); i++) {
                 SolrDocument doc = list.get(i);
                 Map<String, Object> fields = doc.getFieldValueMap();
-                if (fields != null && fields.containsKey("id")
-                        && !fields.get("id").equals("12012")) {
+                if (fields != null && fields.containsKey("id") && !fields.get("id").equals("12012")) {
                     this.body.providers.add(new Provider(fields));
                 }
             }
@@ -118,8 +119,8 @@ public class SolrProviderSource {
     }
 
     // Provider counts by state (state = key)
-    public static List<CountedPropertyValue> getCountsForStates()
-            throws IOException, SolrServerException {
+    public static List<CountedPropertyValue> getCountsForStates() throws IOException,
+            SolrServerException {
 
         // http://localhost:8983/solr/csvtest/select?q=NPPES_PROVIDER_STATE%3A*&fl=NPPES_PROVIDER_STATE&wt=json&indent=true&facet=true&facet.field=NPPES_PROVIDER_STATE
 
@@ -138,49 +139,77 @@ public class SolrProviderSource {
         return FacetedCount.convertToFacetList(solrData.body.facets, true);
     }
 
-    // Map of procedure values and codes. Key = code, value = description
-    // Note that we return only the procedures defined for the "top numrows"
-    // providers who had a procedure with the query term, as ordered by
-    // beneficiary unique count.
-    public static HashMap<String, String> getProcedures(int numRows, String queryTerm)
+    // Get "most listed" procedures by count, find by keyword (for example,
+    // "knee")
+    public static Map<String, String> getTopProceduresByKeyword(Integer numRows, String queryTerm)
             throws IOException, SolrServerException {
 
-        HashMap<String, String> codesWithDescriptions = new HashMap<String, String>();
+        String queryString = "HCPCS_DESCRIPTION:";
 
-        SolrQuery query = new SolrQuery();
-
-        if (queryTerm != null && queryTerm != "") {
-            query.setQuery("HCPCS_DESCRIPTION:" + queryTerm);
+        if (queryTerm.isEmpty()) {
+            queryString = queryString + "*";
+        } else {
+            queryString = queryString + queryTerm;
         }
-        query.setFields("id,HCPCS_CODE,HCPCS_DESCRIPTION,BENE_UNIQUE_CNT");
+        SolrQuery query = new SolrQuery(queryString);
 
-        query.setRows(numRows);
-        query.setStart(0);
-        query.setSort("BENE_UNIQUE_CNT", ORDER.desc); // TODO: other sorts?
+        // We don't actually want provider results, we just want facets.
+        query.setRows(0);
 
-        SolrProviderSource solrData = getQueryResponse(query);
-        for (Provider p : solrData.body.providers) {
-            String code = p.hcpcs_code.toUpperCase();
+        // Query looks something like this:
+        // http://localhost:8983/solr/csvtest/select?q=HCPCS_DESCRIPTION:knee&facet=true&rows=0&facet.pivot=HCPCS_CODE,hcpcs_description_exact&wt=json&indent=true&facet.sort=count&facet.limit=50
+        query.set("facet.pivot", "HCPCS_CODE,hcpcs_description_exact");
+        query.set("facet.sort", "count");
+        query.set("facet.limit", numRows);
+        query.setFacet(true);
 
-            if (!codesWithDescriptions.containsKey(code)) {
-                String description = p.hcpcs_description.toString();
-                codesWithDescriptions.put(code.toUpperCase(), description);
+        // SolrProviderSource solrData = getQueryResponse(query);
+        SolrClient solr = new HttpSolrClient(solrQueryBase);
+
+        System.out.println("SolrJ query = " + solrQueryBase + "/select?" + query);
+        QueryResponse solrJresponse = solr.query(query);
+        NamedList<List<PivotField>> pivotFacets = solrJresponse.getFacetPivot();
+
+        Map<String, String> codesAndDescriptions = new HashMap<String, String>();
+        if (pivotFacets != null && pivotFacets.size() >= 1) {
+            List<PivotField> fields = pivotFacets.getVal(0);
+            for (int i = 0; i < fields.size(); i++) {
+                PivotField field = fields.get(i);
+
+                // Mine the facet response.
+                // We assume the first value = hcpcs code and the first
+                // pivot is description (see facet.pivot set above)
+                if ((field != null) && field.getCount() > 0) {
+                    String codeValue = "";
+                    String description = "";
+
+                    if (field.getValue() != null) {
+                        codeValue = field.getValue().toString();
+                    }
+
+                    if (field.getPivot() != null && field.getPivot().size() > 0) {
+                        description = field.getPivot().get(0).getValue().toString();
+                    }
+
+                    if (!codeValue.isEmpty() && !description.isEmpty()) {
+                        codesAndDescriptions.put(codeValue, description);
+                    }
+                }
             }
         }
-        System.out.println(
-                "Code/Description query returned " + codesWithDescriptions.size() + " codes");
 
-        return codesWithDescriptions;
+        System.out.println("Query returned " + codesAndDescriptions.size() + " pivot facets ");
 
+        return codesAndDescriptions;
     }
 
     // Map of procedure values and codes. Key = code, value = description
     // Note that we return only the procedures defined for the "top numrows"
-    // providers, as ordered by beneficiary unique count.
-    public static HashMap<String, String> getProcedures(int numRows)
-            throws IOException, SolrServerException {
+    // providers, as ordered by # of procedure rows found.
+    public static Map<String, String> getProcedures(int numRows) throws IOException,
+            SolrServerException {
 
-        return getProcedures(numRows, "*");
+        return getTopProceduresByKeyword(numRows, "*");
     }
 
     public static List<Provider> getProviders(int numRows, String state, String procedure)
@@ -190,8 +219,8 @@ public class SolrProviderSource {
     }
 
     // Get the providers for the given query
-    public static Long getProviders(String query, List<Provider> providers)
-            throws IOException, SolrServerException {
+    public static Long getProviders(String query, List<Provider> providers) throws IOException,
+            SolrServerException {
         ArrayList<FilterPair> filters = new ArrayList<FilterPair>();
 
         filters.add(new FilterPair("Query", query));
@@ -211,7 +240,7 @@ public class SolrProviderSource {
     public static Long getProvidersWithFacets(List<Provider> providers, FacetType facetField,
             List<CountedPropertyValue> facetCounts, List<FilterPair> filters, Integer start,
             Integer numRows) throws IOException, SolrServerException {
-        // TODO: might be able to have a fixed table that maps facet type to
+        // Consider: might be able to have a fixed table that maps facet type to
         // solr field
         // Or turn this into a "build query" helper function
         String newQuery = "";
@@ -281,6 +310,7 @@ public class SolrProviderSource {
         if (!facetProperty.isEmpty()) {
             query.set("facet.field", facetProperty);
             query.setFacet(true);
+            query.set("facet.sort", "index");
         }
 
         SolrProviderSource solrData = getQueryResponse(query);
@@ -293,15 +323,15 @@ public class SolrProviderSource {
         }
 
         if (facetCounts != null) {
-            List<CountedPropertyValue> fcList = FacetedCount
-                    .convertToFacetList(solrData.body.facets, true);
+            List<CountedPropertyValue> fcList = FacetedCount.convertToFacetList(
+                    solrData.body.facets, true);
             for (CountedPropertyValue cpv : fcList) {
                 facetCounts.add(cpv);
             }
         }
 
-        System.out.println(
-                "Query returned " + providers.size() + " results out of " + solrData.body.numFound);
+        System.out.println("Query returned " + providers.size() + " results out of "
+                + solrData.body.numFound);
 
         return solrData.body.numFound;
     }
@@ -337,16 +367,16 @@ public class SolrProviderSource {
         SolrProviderSource solrData = getQueryResponse(query);
         providers = solrData.body.providers;
 
-        System.out.println(
-                "Query returned " + providers.size() + " results out of " + solrData.body.numFound);
+        System.out.println("Query returned " + providers.size() + " results out of "
+                + solrData.body.numFound);
 
         return providers;
     }
 
     // Get list of providers who perform procedures containing the given
     // queryTerm (for example: knee or inpatient)
-    public static List<Provider> getProviders(int numRows, String queryTerm)
-            throws IOException, SolrServerException {
+    public static List<Provider> getProviders(int numRows, String queryTerm) throws IOException,
+            SolrServerException {
         List<Provider> providers = new ArrayList<Provider>();
 
         SolrQuery query = new SolrQuery();
@@ -361,15 +391,14 @@ public class SolrProviderSource {
         SolrProviderSource solrData = getQueryResponse(query);
         providers = solrData.body.providers;
 
-        System.out.println(
-                "Query returned " + providers.size() + " results out of " + solrData.body.numFound);
+        System.out.println("Query returned " + providers.size() + " results out of "
+                + solrData.body.numFound);
 
         return providers;
     }
 
     // Internal query helper
-    protected static QueryResponse doQuery(SolrQuery query)
-            throws SolrServerException, IOException {
+    protected static QueryResponse doQuery(SolrQuery query) throws SolrServerException, IOException {
 
         SolrClient solr = null;
         QueryResponse solrJresponse = null;
@@ -391,8 +420,8 @@ public class SolrProviderSource {
 
     // Internal query helper - converts the solrJ response to our list
     // of providers and/or facets.
-    protected static SolrProviderSource getQueryResponse(SolrQuery query)
-            throws IOException, SolrServerException {
+    protected static SolrProviderSource getQueryResponse(SolrQuery query) throws IOException,
+            SolrServerException {
         SolrProviderSource response = null;
 
         QueryResponse solrJresponse = doQuery(query);
@@ -415,13 +444,13 @@ public class SolrProviderSource {
             System.out.println("Querying for list of states providers are in:");
             List<CountedPropertyValue> states = SolrProviderSource.getCountsForStates();
             for (CountedPropertyValue state : states) {
-                System.out.println(
-                        "  State: " + state.propertyValue + "(" + state.propertyCount + ")");
+                System.out.println("  State: " + state.propertyValue + "(" + state.propertyCount
+                        + ")");
             }
 
             // Test out "get codes and descriptions query"
             System.out.println("Querying for list of procedures providers reported:");
-            HashMap<String, String> codesWithDescriptions = SolrProviderSource.getProcedures(20);
+            Map<String, String> codesWithDescriptions = SolrProviderSource.getProcedures(20);
             for (String key : codesWithDescriptions.keySet()) {
                 String value = codesWithDescriptions.get(key);
                 System.out.println("  Code " + key + " : " + value);
@@ -429,7 +458,7 @@ public class SolrProviderSource {
 
             // Test out "get codes and descriptions query" #2
             System.out.println("Querying for list of procedures providers reported for knees:");
-            codesWithDescriptions = SolrProviderSource.getProcedures(20, "knee");
+            codesWithDescriptions = SolrProviderSource.getTopProceduresByKeyword(20, "knee");
             for (String key : codesWithDescriptions.keySet()) {
                 String value = codesWithDescriptions.get(key);
                 System.out.println("  Code " + key + " : " + value);
@@ -440,9 +469,9 @@ public class SolrProviderSource {
             System.out.println("Querying for providers by state = * and procedure = 69210:");
             List<Provider> providers = getProviders(10, "*", "99214");
             for (Provider p : providers) {
-                System.out.println(
-                        "  Provider " + p.last_or_org_name + ", procedure " + p.hcpcs_code + " ("
-                                + p.hcpcs_description + "): " + p.beneficiaries_unique_count);
+                System.out.println("  Provider " + p.last_or_org_name + ", procedure "
+                        + p.hcpcs_code + " (" + p.hcpcs_description + "): "
+                        + p.beneficiaries_unique_count);
             }
 
             // Test "get provider by state and procedure, sort based on
@@ -450,18 +479,18 @@ public class SolrProviderSource {
             System.out.println("Querying for providers by state = CA and procedure = 99213:");
             providers = getProviders(10, "FL", "99213");
             for (Provider p : providers) {
-                System.out.println(
-                        "  Provider " + p.last_or_org_name + ", procedure " + p.hcpcs_code + " ("
-                                + p.hcpcs_description + "): " + p.beneficiaries_unique_count);
+                System.out.println("  Provider " + p.last_or_org_name + ", procedure "
+                        + p.hcpcs_code + " (" + p.hcpcs_description + "): "
+                        + p.beneficiaries_unique_count);
             }
 
             // Test "get providers who perform something to do with "knee"
             System.out.println("Querying for providers who did something related to knees:");
             providers = getProviders(10, "knee");
             for (Provider p : providers) {
-                System.out.println(
-                        "  Provider " + p.last_or_org_name + ", procedure " + p.hcpcs_code + " ("
-                                + p.hcpcs_description + "): " + p.beneficiaries_unique_count);
+                System.out.println("  Provider " + p.last_or_org_name + ", procedure "
+                        + p.hcpcs_code + " (" + p.hcpcs_description + "): "
+                        + p.beneficiaries_unique_count);
             }
 
             System.out.println("Querying for providers, filtered within Texas:");
@@ -489,8 +518,8 @@ public class SolrProviderSource {
             for (Provider p : providersInTx) {
                 System.out.println("  " + p.id);
                 if (!p.state.equalsIgnoreCase("tx") || !p.zip.startsWith("78654")) {
-                    System.out
-                            .println("Warning - provider zip does not begin with 78654 = " + p.zip);
+                    System.out.println("Warning - provider zip does not begin with 78654 = "
+                            + p.zip);
                 }
             }
             for (CountedPropertyValue f : facets) {

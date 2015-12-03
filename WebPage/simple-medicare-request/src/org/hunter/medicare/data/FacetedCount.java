@@ -37,15 +37,4 @@ public class FacetedCount {
 
         return facets;
     }
-
-    public static List<FilterPair> convertToFilterList(Map<String, String> mapFilters) {
-        ArrayList<FilterPair> filters = new ArrayList<FilterPair>();
-        for (String k : mapFilters.keySet()) {
-            FilterPair f = new FilterPair(k, mapFilters.get(k));
-            filters.add(f);
-        }
-
-        return filters;
-    }
-
 }

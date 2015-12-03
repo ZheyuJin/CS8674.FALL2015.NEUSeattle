@@ -49,6 +49,7 @@ public class MainController {
         return "case3-form";
     }
 
+    // http://localhost:8080/simple-medicare-request/assessment/main/case1-result-jsp?state=AZ&proc_code=99213
     /**
      * TODO: confusing with case 1. get top 10 most expensive doctors given
      * state and hpcps code.
@@ -59,16 +60,20 @@ public class MainController {
      *            HPCPS code
      * @param model
      * @return
+     * @throws Exception
      */
     @RequestMapping(value = "/case1-result-jsp", method = RequestMethod.GET)
     public String getCase1_ResultForm(@RequestParam(value = "state", required = true) String state,
-            @RequestParam(value = "proc_code", required = true) String proc_code, Model model) {
+            @RequestParam(value = "proc_code", required = true) String proc_code, Model model)
+            throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
             list = getTopExpensiveProvider(state, proc_code);
         } catch (Exception e) {
             e.printStackTrace();
+            logger.debug("Exception querying Cassandra for getTopExpensiveProvider; rethrowing...");
+            throw e;
         }
 
         // Add to model
@@ -77,6 +82,7 @@ public class MainController {
         return "ProviserListView";
     }
 
+    // http://localhost:8080/simple-medicare-request/assessment/main/case1-result-json?state=AZ&proc_code=99213
     /**
      * 
      * @param state
@@ -93,21 +99,23 @@ public class MainController {
 
         try {
             List<Provider> providers = CassandraQueryResponse.getMostExpensive(num_rows, state,
-                    proc_code); // mock
+                    proc_code);
             Collections.sort(providers, new TopChargeSComp());
 
             return providers;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Solr; rethrowing...");
+            logger.debug("Exception querying Cassandra for getMostExpensive providers; rethrowing...");
             throw e;
         }
 
     }
 
+    // http://localhost:8080/simple-medicare-request/assessment/main/case2-result-jsp?state=AZ&proc_code=99213
     @RequestMapping(value = "/case2-result-jsp", method = RequestMethod.GET)
     public String getCase2_ResultForm(@RequestParam(value = "state", required = true) String state,
-            @RequestParam(value = "proc_code", required = true) String proc_code, Model model) {
+            @RequestParam(value = "proc_code", required = true) String proc_code, Model model)
+            throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
@@ -115,6 +123,8 @@ public class MainController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.debug("Exception querying Solr for getTopBusy providers; rethrowing...");
+            throw e;
         }
 
         // Add to model
@@ -125,10 +135,9 @@ public class MainController {
         return "ProviserListView";
     }
 
+    // http://localhost:8080/simple-medicare-request/assessment/main/case2-result-json?state=AZ&proc_code=99213
     /**
      * "rest" endpoint - returns JSON rather than redirecting to a page
-     * http://localhost:8080/simple-medicare-request/hunter/main/solr/provider?
-     * state=AZ&proc=92213
      * 
      * @throws Exception
      */
@@ -155,6 +164,7 @@ public class MainController {
 
     }
 
+    // http://localhost:8080/simple-medicare-request/assessment/main/case3-result-json?state=AZ&proc_desc=knee
     /**
      * @throws Exception
      */
@@ -164,9 +174,10 @@ public class MainController {
             @RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "proc_desc", required = true) String proc_desc) throws Exception {
         int num_rows = 10;
+        Map<String, String> procsMap = null;
 
         try {
-            Map<String, String> procsMap = SolrProviderSource.getProcedures(num_rows, proc_desc);
+            procsMap = SolrProviderSource.getTopProceduresByKeyword(num_rows, proc_desc);
             System.err.println("procsMap key:" + procsMap.keySet());
             // ID,
             Map<String, Double> avgPriceMap = CassandraQueryResponse
@@ -189,12 +200,13 @@ public class MainController {
             return ret;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Solr; rethrowing...");
+            logger.debug("Exception querying Solr or Cassandra; rethrowing...");
             throw e;
         }
 
     }
 
+    // http://localhost:8080/simple-medicare-request/assessment/main/case3-result-jsp?state=AZ&proc_desc=knee
     @RequestMapping(value = "/case3-result-jsp", method = RequestMethod.GET)
     public String getCase3_ResultForm(@RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "proc_desc", required = true) String proc_desc, Model model) {
@@ -220,7 +232,8 @@ public class MainController {
      * 
      * @throws Exception
      */
-    // http://localhost:8080/simple-medicare-request/assessment/main/provider/count/states/
+    // TODO: check if we still need this, think we flipped over to the general
+    // faceted method in paging controller.
     @RequestMapping(value = "/provider/count/states", method = RequestMethod.GET)
     @ResponseBody
     public FacetedCount getProviderCountsPerState() throws Exception {
@@ -271,6 +284,7 @@ public class MainController {
 
     }
 
+    // http://localhost:8080/simple-medicare-request/assessment/main/exception
     // Test the exception page
     @RequestMapping(value = "/exception", method = RequestMethod.GET)
     public void getExceptionPage() throws Exception {
