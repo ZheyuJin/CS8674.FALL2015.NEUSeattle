@@ -1,21 +1,17 @@
 package org.hunter.medicare.controller;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.hunter.medicare.data.CassandraQueryResponse;
 import org.hunter.medicare.data.CountedPropertyValue;
 import org.hunter.medicare.data.FacetType;
 import org.hunter.medicare.data.FacetedCount;
 import org.hunter.medicare.data.FacetedProviderResult;
 import org.hunter.medicare.data.FilterPair;
-import org.hunter.medicare.data.Procedure;
 import org.hunter.medicare.data.Provider;
 import org.hunter.medicare.data.SolrProviderSource;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,7 +38,7 @@ public class PagingController {
             @RequestParam(value = "facet", required = false, defaultValue = "Query") String facetType,
             @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
             @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
-                    throws Exception {
+            throws Exception {
 
         FacetedProviderResult ret = new FacetedProviderResult();
 
@@ -84,8 +80,8 @@ public class PagingController {
             ret.facets.facetFilters.add(new FilterPair(FacetType.State.toString(), state));
         }
         if (provider_type != null && !provider_type.isEmpty()) {
-            ret.facets.facetFilters
-                    .add(new FilterPair(FacetType.ProviderType.toString(), provider_type));
+            ret.facets.facetFilters.add(new FilterPair(FacetType.ProviderType.toString(),
+                    provider_type));
         }
 
         // TODO: remove this (but Hunter might need it early on for UI)
@@ -133,4 +129,19 @@ public class PagingController {
 
     }
 
+    // Test the exception page
+    @RequestMapping(value = "/exception", method = RequestMethod.GET)
+    public void getExceptionPage() throws Exception {
+        throw new Exception("This is an error");
+    }
+
+    @ExceptionHandler({ Exception.class })
+    public String genericError() {
+        // Returns the logical view name of an error page, passed to
+        // the view-resolver(s) in usual way.
+        // See
+        // https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc
+        // for more options.
+        return "genericError";
+    }
 }
