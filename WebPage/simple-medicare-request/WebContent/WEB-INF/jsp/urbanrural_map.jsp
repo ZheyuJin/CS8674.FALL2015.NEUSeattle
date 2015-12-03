@@ -60,7 +60,7 @@
 
 </style>
 </head>
-<body>
+<body class="container main">
 <h2> Urban vs Rural</h2>
   <script type="text/javascript">
 

@@ -42,7 +42,7 @@ html, body {
 </style>
 
 </head>
-<body>
+<body class ="container main">
 
 	<h3>Explore providers and procedures via state, zip and specialty</h3>
 	<div id="side-bar" class="container">
