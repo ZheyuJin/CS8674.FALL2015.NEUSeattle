@@ -24,19 +24,34 @@
 	type="image/x-icon">
 
 </head>
-<body>
-	<div class="container">
+<body class="container main center">
+<!-- 
+	<h1>Outlier detection by percentage.</h1>
+	<form action="result-jsp" method="get" class="form-inline"> 
+		
+		<label for="proc_code"> Procedure Code </label> 		
+		<input id="proc_code"  name="proc_code" type="text" class="form-control" />
+		
+		<label for="percentage"> Percentage </label> 		
+		<input id="percentage" type="number" min="0" max="100" step="0.01" name="percentage" class="form-control" /> 
+		 
+		<button type="submit" class="btn btn-default">Submit</button>
+			
+	</form>
+-->
+	<div>
 		<h2>Explore Providers and Procedures</h2>
-		<b> Procedure Code:</b> <br> 
-		<input id="proc_code" type="text"
-			size="10"> <br> <br> 
-			<select id="stateSelect"
-			class="selectpicker">
+		<label for="proc_code"> Procedure Code </label>
+		<input id="proc_code" name="proc_code" type="text" class="form-control">
+		
+
+			<br> <br> 
+			<select id="stateSelect" class="selectpicker">
 			<option label="Select the state" disabled>Select the state</option>
 		</select>
 		<div id="proc_keyword_box" style="display: none">
-			<b>Procedure Keyword:</b> <br> <input id="proc_keyword"
-				type="text" size="10">
+		<label for="proc_keyword">Procedure Keyword</label>
+		<input id="proc_keyword" name="proc_keyword" type="text" class="form-control">
 		</div>
 
 		<form>
@@ -49,7 +64,8 @@
 				value="case_3" id="case3btn" onClick="javascript:caseCheck()">Find
 			procedures using a keyword, show average cost in a state<br>
 		</form>
-			<input id="submitSearch" type="submit" value="Submit" />
+			<input id="submitSearch" type="submit" value="Submit" class="btn btn-default" />
+			
 	</div>
 	<br />
 
