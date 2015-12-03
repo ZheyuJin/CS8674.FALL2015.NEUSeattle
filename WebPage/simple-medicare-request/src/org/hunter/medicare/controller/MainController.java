@@ -11,10 +11,7 @@ import org.hunter.medicare.data.CassandraQueryResponse;
 import org.hunter.medicare.data.CountedPropertyValue;
 import org.hunter.medicare.data.FacetType;
 import org.hunter.medicare.data.FacetedCount;
-import org.hunter.medicare.data.FacetedProviderResult;
-import org.hunter.medicare.data.FilterPair;
 import org.hunter.medicare.data.Procedure;
-import org.hunter.medicare.data.ProcedureDetails;
 import org.hunter.medicare.data.Provider;
 import org.hunter.medicare.data.SolrProviderSource;
 import org.springframework.stereotype.Controller;
@@ -223,110 +220,6 @@ public class MainController {
      * 
      * @throws Exception
      */
-    // http://localhost:8080/simple-medicare-request/assessment/main/provider/
-    @RequestMapping(value = "/provider", method = RequestMethod.GET)
-    @ResponseBody
-    public FacetedProviderResult getProvidersWithFacets(
-            @RequestParam(value = "state", required = false, defaultValue = "") String state,
-            @RequestParam(value = "zip", required = false, defaultValue = "") String zip,
-            @RequestParam(value = "provider_type", required = false, defaultValue = "") String provider_type,
-            @RequestParam(value = "query", required = false, defaultValue = "") String query,
-            @RequestParam(value = "facet", required = false, defaultValue = "Query") String facetType,
-            @RequestParam(value = "start", required = false, defaultValue = "-1") Integer start,
-            @RequestParam(value = "end", required = false, defaultValue = "-1") Integer end)
-                    throws Exception {
-
-        FacetedProviderResult ret = new FacetedProviderResult();
-
-        // Input parameter processing...
-
-        // If they don't have start/end set, default to first 10 (= 0-9)
-        Integer startRow = 0;
-        Integer numRows = 10; // Default at 10 rows (inclusive)
-
-        // Note: start = end = 0 is one row (the first one)
-        if (start >= 0) {
-            startRow = start;
-
-            if (end >= start) {
-                numRows = end - start + 1;
-            }
-        }
-        // In result, start row is always what they requested (zero based)
-        // The size of provider list = number returned in this "slice"
-        // The total number = full number of results available
-        // Notice that a query with start > total will return nothing
-        ret.startRow = startRow;
-
-        ret.facets = new FacetedCount();
-
-        ret.providers = new ArrayList<Provider>();
-        ret.facets.facetedCount = new ArrayList<CountedPropertyValue>();
-
-        if (!query.isEmpty() || !state.isEmpty() || !zip.isEmpty() || !provider_type.isEmpty()) {
-            ret.facets.facetFilters = new ArrayList<FilterPair>();
-        }
-        if (query != null && !query.isEmpty()) {
-            ret.facets.facetFilters.add(new FilterPair(FacetType.Query.toString(), query));
-        }
-        if (zip != null && !zip.isEmpty()) {
-            ret.facets.facetFilters.add(new FilterPair(FacetType.Zip.toString(), zip));
-        }
-        if (state != null && !state.isEmpty()) {
-            ret.facets.facetFilters.add(new FilterPair(FacetType.State.toString(), state));
-        }
-        if (provider_type != null && !provider_type.isEmpty()) {
-            ret.facets.facetFilters
-                    .add(new FilterPair(FacetType.ProviderType.toString(), provider_type));
-        }
-
-        // TODO: remove this (but Hunter might need it early on for UI)
-        boolean useMock = false;
-        try {
-
-            if (useMock) {
-
-                // We set the start = to the input.. the size of the provider
-                // list is the number returned
-                // starting at that start row (can be zero)
-                // For the mock, this is a fake value (obviously)
-                ret.numProvidersTotal = startRow + ret.providers.size() - 1L;
-
-                // ToDo: mock some providers in the list too?
-
-                ret.facets.facetType = FacetType.State;
-
-                ret.facets.facetedCount.add(new CountedPropertyValue("tx", 135L));
-                ret.facets.facetedCount.add(new CountedPropertyValue("fl", 70L));
-                ret.facets.facetedCount.add(new CountedPropertyValue("nv", 7L));
-                ret.facets.facetedCount.add(new CountedPropertyValue("ny", 86L));
-
-            } else {
-                // Query Solr for the provider count per state
-                // TODO: maybe we should sort these?
-                FacetType facetOn = FacetType.valueOf(facetType);
-                ret.facets.facetType = facetOn;
-
-                ret.numProvidersTotal = SolrProviderSource.getProvidersWithFacets(ret.providers,
-                        facetOn, ret.facets.facetedCount, ret.facets.facetFilters, startRow,
-                        numRows);
-            }
-
-            return ret;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.debug("Exception querying Solr; rethrowing...");
-            throw e;
-        }
-
-    }
-
-    /**
-     * Returns JSON
-     * 
-     * @throws Exception
-     */
     // http://localhost:8080/simple-medicare-request/assessment/main/provider/count/states/
     @RequestMapping(value = "/provider/count/states", method = RequestMethod.GET)
     @ResponseBody
@@ -378,87 +271,6 @@ public class MainController {
 
     }
 
-    /**
-     * Returns JSON
-     * 
-     * @throws Exception
-     */
-    // http://localhost:8080/simple-medicare-request/assessment/main/procedure/paygap/
-    @RequestMapping(value = "/procedure/paygap", method = RequestMethod.GET)
-    @ResponseBody
-    public List<ProcedureDetails> getProcedureMedicarePayGap(
-            @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
-            @RequestParam(value = "start", required = false, defaultValue = "-1") int start,
-            @RequestParam(value = "end", required = false, defaultValue = "-1") int end)
-                    throws Exception {
-
-        // Input parameter processing...
-
-        // If they don't have start/end set, default to first 10 (= 0-9)
-        Integer startRow = 0;
-        Integer numRows = 10; // Default at 10 rows (inclusive)
-
-        // Note: start = end = 0 is one row (the first one)
-        if (start >= 0) {
-            startRow = start;
-
-            if (end >= start) {
-                numRows = end - start + 1;
-            }
-        }
-
-        try {
-
-            return CassandraQueryResponse.getChargedMedicarePayGap(sortDesc, startRow, numRows);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.debug("Exception querying Cassandra; rethrowing...");
-            throw e;
-        }
-
-    }
-
-    /**
-     * Returns JSON
-     * 
-     * @throws Exception
-     */
-    // http://localhost:8080/simple-medicare-request/assessment/main/procedure/copay/
-    @RequestMapping(value = "/procedure/copay", method = RequestMethod.GET)
-    @ResponseBody
-    public List<ProcedureDetails> getProcedurePatientCopay(
-            @RequestParam(value = "top", required = false, defaultValue = "true") boolean sortDesc,
-            @RequestParam(value = "start", required = false, defaultValue = "-1") int start,
-            @RequestParam(value = "end", required = false, defaultValue = "-1") int end)
-                    throws Exception {
-
-        // Input parameter processing...
-
-        // If they don't have start/end set, default to first 10 (= 0-9)
-        Integer startRow = 0;
-        Integer numRows = 10; // Default at 10 rows (inclusive)
-
-        // Note: start = end = 0 is one row (the first one)
-        if (start >= 0) {
-            startRow = start;
-
-            if (end >= start) {
-                numRows = end - start + 1;
-            }
-        }
-
-        try {
-
-            return CassandraQueryResponse.getPatientResponsibility(sortDesc, startRow, numRows);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.debug("Exception querying Cassandra; rethrowing...");
-            throw e;
-        }
-    }
-
     // Test the exception page
     @RequestMapping(value = "/exception", method = RequestMethod.GET)
     public void getExceptionPage() throws Exception {
@@ -498,8 +310,8 @@ class ProcedureComp implements Comparator<Procedure> {
 class TopChargeSComp implements Comparator<Provider> {
     @Override
     public int compare(Provider o1, Provider o2) {
-        return (o1.providerDetails.averageSubmittedChargeAmount
-                - o2.providerDetails.averageSubmittedChargeAmount) > 0 ? -1 : 1;
+        return (o1.providerDetails.averageSubmittedChargeAmount - o2.providerDetails.averageSubmittedChargeAmount) > 0 ? -1
+                : 1;
     }
 }
 
