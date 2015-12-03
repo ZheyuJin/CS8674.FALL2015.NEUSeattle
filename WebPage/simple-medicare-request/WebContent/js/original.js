@@ -9,7 +9,11 @@ function getStates() {
 
 $(document).ready(function() {
 	getStates();
+	$('#proc_keyword').hide();
 });
+
+
+$(document).on('click', )
 
 $(document).on('click', '#submitSearch', function() {
 	if ($('input[name="use_case"]:checked').val() != "case_3") {
@@ -77,7 +81,7 @@ $(document).on('click', '#submitSearch', function() {
 					},
 					function(data) {
 						$("#feedback").replaceWith(
-								'<span id="feedback">' + displayDataCase3(data)
+								'<span id="feedback">' + JSON.stringify(data)
 										+ '</span>');
 					}).fail(function() {
 				window.location = "../../error.html";
@@ -154,12 +158,14 @@ function checkEmpty(data) {
 }
 
 function caseCheck() {
-	if (document.getElementById('case3btn').checked) {
-		document.getElementById('proc_keyword_box').style.display = 'block';
-		document.getElementById('proc_code').disabled = true;
+	if ($('#case3btn').is(":checked")) {
+		$('#proc_keyword').hide();
+		$('#proc_code').attr('disabled','disabled');
+		//document.getElementById('proc_code').disabled = true;
 	} else {
-		document.getElementById('proc_keyword_box').style.display = 'none';
-		document.getElementById('proc_code').disabled = false;
+		$('#proc_keyword').hide();
+		$('#proc_code').attr('disabled','enabled');
+		//document.getElementById('proc_code').disabled = false;
 	}
 }
 

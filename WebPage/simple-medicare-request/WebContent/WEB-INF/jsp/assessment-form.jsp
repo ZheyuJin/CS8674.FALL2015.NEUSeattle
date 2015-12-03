@@ -41,24 +41,28 @@
 -->
 	<div>
 		<h2>Explore Providers and Procedures</h2>
+		<form role="form">
+		<div class="form-group">
 		<label for="proc_code"> Procedure Code </label>
-		<input id="proc_code" name="proc_code" type="text" class="form-control">
+		<input id="proc_code" name="proc_code" type="proc_code" class="form-control" placeholder="Enter Procedure Code"></div>
+		<div class="form-group">
+		<label for="proc_keyword">Procedure Keyword</label>
+		<input id="proc_keyword" name="proc_keyword" type="proc_keyword" class="form-control" placeholder="Enter Procedure Keyword">
+		</div>
+		</form>
 		
 
 			<br> <br> 
-			<select id="stateSelect" class="selectpicker">
+			<select id="stateSelect" class="selectpicker form-control">
 			<option label="Select the state" disabled>Select the state</option>
 		</select>
-		<div id="proc_keyword_box" style="display: none">
-		<label for="proc_keyword">Procedure Keyword</label>
-		<input id="proc_keyword" name="proc_keyword" type="text" class="form-control">
-		</div>
 
 		<form>
 			<br> <input type="radio" name="use_case" value="case_1" checked
-				id="case1btn" onClick="javascript:caseCheck()">Show most
-			expensive provider(s) in a state for a procedure<br> <input
-				type="radio" name="use_case" value="case_2" id="case2btn"
+				id="case1btn" onClick="javascript:caseCheck()" class="case-select">Show most
+			expensive provider(s) in a state for a procedure<br> 
+			<input
+				type="radio" name="use_case" value="case_2" id="case2btn" class="case-select"
 				onClick="javascript:caseCheck()">Show busiest provider(s) in
 			a state for a procedure<br> <input type="radio" name="use_case"
 				value="case_3" id="case3btn" onClick="javascript:caseCheck()">Find
@@ -71,10 +75,6 @@
 
 	<br />
 	<span id="feedback"></span>
-	<div id="proc_keyword_box" style="display: none">
-		<b> Keyword:</b> <br> <input id="proc_keyword" type="text"
-			size="10"> <br>
-	</div>
 
 	<footer>
 		<hr />
