@@ -157,9 +157,7 @@ function getStates() {
 		var dropdown = $("#stateSelect");
 		for (var i = 0; i < states.length; i++) {
 			dropdown.append(new Option(states[i], states[i]));
-		}
-		;
-
+		};
 	});
 }
 
