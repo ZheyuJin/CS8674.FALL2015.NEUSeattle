@@ -8,7 +8,7 @@
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" >
 </head>
 <body class="container main center">
-	<h1>Outlier detection by percentage.</h1>
+	<h1>Is this price a ripoff?</h1>
 	<form action="result-json" method="get" class="form-inline"> 
 		
 		<label for="proc_code"> Procedure Code </label> 		

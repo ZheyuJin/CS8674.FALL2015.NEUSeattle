@@ -23,7 +23,7 @@ public class IsRipoffController {
     Logger log = Logger.getLogger("[IsRipoffController]");
 
     /**
-     * @return the form view for outlier detection.
+     * @return the form view.
      */
     @RequestMapping(value = "/form", method = RequestMethod.GET)
     public String getForm() {
@@ -31,7 +31,6 @@ public class IsRipoffController {
     }
 
     /**
-     * Return
      * 
      * @param proc_code
      * @param percentage
@@ -57,31 +56,15 @@ public class IsRipoffController {
         return 100 * percentage;
     }
 
-    // Test the exception page
-    @RequestMapping(value = "/exception", method = RequestMethod.GET)
-    public void getExceptionPage() throws Exception {
-        throw new Exception("This is an error");
-    }
-
     @ExceptionHandler({ Exception.class })
     public String genericError() {
-        // Returns the logical view name of an error page, passed to
-        // the view-resolver(s) in usual way.
-        // See
-        // https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc
-        // for more options.
+        /*
+         * Returns the logical view name of an error page, passed to the
+         * view-resolver(s) in usual way. See
+         * https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc
+         * for more options.
+         */
         return "genericError";
     }
 
-    /**
-     * for test only
-     * 
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-        IsRipoffController con = new IsRipoffController();
-        System.err.println(con.getPrecentageByPrice_ResultJson(
-                "22524" /* spine procedure */, 3000 /* percent */));
-    }
 }
