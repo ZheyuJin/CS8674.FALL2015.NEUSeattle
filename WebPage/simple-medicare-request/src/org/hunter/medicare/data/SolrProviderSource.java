@@ -24,8 +24,12 @@ public class SolrProviderSource {
 
     // ToDo: get this from config instead?
     // public static String solrUrlBase = "http://localhost:8983/solr/";
-    // public static String solrUrlBase = "http://54.200.138.99:8983/solr/";
-    private static String solrUrlBase = "http://52.32.209.104:8983/solr/"; //
+    
+    // Brian's box has the full 10 million row, so we will use that from now on.
+    public static String solrUrlBase = "http://54.200.138.99:8983/solr/";
+    
+    
+    //private static String solrUrlBase = "http://52.32.209.104:8983/solr/"; //
     // Tim's
 
     public static String collectionName = "csvtest";
@@ -163,11 +167,7 @@ public class SolrProviderSource {
         query.set("facet.limit", numRows);
         query.setFacet(true);
 
-        // SolrProviderSource solrData = getQueryResponse(query);
-        SolrClient solr = new HttpSolrClient(solrQueryBase);
-
-        System.out.println("SolrJ query = " + solrQueryBase + "/select?" + query);
-        QueryResponse solrJresponse = solr.query(query);
+        QueryResponse solrJresponse = doQuery(query);
         NamedList<List<PivotField>> pivotFacets = solrJresponse.getFacetPivot();
 
         Map<String, String> codesAndDescriptions = new HashMap<String, String>();

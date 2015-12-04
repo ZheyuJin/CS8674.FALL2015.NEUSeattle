@@ -27,7 +27,7 @@ public class CassandraQueryResponse {
     // private static String host = "54.191.107.167"; // ec2 josh
     private static String keyspace = "demo";
     private static String keyspaceMain = "main";
-    private static String mvTable = "providers";
+    private static String mvTable = "mv";
     private static String USERNAME = "cassandra";
     private static String PASSWORD = "cassandra";
 
