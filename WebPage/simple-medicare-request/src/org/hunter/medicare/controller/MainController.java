@@ -34,21 +34,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class MainController {
     static Logger logger = Logger.getLogger("MainController");
 
-    @RequestMapping(value = "/case1-from", method = RequestMethod.GET)
-    public String getCase1Form() {
-        return "case1-form";
-    }
-
-    @RequestMapping(value = "/case2-from", method = RequestMethod.GET)
-    public String getCase2Form() {
-        return "case2-form";
-    }
-
-    @RequestMapping(value = "/case3-from", method = RequestMethod.GET)
-    public String getCase3Form() {
-        return "case3-form";
-    }
-
     // http://localhost:8080/simple-medicare-request/assessment/main/case1-result-jsp?state=AZ&proc_code=99213
     /**
      * TODO: confusing with case 1. get top 10 most expensive doctors given
