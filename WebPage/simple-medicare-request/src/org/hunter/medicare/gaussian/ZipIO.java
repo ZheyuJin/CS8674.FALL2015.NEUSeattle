@@ -10,6 +10,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 /**
  * Utility class to read GMM model data from zip file.
@@ -26,9 +27,10 @@ public class ZipIO {
      */
     public static void main(String[] args) throws Exception {
         String file = args[0];
-        for (java.util.Map.Entry<String, NormalDistribution> e : loadZippedModelMap(file)
+        for (java.util.Map.Entry<String, NormalDistribution> e : loadZippedModelMap_test(file)
                 .entrySet()) {
-            System.out.println(e.getKey() + "\t" + e.getValue());
+            if (e.getKey().startsWith("61"))
+                System.out.println(e.getKey() + "\t" + e.getValue());
         }
     }
 
@@ -44,6 +46,20 @@ public class ZipIO {
         // new ClassPathResource("resources/2g.gmm.model.zip").getInputStream()
         try (ZipInputStream zip = new ZipInputStream(
                 new ClassPathResource("resources/2g.gmm.model.zip").getInputStream());) {
+            zip.getNextEntry();
+            try (ObjectInputStream data = new ObjectInputStream(zip)) {
+                Map<String, NormalDistribution> map = (Map<String, NormalDistribution>) data
+                        .readObject();
+                return map;
+            }
+        }
+    }
+
+    public static Map<String, NormalDistribution> loadZippedModelMap_test(String file)
+            throws Exception {
+
+        try (ZipInputStream zip = new ZipInputStream(
+                new FileSystemResource(file).getInputStream());) {
             zip.getNextEntry();
             try (ObjectInputStream data = new ObjectInputStream(zip)) {
                 Map<String, NormalDistribution> map = (Map<String, NormalDistribution>) data

@@ -59,6 +59,8 @@
 
 
 </style>
+<link href="/simple-medicare-request/favicon.ico" rel="icon"
+	type="image/x-icon">
 </head>
 <body class="container main">
 <h2> Urban vs Rural</h2>
