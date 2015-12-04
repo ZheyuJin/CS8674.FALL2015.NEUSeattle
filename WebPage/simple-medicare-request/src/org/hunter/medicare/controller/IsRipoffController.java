@@ -45,6 +45,7 @@ public class IsRipoffController {
             @RequestParam(value = "proc_code", required = true) String proc_code,
             @RequestParam(value = "price", required = true) double price) throws Exception {
 
+        log.info(String.format("proc_code :%s price: %f", proc_code, price));
         /* load GMM from file */
         GMM gmm = new GMM(null);
         gmm.load();
