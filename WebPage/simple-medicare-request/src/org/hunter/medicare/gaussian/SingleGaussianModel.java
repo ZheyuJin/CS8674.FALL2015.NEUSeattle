@@ -1,4 +1,4 @@
-package org.hunter.medicare.data;
+package org.hunter.medicare.gaussian;
 
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.Function;
