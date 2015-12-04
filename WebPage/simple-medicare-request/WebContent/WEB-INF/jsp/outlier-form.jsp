@@ -17,7 +17,7 @@
 		<label for="percentage"> Percentage </label> 		
 		<input id="percentage" type="number" min="0" max="100" step="0.01" name="percentage" class="form-control" /> 
 		 
-		<button type="submit" class="btn btn-default">Submit</button>
+		<button type="submit" class="btn btn-success">Submit</button>
 			
 	</form>
 

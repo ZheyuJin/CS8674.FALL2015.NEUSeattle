@@ -52,14 +52,14 @@ public class OutlierController {
     public String getOutlier_ResultJSP(
             @RequestParam(value = "proc_code", required = true) String proc_code,
             @RequestParam(value = "percentage", required = true) String percentage, Model model)
-            throws Exception {
+                    throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
             list = getGaussianOutliers(proc_code, Double.parseDouble(percentage));
         } catch (Exception e) {
             e.printStackTrace();
-            log.debug("Exception getting outlier results; rethrowing...");
+            log.error("Exception getOutlier_ResultJSP; rethrowing...", e);
             throw e;
         }
 
@@ -82,14 +82,14 @@ public class OutlierController {
     public List<Provider> getOutlier_ResultJson(
             @RequestParam(value = "proc_code", required = true) String proc_code,
             @RequestParam(value = "percentage", required = true) String percentage, Model model)
-            throws Exception {
+                    throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
             list = getGaussianOutliers(proc_code, Double.parseDouble(percentage));
         } catch (Exception e) {
             e.printStackTrace();
-            log.debug("Exception getting outlier json; rethrowing...");
+            log.error("Exception getOutlier_ResultJson; rethrowing...", e);
             throw e;
         }
 
@@ -134,8 +134,8 @@ public class OutlierController {
     private List<Provider> filterByPrice(double price) throws IOException {
         List<Provider> ret = new ArrayList<>();
         // TODO will feed input read from Cassandra in the future.
-        try (CSVReader stream = new CSVReader(new InputStreamReader(new ClassPathResource(
-                "resources/22524.txt").getInputStream()), '\t');) {
+        try (CSVReader stream = new CSVReader(new InputStreamReader(
+                new ClassPathResource("resources/22524.txt").getInputStream()), '\t');) {
             String[] ss = null;
 
             while (null != (ss = stream.readNext())) {
@@ -157,6 +157,7 @@ public class OutlierController {
      */
     @SuppressWarnings("unused")
     private Provider parseProvider(String[] ss) {
+        /* Below are a buch of index for fields. */
         int NPI = 0;
         int NPPES_PROVIDER_LAST_ORG_NAME = 1;
         int NPPES_PROVIDER_FIRST_NAME = 2;
@@ -226,7 +227,8 @@ public class OutlierController {
      */
     public static void main(String[] args) throws Exception {
         OutlierController con = new OutlierController();
-        for (Object obj : con.getGaussianOutliers("22524" /* spine procedure */, 0.1 /* percent */)) {
+        for (Object obj : con.getGaussianOutliers("22524" /* spine procedure */,
+                0.1 /* percent */)) {
             System.out.println(obj);
         }
     }

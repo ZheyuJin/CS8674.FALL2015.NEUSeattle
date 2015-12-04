@@ -20,7 +20,7 @@
     type="image/x-icon">
 
 </head>
-<body>
+<body class="container main">
 
 <!--  At the moment, this is effectively the same as error.html.
       If the controllers wanted to dump in more error

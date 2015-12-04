@@ -50,14 +50,14 @@ public class MainController {
     @RequestMapping(value = "/case1-result-jsp", method = RequestMethod.GET)
     public String getCase1_ResultForm(@RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "proc_code", required = true) String proc_code, Model model)
-            throws Exception {
+                    throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
             list = getTopExpensiveProvider(state, proc_code);
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Cassandra for getTopExpensiveProvider; rethrowing...");
+            logger.error("Exception getCase1_ResultForm; rethrowing...", e);
             throw e;
         }
 
@@ -90,7 +90,7 @@ public class MainController {
             return providers;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Cassandra for getMostExpensive providers; rethrowing...");
+            logger.error("Excption getTopExpensiveProvider; rethrowing...", e);
             throw e;
         }
 
@@ -100,7 +100,7 @@ public class MainController {
     @RequestMapping(value = "/case2-result-jsp", method = RequestMethod.GET)
     public String getCase2_ResultForm(@RequestParam(value = "state", required = true) String state,
             @RequestParam(value = "proc_code", required = true) String proc_code, Model model)
-            throws Exception {
+                    throws Exception {
         List<Provider> list = new ArrayList<Provider>();
 
         try {
@@ -108,7 +108,7 @@ public class MainController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Solr for getTopBusy providers; rethrowing...");
+            logger.error("Exception getCase2_ResultForm; rethrowing...", e);
             throw e;
         }
 
@@ -143,7 +143,7 @@ public class MainController {
             return providers;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Solr; rethrowing...");
+            logger.error("Exception getTopBusyProvider; rethrowing...", e);
             throw e;
         }
 
@@ -185,7 +185,7 @@ public class MainController {
             return ret;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Solr or Cassandra; rethrowing...");
+            logger.error("Exception getProcedureAvgCost; rethrowing...", e);
             throw e;
         }
 
@@ -194,7 +194,8 @@ public class MainController {
     // http://localhost:8080/simple-medicare-request/assessment/main/case3-result-jsp?state=AZ&proc_desc=knee
     @RequestMapping(value = "/case3-result-jsp", method = RequestMethod.GET)
     public String getCase3_ResultForm(@RequestParam(value = "state", required = true) String state,
-            @RequestParam(value = "proc_desc", required = true) String proc_desc, Model model) {
+            @RequestParam(value = "proc_desc", required = true) String proc_desc, Model model)
+                    throws Exception {
         List<Procedure> list = new ArrayList<>();
 
         try {
@@ -202,6 +203,8 @@ public class MainController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("Exception getCase3_ResultForm; rethrowing...", e);
+            throw e;
         }
 
         // Add to model
@@ -263,7 +266,7 @@ public class MainController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.debug("Exception querying Solr; rethrowing...");
+            logger.error("Exception getProviderCountsPerState; rethrowing...");
             throw e;
         }
 
@@ -309,8 +312,8 @@ class ProcedureComp implements Comparator<Procedure> {
 class TopChargeSComp implements Comparator<Provider> {
     @Override
     public int compare(Provider o1, Provider o2) {
-        return (o1.providerDetails.averageSubmittedChargeAmount - o2.providerDetails.averageSubmittedChargeAmount) > 0 ? -1
-                : 1;
+        return (o1.providerDetails.averageSubmittedChargeAmount
+                - o2.providerDetails.averageSubmittedChargeAmount) > 0 ? -1 : 1;
     }
 }
 
