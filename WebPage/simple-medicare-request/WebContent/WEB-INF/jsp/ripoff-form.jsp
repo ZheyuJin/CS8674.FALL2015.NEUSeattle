@@ -24,7 +24,7 @@
 	      	var proc_code = $("#proc_code").val();
 	      	var price = $("#price").val();
 	    	/* alert(""+ price + ":" + proc_code); */
-	      	var content = " % of other people paied less than this price.";
+	      	var content = " % of others paid more than this price.";
 	      	
 	      	$("#text").html("loading...");
 	      	

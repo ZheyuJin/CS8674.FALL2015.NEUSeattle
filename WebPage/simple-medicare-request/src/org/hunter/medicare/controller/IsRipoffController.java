@@ -35,8 +35,7 @@ public class IsRipoffController {
      * @param proc_code
      * @param percentage
      * @param model
-     * @return Where the price fits into in the nationwide spectrum, which means
-     *         bottom x percentage.
+     * @return which percent of others paid more than this price.
      * @throws Exception
      */
     @RequestMapping(value = "/result-json", method = RequestMethod.GET)
@@ -51,8 +50,10 @@ public class IsRipoffController {
         gmm.load();
         NormalDistribution nd = gmm.getIndividualModel(proc_code);
 
-        /* how many percente of others paid less than this price */
-        double percentage = nd.cumulativeProbability(price);
+        /*
+         * which percent of others paid more than this price
+         */
+        double percentage = 1 - nd.cumulativeProbability(price);
 
         return 100 * percentage;
     }
