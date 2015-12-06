@@ -30,7 +30,7 @@ $(document).on('click', '#submitSearch', function() {
 			return;
 		}
 	}
-	$("#feedback").replaceWith('<span id="feedback">Searching...</span>');
+	//$("#feedback").replaceWith('<span id="feedback">Searching...</span>');
 
 	switch ($('input[name="use_case"]:checked').val()) {
 	case ("case_1"):

@@ -7,6 +7,10 @@
 <title>Is this price a Ripoff ?</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" >
+
+<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
+<script src="/simple-medicare-request/js/common.js"></script>
+
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 	
@@ -26,7 +30,17 @@
 	    	/* alert(""+ price + ":" + proc_code); */
 	      	var content = " % of others paid more than this price.";
 	      	
-	      	$("#text").html("loading...");
+    		if (!proc_code.match(new RegExp(/^[A-Za-z0-9]{3,5}$/))) {
+    			alert("A valid Procedure Code must be input.");
+    			return;
+    		}
+
+    		if (price.length == 0 || !price.match(new RegExp(/^[0-9]{0,10}$/))) {
+	    		alert("Price must be filled out correctly.");
+	    		return;
+	    	}
+	    	
+	      //$("#text").html("loading...");
 	      	
 	      	/* send ajax  */
 	      	$.ajax({
@@ -37,6 +51,8 @@
 	            {
 	            	setText(response);
 	            }
+	          }).fail(function(){
+	        	 alert("No valid response was found.\nPlease check your input and\ntry again."); 
 	          });
 	      	
 	      	
@@ -72,6 +88,13 @@
 	<!-- </form> -->
 	
 	<h3 id="text" ></h3>
+		<footer>
+		<hr />
+		<p>
+			<a href="../../index.html">Home</a>
+		</p>
+		
+	</footer>
 	 
 </body>
 </html>
