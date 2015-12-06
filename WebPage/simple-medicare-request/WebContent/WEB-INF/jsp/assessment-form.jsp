@@ -75,11 +75,29 @@
 	<br />
 	<span id="feedback"></span>
 
-	<footer>
+<!-- 
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">WebSiteName</a>
+    </div>
+    <div>
+      <ul class="nav navbar-nav">
+        <li><a href="../../index.html">Home</a></li>
+        <li><a href="#">Page 1</a></li>
+        <li><a href="#">Page 2</a></li>
+        <li><a href="#">Page 3</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+ -->
+
+<!-- 	<footer>
 		<hr />
 		<p>
 			<a href="../../index.html">Home</a>
 		</p>
-	</footer>
+	</footer> -->
 </body>
 </html>

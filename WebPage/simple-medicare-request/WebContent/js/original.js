@@ -13,7 +13,6 @@ $(document).ready(function() {
 });
 
 
-$(document).on('click', )
 
 $(document).on('click', '#submitSearch', function() {
 	if ($('input[name="use_case"]:checked').val() != "case_3") {
