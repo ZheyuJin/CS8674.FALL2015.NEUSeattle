@@ -269,6 +269,13 @@ html, body {
         url : "../main/provider/count/states",
       }).done(function(data) {
         //alert(data.facetedCount.length);
+        data.facetedCount.sort(function(a, b){
+        	if(a.propertyValue < b.propertyValue){
+        		return -1;
+        	} else {
+        		return 1;
+        	}
+        });
         setDropdown(data.facetedCount);
       }).fail(function() {
         
