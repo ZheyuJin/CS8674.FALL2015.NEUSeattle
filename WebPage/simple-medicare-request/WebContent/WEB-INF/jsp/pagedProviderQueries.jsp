@@ -455,12 +455,13 @@ html, body {
     }
   </script>
 
+<!-- 
 	<footer>
 		<hr />
 		<p>
 			<a href="../../index.html">Home</a>
 		</p>
 		
-	</footer>
+	</footer> -->
 </body>
 </html>

@@ -28,7 +28,8 @@
 
 	</c:if>
 
+<!--  
 	<a href="/simple-medicare-request/index.html">Home</a>
-
+ -->
 </body>
 </html>

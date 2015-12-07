@@ -91,13 +91,16 @@
 	<!-- </form> -->
 	
 	<h3 id="text" ></h3>
+	
+	<!--  
 		<footer>
 		<hr />
 		<p>
 			<a href="../../index.html">Home</a>
-		</p>
+		</p>	
 		
 	</footer>
+	   -->
 	 
 </body>
 </html>

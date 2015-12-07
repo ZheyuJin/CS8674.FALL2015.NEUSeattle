@@ -130,12 +130,13 @@ var quantize = d3.scale.quantize()
     }
 
   </script>
+  <!-- 
   	<footer>
 		<hr />
 		<p>
 			<a href="../../index.html">Home</a>
 		</p>
 		
-	</footer>
+	</footer> -->
 </body>
 </html>
