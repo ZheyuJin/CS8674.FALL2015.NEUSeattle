@@ -25,7 +25,7 @@ $(document).ready(function() {
   + '<li><a href="../payment/form">Patient Responsbility</a></li>'
   + '<li><a href="../outlier/form">Outlier</a></li>'
   + '<li><a href="../map/usa">Urban/Rural</a></li>'
-  + '<li><a href="../procedure/form">Basic</a></li>'
+  + '<li><a href="../procedure/form">Procedures</a></li>'
   + '<li><a href="../ripoff/form">Ripoff</a></li>'
   + '<li><a href="../nb/form">Naive Bayes</a></li>'
 
