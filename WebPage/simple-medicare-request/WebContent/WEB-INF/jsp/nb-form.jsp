@@ -56,7 +56,7 @@
 
 		function searchRequest() {
 			$.ajax({
-				url : "request",
+				url : "query",
 				data : {
 					request : input_query
 				}

@@ -147,7 +147,7 @@ function resetVars() {
 function getStates() {
 
 	$.ajax({
-		url : "../main/provider/count/states",
+		url : "../provider/count/states",
 	}).done(function(data) {
 		setDropdown(data.facetedCount);
 	}).fail(function() {
@@ -179,7 +179,7 @@ function setDropdown(facetList) {
 function searchRequest() {
 
 	$.ajax({
-		url : "request",
+		url : "query",
 		data : {
 			provider_type : provider_type,
 			state : state,

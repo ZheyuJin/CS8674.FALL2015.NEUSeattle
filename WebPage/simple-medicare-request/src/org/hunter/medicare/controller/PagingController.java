@@ -1,6 +1,7 @@
 package org.hunter.medicare.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hunter.medicare.data.CountedPropertyValue;
@@ -18,17 +19,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/paging")
+@RequestMapping("/provider")
 public class PagingController {
     static Logger logger = Logger.getLogger("PagingController");
 
-    @RequestMapping(value = "/request", method = RequestMethod.GET)
+    @RequestMapping(value = "/form", method = RequestMethod.GET)
     public String getCase1Form() {
         System.out.println("made it here");
-        return "paging_request";
+        return "pagedProviderQueries";
     }
 
-    @RequestMapping(value = "/request", method = RequestMethod.GET, params = { "state" })
+    @RequestMapping(value = "/query", method = RequestMethod.GET, params = { "state" })
     @ResponseBody
     public FacetedProviderResult getProvidersWithFacets(
             @RequestParam(value = "state", required = false, defaultValue = "") String state,
@@ -84,7 +85,6 @@ public class PagingController {
                     provider_type));
         }
 
-        // TODO: remove this (but Hunter might need it early on for UI)
         boolean useMock = false;
         try {
 
@@ -127,6 +127,62 @@ public class PagingController {
             throw e;
         }
 
+    }
+
+    /**
+     * Returns JSON
+     * 
+     * @throws Exception
+     */
+    // TODO: check if we still need this, think we flipped over to the general
+    // faceted method in paging controller.
+    @RequestMapping(value = "/count/states", method = RequestMethod.GET)
+    @ResponseBody
+    public FacetedCount getProviderCountsPerState() throws Exception {
+
+        // TODO: remove this (but Hunter might need it early on for UI)
+        boolean useMock = false;
+
+        try {
+            FacetedCount ret = new FacetedCount();
+            ret.facetType = FacetType.State;
+
+            if (useMock) {
+                // JSON:
+                // {
+                // facetType: "State",
+                // facetFilters: null,
+                // facetedCount: {
+                // tx: 135,
+                // fl: 70,
+                // nv: 7,
+                // ny: 86
+                // }
+                // }
+
+                // Here's our hint that this is mock data
+                ret.facetedCount.add(new CountedPropertyValue("mk", 19999L));
+
+                ret.facetedCount = new ArrayList<CountedPropertyValue>();
+                ret.facetedCount.add(new CountedPropertyValue("tx", 135L));
+                ret.facetedCount.add(new CountedPropertyValue("fl", 70L));
+                ret.facetedCount.add(new CountedPropertyValue("nv", 7L));
+                ret.facetedCount.add(new CountedPropertyValue("ny", 86L));
+
+            } else {
+                // Query Solr for the provider count per state
+                // TODO: maybe we should sort these?
+                List<CountedPropertyValue> providerCounts = SolrProviderSource.getCountsForStates();
+                ret.facetedCount = providerCounts;
+            }
+
+            return ret;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Exception getProviderCountsPerState; rethrowing...");
+            throw e;
+        }
     }
 
     // Test the exception page
