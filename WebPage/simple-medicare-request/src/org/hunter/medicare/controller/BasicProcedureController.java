@@ -44,15 +44,16 @@ public class BasicProcedureController {
         logger.debug("Received query request for a procedure code");
 
         List<Provider> list = new ArrayList<Provider>();
+        int numRows = 10;
 
         try {
             switch (use_case) {
             case "getMostExpensive":
-                list = CassandraQueryResponse.getMostExpensive(10, state, proc_code);
+                list = CassandraQueryResponse.getMostExpensive(numRows, state, proc_code);
                 Collections.sort(list, new TopChargeSComp());
                 break;
             case "getBusiest":
-                list = SolrProviderSource.getProviders(10, state, proc_code);
+                list = SolrProviderSource.getProviders(numRows, state, proc_code);
                 Collections.sort(list, new TopDayCountComp());
                 break;
             }

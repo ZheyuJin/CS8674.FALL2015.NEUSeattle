@@ -39,7 +39,7 @@ $(document).on('click', '#submitSearch', function() {
 					"query",
 					{
 						proc_code : $("#proc_code").val(),
-						state : $("#state").val(),
+						state : $("#stateSelect option:selected").val(),
 						use_case : $('input[name="use_case"]:checked').val()
 					},
 					function(data) {
@@ -57,7 +57,7 @@ $(document).on('click', '#submitSearch', function() {
 					"query",
 					{
 						proc_code : $("#proc_code").val(),
-						state : $("#state").val(),
+						state : $("#stateSelect option:selected").val(),
 						use_case : $('input[name="use_case"]:checked').val()
 					},
 					function(data) {
@@ -75,7 +75,7 @@ $(document).on('click', '#submitSearch', function() {
 					"query",
 					{
 						keyword : $("#proc_keyword").val(),
-						state : $("#state").val()
+						state : $("#stateSelect option:selected").val()
 					},
 					function(data) {
 						$("#feedback").replaceWith(
