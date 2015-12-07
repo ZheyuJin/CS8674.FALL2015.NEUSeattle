@@ -38,7 +38,7 @@ function searchRequest() {
 	}
 
 	$.ajax({
-		url : "request",
+		url : "query",
 		data : {
 			numRows : numRows,
 			start : startIndex,

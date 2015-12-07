@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class PaymentController {
     static Logger logger = Logger.getLogger("PaymentController");
 
-    @RequestMapping(value = "/patient", method = RequestMethod.GET)
+    @RequestMapping(value = "/form", method = RequestMethod.GET)
     public String getQueryForm() {
         logger.debug("Returning payment gap query page");
-        return "cassandra23-form";
+        return "paymentPatientForm";
     }
 
-    @RequestMapping(value = "/request", method = RequestMethod.GET, params = { "numRows", "start",
+    @RequestMapping(value = "/query", method = RequestMethod.GET, params = { "numRows", "start",
             "sortDesc", "isPercentage" })
     public @ResponseBody List<ProcedureDetails> getPatientPaymentResponsibility(
             @RequestParam(value = "numRows", required = true, defaultValue = "10") int numRows,
