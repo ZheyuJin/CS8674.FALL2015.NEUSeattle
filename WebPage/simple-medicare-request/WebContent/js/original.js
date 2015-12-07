@@ -15,7 +15,7 @@ $(document).ready(function() {
 
 
 $(document).on('click', '#submitSearch', function() {
-	if ($('input[name="use_case"]:checked').val() != "case_3") {
+	if ($('input[name="use_case"]:checked').val() != "avgProcedureCosts") {
 		if (!document.getElementById('proc_code').value.match(new RegExp(
 				/^[A-Za-z0-9]{3,5}$/))) {
 			alert("Procedure Code must be filled out properly.");
@@ -23,7 +23,7 @@ $(document).on('click', '#submitSearch', function() {
 		}
 	}
 
-	if ($('input[name="use_case"]:checked').val() == "case_3") {
+	if ($('input[name="use_case"]:checked').val() == "avgProcedureCosts") {
 		if ($("#proc_keyword").val().length == 0) {
 			alert("Procedure Keyword must be filled out.");
 			return;
@@ -32,11 +32,11 @@ $(document).on('click', '#submitSearch', function() {
 	//$("#feedback").replaceWith('<span id="feedback">Searching...</span>');
 
 	switch ($('input[name="use_case"]:checked').val()) {
-	case ("case_1"):
+	case ("getMostExpensive"):
 
 		$(function() {
 			$.get(
-					"submit",
+					"query",
 					{
 						proc_code : $("#proc_code").val(),
 						state : $("#state").val(),
@@ -51,10 +51,10 @@ $(document).on('click', '#submitSearch', function() {
 			});
 		});
 		break;
-	case ("case_2"):
+	case ("getBusiest"):
 		$(function() {
 			$.get(
-					"submit",
+					"query",
 					{
 						proc_code : $("#proc_code").val(),
 						state : $("#state").val(),
@@ -69,14 +69,13 @@ $(document).on('click', '#submitSearch', function() {
 			});
 		});
 		break;
-	case ("case_3"):
+	case ("avgProcedureCosts"):
 		$(function() {
 			$.get(
-					"submit",
+					"query",
 					{
 						keyword : $("#proc_keyword").val(),
-						state : $("#state").val(),
-						use_case : $('input[name="use_case"]:checked').val()
+						state : $("#state").val()
 					},
 					function(data) {
 						$("#feedback").replaceWith(
