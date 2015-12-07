@@ -62,7 +62,9 @@
 				}
 			}).done(function(data) {
 				responseHandler(data);
-			});
+			}).fail(function() {
+		        window.location = "../../error.html";
+		    });
 		}
 
 		function responseHandler(data) {
