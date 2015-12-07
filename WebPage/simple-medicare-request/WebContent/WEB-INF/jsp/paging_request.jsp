@@ -9,8 +9,10 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/simple-medicare-request/js/common.js"></script>
+<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
 
-<title>Find providers by navigational facets</title>
+<title>Find Providers by Navigational Facets</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 <style>
@@ -107,7 +109,7 @@ html, body {
     $("#currentState").hide();
     $("#currentZip").hide();
     $("#currentType").hide();
-
+	/*
     $(document).ready(function() {
 
         $('body').append('<div id="ajaxBusy"><p><img src="http://chimplyimage.appspot.com/images/samples/misc-spinner/animatedSkull.gif"></p></div>');
@@ -131,7 +133,7 @@ html, body {
       }).ajaxStop(function(){ 
         $('#ajaxBusy').hide();
       });
- 
+ 	*/
     getStates();
 
     $(document).on('mouseenter', '.result', function() {
