@@ -10,42 +10,16 @@
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script src="/simple-medicare-request/js/common.js"></script>
-	
+	<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
 
-<title>Machine Learning Use Case 1 Example</title>
+<title>This is a Temporary Page for Brian</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
-<style>
-html, body {
-	height: 100%;
-	margin: 0px;
-	padding: 0px;
-}
-
-#side-bar {
-	height: 100%;
-	margin: 0;
-	padding: .25em 0em .25em 0em; //
-	border: solid 1px #30c9e0;
-	background: #fcac4c;
-	width: 13.5em;
-	float: left;
-}
-
-.result-hover {
-	background-color: grey;
-}
-
-.link {
-	color: blue;
-	text-decoration: underline;
-}
-</style>
 
 </head>
 <body>
-	<h2>This Page Is For Testing ML Case #1</h2>
-	<h6>The user input delimits based on semi-colons</h6>
+	<h2>Brian's Test Page</h2>
+	<h6></h6>
 	<input value="" id="user_input" type="text" name="state_request"
 		width="100%"> <br>
 	<input type="checkbox" name="descr_box" value="foo foo bar bar" />This is HCPCS Code #1<br>
@@ -62,30 +36,6 @@ html, body {
 
 	<script>
 		var input_query = "";
-
-		$(document).ready(function() {
-
-			  $('body').append('<div id="ajaxBusy"><p><img src="http://mentalized.net/activity-indicators/indicators/pacific-assault/loader.gif"></p></div>');
-
-			  $('#ajaxBusy').css({
-			    display:"none",
-			    margin:"0px",
-			    paddingLeft:"0px",
-			    paddingRight:"0px",
-			    paddingTop:"0px",
-			    paddingBottom:"0px",
-			    position:"absolute",
-			    right:"3px",
-			    top:"3px",
-			     width:"auto"
-			  });
-			});
-
-			$(document).ajaxStart(function(){ 
-			  $('#ajaxBusy').show(); 
-			}).ajaxStop(function(){ 
-			  $('#ajaxBusy').hide();
-			});
 		
 		$(document).on('click', '#request_button', function() {
 			input_query = $('#user_input').val();
@@ -108,7 +58,7 @@ html, body {
 			$.ajax({
 				url : "request",
 				data : {
-					queries : input_query
+					request : input_query
 				}
 			}).done(function(data) {
 				responseHandler(data);
