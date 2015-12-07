@@ -9,6 +9,8 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="/simple-medicare-request/js/common.js"></script>
+	
 
 <title>Machine Learning Use Case 1 Example</title>
 <link href="/simple-medicare-request/favicon.ico" rel="icon"

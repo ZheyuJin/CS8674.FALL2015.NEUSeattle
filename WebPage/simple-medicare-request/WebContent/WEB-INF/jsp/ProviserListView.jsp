@@ -9,6 +9,7 @@
 <link
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
 	rel="stylesheet">
+	<script src="/simple-medicare-request/js/common.js"></script>
 	<link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
 </head>

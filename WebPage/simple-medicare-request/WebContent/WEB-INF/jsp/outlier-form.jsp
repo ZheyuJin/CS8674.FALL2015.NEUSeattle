@@ -8,6 +8,9 @@
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" >
 <link href="/simple-medicare-request/favicon.ico" rel="icon"
 	type="image/x-icon">
+	<script src="/simple-medicare-request/js/common.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </head>
 <body class="container main center">
 	<h1>Outlier detection by percentage.</h1>

@@ -15,6 +15,7 @@
 		<script src="/simple-medicare-request/js/cass23.js"></script>
 		<script src="http://www.datatables.net/examples/ajax/objects.html"></script>
 		<link rel="stylesheet" href="/simple-medicare-request/css/common.css" >
+		<script src="/simple-medicare-request/js/common.js"></script>
 		
 	</head>
 	<body class="container">
