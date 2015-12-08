@@ -229,6 +229,52 @@ public class CassandraQueryResponse {
 
         try {
             cluster = Cluster.builder().addContactPoint(host).build();
+            session = cluster.connect(keyspaceMain);
+
+            String selectCostsByStateQuery = "SELECT average_submitted_chrg_amt FROM mv_providers_cost WHERE nppes_provider_state = '"
+                    + state + "' AND hcpcs_code = '" + code + "' AND year = 2012;";
+            ResultSet resultSet = session.execute(selectCostsByStateQuery);
+            Double sumOfCosts = 0.0;
+            Double numberOfInstances = 0.0;
+            for (Row row : resultSet) {
+                float cost = row.getFloat("average_submitted_chrg_amt");
+                sumOfCosts += cost;
+                numberOfInstances++;
+            }
+            if (numberOfInstances == 0) {
+                average = -1.0;
+            } else {
+                average = sumOfCosts / numberOfInstances;
+            }
+        } catch (Exception e) {
+            // TODO seperate out exceptions
+            System.out.println("An error occured:  " + e);
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
+            System.out.println("session closed");
+        }
+
+        return average;
+    }
+
+    // FIXME changed name from getAverage to getAverageOld, this is the old
+    // implementation. Will remove after
+    // new implementation is fully tested
+    public static Double getAverageOld(String state, String code) {
+
+        Double average = 0.0;
+        Cluster cluster = null;
+        Session session = null;
+
+        try {
+            cluster = Cluster.builder().addContactPoint(host).build();
             session = cluster.connect(keyspace);
 
             String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
