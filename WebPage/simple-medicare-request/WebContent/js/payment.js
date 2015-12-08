@@ -3,26 +3,6 @@ var isPercent = false;
 var numRows = 10;
 var startIndex = 0;
 
-// We might want some validation here (amount > 0 for example)
-
-$(document)
-		.ready(
-				function() {
-
-					$('body')
-							.append(
-									'<div id="ajaxBusy"><p>' + 
-									'<img src="/simple-medicare-request/loading.gif"></p>' + 
-									'</div>');
-					$('#ajaxBusy').hide();
-				});
-
-$(document).ajaxStart(function() {
-	$('#ajaxBusy').show();
-}).ajaxStop(function() {
-	$('#ajaxBusy').hide();
-});
-
 $(document).on('click', '#request_button', function() {
 	numRows = +$('#numRows').val();
 	startIndex = +$('#startIndex').val();
@@ -33,7 +13,7 @@ $(document).on('click', '#request_button', function() {
 
 function searchRequest() {
 	if (startIndex < 0 || numRows <= 0 || numRows > 100) {
-		alert("Please enter valid search parameters");
+		alert("Please enter valid search parameters.");
 		return;
 	}
 
@@ -112,6 +92,18 @@ function createGraph(data, isPercent) {
 
 	$('#graph_area').replaceWith('<div id="graph_area"></div>');
 
+	var maxDomain = d3.max(data, function(d) {
+		return returnPayGapOrDiff(d, isPercent);
+	}) 
+	
+
+	
+	if(maxDomain == 0 ){
+		return;
+	}
+
+	var dataSize = data.length;
+	
 	var formatTime = d3.time.format("%e %B");
 
 	var div = d3.select("body").append("div").attr("class", "tooltip").style(
@@ -129,11 +121,9 @@ function createGraph(data, isPercent) {
 				.domain(data.map(function(d) {
 					return d.procCode;
 					}));
-
+	
 	var y = d3.scale.linear().range([ height, 0 ])
-							 .domain([ 0, d3.max(data, function(d) {
-								return returnPayGapOrDiff(d, isPercent);
-								}) ]);
+							 .domain([ 0, maxDomain]);
 
 	var xAxis = d3.svg.axis().scale(x).orient("bottom");
 
@@ -183,9 +173,9 @@ function createGraph(data, isPercent) {
 				return height - y(returnPayGapOrDiff(d, isPercent));})
 		.on("mouseover", function(d) {
 				div.transition().duration(200).style("opacity", .9);
-				div.html("Procedure Code: " + d.procCode).style("left",
-						(d3.event.pageX) + "px").style("top",
-						(d3.event.pageY - 28) + "px");})
+				div.html("Procedure Code\n" + d.procCode)
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 28) + "px");})
 		.on("mouseout", function(d) {
 				div.transition().duration(500).style("opacity", 0);});
 }

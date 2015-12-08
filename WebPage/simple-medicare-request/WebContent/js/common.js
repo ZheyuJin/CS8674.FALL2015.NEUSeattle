@@ -5,9 +5,6 @@ $(document).ready(function() {
 					$('#ajaxBusy').hide();
 
 					$('body').append(
-//'<nav class="navbar navbar-default navbar-fixed-bottom">'
-//+ '<div class="container-fluid"><div class="navbar-header">'
-//+ '<a class="navbar-brand">Simple Medicare Request</a></div></div></nav>');
 					  
 							
 '<nav class="navbar navbar-default navbar-fixed-bottom">'
@@ -15,7 +12,6 @@ $(document).ready(function() {
   + '<div class="navbar-header">'
   + '<a class="navbar-brand">'
   + '<img alt="Simple Medicare Request" src="/simple-medicare-request/gorty.gif" width="30" height="30" >'
-  //+ 'Simple Medicare Request'
   + '</a>'
   + '</div>'
   + '<div>'
@@ -28,7 +24,6 @@ $(document).ready(function() {
   + '<li><a href="../procedure/form">Procedures</a></li>'
   + '<li><a href="../ripoff/form">Ripoff</a></li>'
   + '<li><a href="../nb/form">Naive Bayes</a></li>'
-
   + '</ul>'
   + '</div>'
   + '</div>'
@@ -41,6 +36,10 @@ $(document).ajaxStart(function() {
 }).ajaxStop(function() {
 	$('#ajaxBusy').hide();
 });
+
+function isEmpty(data) {
+	return (data.length == 0);
+}
 
 function toNameCase(str) {
   return str.replace(/\w\S*/g, function(txt) {
