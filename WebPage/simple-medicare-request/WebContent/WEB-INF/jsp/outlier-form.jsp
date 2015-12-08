@@ -15,14 +15,14 @@
 </head>
 
 <body class="container main center">
-	<h1>Outlier Detection by percentage.</h1>
+	<h1>Outlier Detection</h1>
+	<h3>Outliers are institutions whose charge is among top K% for the given procedure code.</h3>   
 	<form action="result-jsp" method="get" class="form-inline"> 
+		<label for="proc_code" class="form-group"> Procedure Code </label> 		
+		<input id="proc_code"  name="proc_code" type="text" class="form-control" required/>
 		
-		<label for="proc_code"> Procedure Code </label> 		
-		<input id="proc_code"  name="proc_code" type="text" class="form-control" />
-		
-		<label for="percentage"> Percentage </label> 		
-		<input id="percentage" type="number" min="0" max="100" step="0.01" name="percentage" class="form-control" /> 
+		<label for="percentage" class="form-group"> Percentage </label> 		
+		<input id="percentage" type="number" min="0" max="100" step="0.01" name="percentage" class="form-control" required/> 
 		 
 		<button type="submit" class="btn btn-success">Submit</button>
 			

@@ -48,7 +48,8 @@
 	      	/* send ajax  */
 	      	$.ajax({
 	      		
-	            url: "http://localhost:8080/simple-medicare-request/assessment/ripoff/result-json?proc_code="+ proc_code+"&price="+price,
+	            /* url: "http://localhost:8080/simple-medicare-request/assessment/ripoff/result-json?proc_code="+ proc_code+"&price="+price, */
+	            url: "/simple-medicare-request/assessment/ripoff/result-json?proc_code="+ proc_code+"&price="+price,
 	            dataType: "json",
 	            success: function(response)
 	            {
@@ -62,7 +63,6 @@
 	      	/* set text to the div.  */
 	      	function setText(response){
 				 /* alert("sucess!!:" + response.toFixed(1)); */
-				 
 				 $("#text").html(""+ response.toFixed(1) + content); 
 			 }
 	      	
@@ -77,6 +77,7 @@
 </head>
 <body class="container main center">
 	<h1>Is this price a ripoff?</h1>
+	<h2>By providing a procedure code and price in USD, you can see how many others paid less than this.</h2>  
 	<!-- <form action="result-json" method="get" class="form-inline"> -->
 	<!-- <form method="get" class="form-inline">  -->
 	<div class="form-inline">
