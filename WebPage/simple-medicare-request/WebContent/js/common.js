@@ -32,7 +32,7 @@ $(document).ready(function() {
   + '</ul>'
   + '</div>'
   + '</div>'
-  + '</nav>');
+  + '</nav><p class="bottom">_</p><p class="bottom">_</p><p class="bottom">_</p>');
 					
 				});
 
@@ -46,4 +46,8 @@ function toNameCase(str) {
   return str.replace(/\w\S*/g, function(txt) {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
+}
+
+function upperFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }

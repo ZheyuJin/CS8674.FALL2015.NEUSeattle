@@ -28,35 +28,28 @@ public class BasicProcedureController {
 
     protected static Logger logger = Logger.getLogger("controller");
 
-    @RequestMapping(value = "/form", method = RequestMethod.GET, params = {})
+    @RequestMapping(value = "/query", method = RequestMethod.GET, params = {})
     public String getProviderQueryForm() {
 
         return "basicProcedureQueries";
     }
 
-    @RequestMapping(value = "/query", method = RequestMethod.GET, params = { "proc_code", "state",
-            "use_case" })
-    public @ResponseBody List<Provider> queryProceduresByCode(
-            @RequestParam(value = "proc_code", required = false) String proc_code,
-            @RequestParam(value = "state", required = true) String state,
-            @RequestParam(value = "use_case", required = true) String use_case, Model model)
+    @RequestMapping(value = "/queryMostExpensiveProc", 
+    		method = RequestMethod.GET, params = { "query", "state"})
+    public @ResponseBody List<Provider> getMostExpensiveByProcedureCode(
+            @RequestParam(value = "query", required = false) String proc_code,
+            @RequestParam(value = "state", required = true) String state)
             throws Exception {
         logger.debug("Received query request for a procedure code");
 
+
         List<Provider> list = new ArrayList<Provider>();
-        int numRows = 10;
+        int numRows = 1000;
 
         try {
-            switch (use_case) {
-            case "getMostExpensive":
                 list = CassandraQueryResponse.getMostExpensive(numRows, state, proc_code);
                 Collections.sort(list, new TopChargeSComp());
-                break;
-            case "getBusiest":
-                list = SolrProviderSource.getProviders(numRows, state, proc_code);
-                Collections.sort(list, new TopDayCountComp());
-                break;
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -65,33 +58,37 @@ public class BasicProcedureController {
         return list;
     }
 
-    // http://localhost:8080/simple-medicare-request/assessment/procedure/query?state=AZ&keyword=knee
-    @RequestMapping(value = "/query", method = RequestMethod.GET, params = { "keyword", "state" })
-    public @ResponseBody List<Procedure> queryProceduresByKeyword(
-            @RequestParam(value = "keyword", required = true) String keyword,
-            @RequestParam(value = "state", required = true) String state) throws Exception {
-        logger.debug("Received query request for average cost for a state");
-        List<Procedure> output = new ArrayList<Procedure>();
+    
+    @RequestMapping(value = "/queryBusiestProvider", 
+    		method = RequestMethod.GET, params = { "query", "state"})
+    public @ResponseBody List<Provider> queryProceduresByCode(
+            @RequestParam(value = "query", required = false) String proc_code,
+            @RequestParam(value = "state", required = true) String state)
+            throws Exception {
+        logger.debug("Received query request for a procedure code");
+
+        List<Provider> list = new ArrayList<Provider>();
+        int numRows = 1000;
+
         try {
-            output = getProcedureAvgCost(state, keyword);
+                list = SolrProviderSource.getProviders(numRows, state, proc_code);
+                Collections.sort(list, new TopDayCountComp());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
 
-        return output;
+        return list;
     }
-
-    // http://localhost:8080/simple-medicare-request/assessment/procedure/avgCost?state=AZ&keyword=knee
-    /**
-     * @throws Exception
-     */
-    @RequestMapping(value = "/avgCost", method = RequestMethod.GET)
-    @ResponseBody
-    public List<Procedure> getProcedureAvgCost(
-            @RequestParam(value = "state", required = true) String state,
-            @RequestParam(value = "keyword", required = true) String keyword) throws Exception {
-        int num_rows = 10;
+    
+    // http://localhost:8080/simple-medicare-request/assessment/procedure/query?state=AZ&keyword=knee
+    @RequestMapping(value = "/queryAvgProcedureCost", 
+    		method = RequestMethod.GET, params = { "query", "state" })
+    public @ResponseBody List<Procedure> queryProceduresByKeyword(
+            @RequestParam(value = "query", required = true) String keyword,
+            @RequestParam(value = "state", required = true) String state) throws Exception {
+        logger.debug("Received query request for average cost for a state");
+        int num_rows = 1000;
         Map<String, String> procsMap = null;
 
         try {
