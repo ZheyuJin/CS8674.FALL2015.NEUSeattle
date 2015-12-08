@@ -1,6 +1,7 @@
 package org.hunter.medicare.controller;
 
 import org.apache.log4j.Logger;
+import org.hunter.medicare.data.SpecializationClassifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,8 +35,9 @@ public class NaiveBayesController {
     @ResponseBody
     public String[] getPrecentageByPrice_ResultJson(
             @RequestParam(value = "request", required = true) String request) throws Exception {
-
-        return request.split(" ");
+	String[] res = {SpecializationClassifier.predictDocs(request)};
+	return res;
+        //return request.split(" ");
     }
 
     @ExceptionHandler({ Exception.class })
