@@ -83,11 +83,48 @@ public class CassandraQueryResponse {
                 charge++;
             }
         } else {
-            List<String> ids = getProviders(state, procedure, MOST, numRows);
-            for (String id : ids) {
-                Provider p = getProviderById(id);
-                providers.add(p);
+            // List<String> ids = getProviders(state, procedure, MOST, numRows);
+            // for (String id : ids) {
+            // Provider p = getProviderById(id);
+            // providers.add(p);
+            providers = getMostExpensiveByState(state, procedure, "DESC", numRows);
+        }
+        return providers;
+    }
+
+    public static List<Provider> getMostExpensiveByState(String state, String code, String order,
+            int limit) {
+        List<Provider> providers = new ArrayList<Provider>();
+        Cluster cluster = null;
+        Session session = null;
+
+        try {
+            cluster = Cluster.builder().addContactPoint(host).build();
+            session = cluster.connect(keyspaceMain);
+
+            String query = "SELECT * FROM mv_providers_cost WHERE hcpcs_code = '" + code
+                    + "' AND nppes_provider_state = '" + state
+                    + "' AND year = 2012 ORDER BY average_submitted_chrg_amt " + order + " LIMIT "
+                    + limit + ";";
+
+            ResultSet results = session.execute(query);
+            for (Row row : results) {
+                Provider provider = new Provider(row);
+                providers.add(provider);
             }
+        } catch (Exception e) {
+            // TODO seperate out exceptions
+            System.out.println("An error occured:  " + e);
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
+            System.out.println("session closed");
         }
         return providers;
     }

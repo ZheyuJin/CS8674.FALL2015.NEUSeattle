@@ -139,6 +139,54 @@ public class Provider {
     }
 
     /**
+     * Cassandra Constructor
+     * 
+     * Author Tim
+     * 
+     * @param mvRow
+     */
+    public Provider(Row mvRow) {
+        providerDetails = new ExtendedInfo();
+        if (!mvRow.isNull("npi")) {
+            npi = mvRow.getString("npi");
+        }
+        if (!mvRow.isNull("nppes_provider_last_org_name")) {
+            last_or_org_name = mvRow.getString("nppes_provider_last_org_name");
+        }
+        if (!mvRow.isNull("nppes_provider_first_name")) {
+            first_name = mvRow.getString("nppes_provider_first_name");
+        }
+        if (!mvRow.isNull("nppes_provider_zip")) {
+            zip = "" + mvRow.getString("nppes_provider_zip");
+        }
+        if (!mvRow.isNull("nppes_provider_state")) {
+            state = mvRow.getString("nppes_provider_state");
+        }
+        if (!mvRow.isNull("nppes_provider_mi")) {
+            providerDetails.middle_initial = mvRow.getString("nppes_provider_mi");
+        }
+        if (!mvRow.isNull("hcpcs_code")) {
+            hcpcs_code = mvRow.getString("hcpcs_code");
+        }
+        if (!mvRow.isNull("year")) {
+            year = (long) mvRow.getInt("year");
+        }
+        if (!mvRow.isNull("place_of_service")) {
+            place_of_service = mvRow.getString("place_of_service");
+        }
+        if (!mvRow.isNull("average_submitted_chrg_amt")) {
+            providerDetails.averageSubmittedChargeAmount = mvRow
+                    .getFloat("average_submitted_chrg_amt");
+        }
+        if (!mvRow.isNull("stdev_submitted_chrg_amt")) {
+            providerDetails.stddevSubmittedChargeAmount = mvRow
+                    .getFloat("stdev_submitted_chrg_amt");
+        }
+    }
+
+    // FIXME will either remove this older version or refactor it if still
+    // needed
+    /**
      * Cassandra Constructor Author Tim
      * 
      * @param providerRow
