@@ -43,16 +43,16 @@
 		</select>
 		<form>
 			<br> <input type="radio" name="request-type" value="mostExpensiveProc" checked
-				id="mostExpensiveProc" class="case-select">Show most
+				id="mostExpensiveProc" class="request-select">Show most
 			expensive provider(s) in a state for a procedure
 			<br> 
 			<input
 				type="radio" value="busiestProvider" name="request-type" id="busiestProvider" 
-				class="case-select">Show busiest provider(s) in
+				class="request-select">Show busiest provider(s) in
 			a state for a procedure
 			<br> 
 			<input type="radio" value="avgProcedureCost" name="request-type" 
-			id="avgProcedureCost" class="case-select">Find
+			id="avgProcedureCost" class="request-select">Find
 			procedures using a keyword, show average cost in a state<br>
 		</form>
 			<input id="submitSearch" type="submit" value="Submit" class="btn btn-default" />
