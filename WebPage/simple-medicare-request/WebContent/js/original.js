@@ -34,6 +34,19 @@ $(document).on('click', '#submitSearch', function() {
 	}
 
 	var URL = "query" + upperFirstLetter($('input[name="request-type"]:checked').val());
+	
+	$.ajax({
+		url : URL,
+		data : {
+			query : query,
+			state : $("#stateSelect option:selected").val()
+		}
+	}).done(function(data) {
+		responseHandler(URL, data);
+	}).fail(function() {
+		window.location = "../../error.html";
+	});
+	/*
 	$(function() {
 		$.get(
 				URL,
@@ -46,7 +59,7 @@ $(document).on('click', '#submitSearch', function() {
 				}).fail(function() {
 			window.location = "../../error.html";
 		});
-	});
+	});*/
 });
 
 function responseHandler(URL, data){
