@@ -22,10 +22,10 @@
 	<h6></h6>
 	<input value="" id="user_input" type="text" name="state_request"
 		width="100%"> <br>
-	<input type="checkbox" name="descr_box" value="foo foo bar bar" />This is HCPCS Code #1<br>
-	<input type="checkbox" name="descr_box" value="bar buzz bar bar" />This is HCPCS Code #2<br>
-	<input type="checkbox" name="descr_box" value="buzz buzz foo bar" />This is HCPCS Code #3<br>
-	<input type="checkbox" name="descr_box" value="foo foo bar bar" />This is HCPCS Code #4<br>
+	<input type="checkbox" name="descr_box" value=" Anesthesia for lens surgery" />Anesthesia for lens surgery<br>
+	<input type="checkbox" name="descr_box" value=" Anesthesia surgery" />Anesthesia surgery<br>
+	<input type="checkbox" name="descr_box" value=" Surgery, Xray of hip minimum 2 views" />Surgery, Xray of hip minimum 2 views<br>
+	<input type="checkbox" name="descr_box" value=" Xray of hip" />Xray of hip<br>
 
 	<input id="request_button" type="submit" value="Search">
 
