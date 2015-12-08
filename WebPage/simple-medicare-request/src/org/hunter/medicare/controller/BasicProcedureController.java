@@ -28,7 +28,7 @@ public class BasicProcedureController {
 
     protected static Logger logger = Logger.getLogger("controller");
 
-    @RequestMapping(value = "/query", method = RequestMethod.GET, params = {})
+    @RequestMapping(value = "/form", method = RequestMethod.GET, params = {})
     public String getProviderQueryForm() {
 
         return "basicProcedureQueries";
