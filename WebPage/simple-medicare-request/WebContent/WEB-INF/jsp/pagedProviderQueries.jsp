@@ -82,10 +82,13 @@ html, body {
 		</table>
 
         <br />
-        <div id="result-nav">
-            <span id="prev" class="link" hidden=true>Prev</span>
+        <div id="result-nav" >
+        <ul class="pager">
+        
+            <li><span id="prev" class="link" hidden=true>Prev</span></li>
 
-            <span id="next" class="link" hidden=true>Next</span>
+            <li><span id="next" class="link" hidden=true>Next</span></li>
+		</ul>
         </div>
 	</div>
 
