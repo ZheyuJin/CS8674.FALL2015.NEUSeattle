@@ -5,17 +5,18 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Is this price a Ripoff ?</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" >
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="../../css/common.css">
+<script src="../../js/common.js"></script>
 
-<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
-<script src="/simple-medicare-request/js/common.js"></script>
+<link href="../../favicon.ico" rel="icon"
+    type="image/x-icon">
 
-<link href="/simple-medicare-request/favicon.ico" rel="icon"
-	type="image/x-icon">
 	
 	<script>
 	$(init);
@@ -31,7 +32,7 @@
 	      	var proc_code = $("#proc_code").val();
 	      	var price = $("#price").val();
 	    	/* alert(""+ price + ":" + proc_code); */
-	      	var content = " % of others paid more than this price.";
+	      	var content = " % other patients paid more than this price for the procedure.";
 	      	
     		if (!proc_code.match(new RegExp(/^[A-Za-z0-9]{3,5}$/))) {
     			alert("A valid Procedure Code must be input.");
@@ -77,16 +78,16 @@
 </head>
 <body class="container main center">
 	<h1>Is this price a ripoff?</h1>
-	<h2>By providing a procedure code and price in USD, you can see how many others paid less than this.</h2>  
+	<p>By providing a procedure code and price in USD, you can see how many others paid less than this.</p>  
 	<!-- <form action="result-json" method="get" class="form-inline"> -->
 	<!-- <form method="get" class="form-inline">  -->
 	<div class="form-inline">
-		<label for="proc_code"> Procedure Code </label> 		
+		<label for="proc_code"> Procedure Code: </label> 		
 		<input id="proc_code"  name="proc_code" type="text" class="form-control" />
-		
-		<label for="price"> Price </label> 		
+		&nbsp;&nbsp;
+		<label for="price"> Price: $ </label> 		
 		<input id="price" type="number" min="0"  step="1" name="price" class="form-control" /> 
-		 
+		 <br />
 		<button type="submit" class="btn btn-success" id="button">Submit</button>
 	</div>		
 	<!-- </form> -->

@@ -45,12 +45,5 @@
 			<br>
 		</div>
 		
-		<!--  
-		<footer>
-			<hr />
-			<p>
-				<a href="../../index.html">Home</a>
-			</p>
-		</footer> -->
 	</body>
 </html>

@@ -102,13 +102,6 @@ function fillExpensiveTable(data){
 	} );
 }
 
-function checkEmpty(data) {
-	if (data.length == 0) {
-		return true;
-	} else {
-		return false;
-	}
-}
 
 $(document).on('click', '.request-select', function(){
 	if ($(this).is('#avgProcedureCost')) {
