@@ -16,7 +16,8 @@
 
 <body class="container main center">
 	<h1>Outlier Detection</h1>
-	<h3>Outliers are institutions whose charge is among top K% for the given procedure code.</h3>   
+	<p>Outliers are providers or institutions whose charge is among top K% for the given procedure code.</p>   
+    <p>Enter a procedure code and a percentage cutoff to see providers who charged at the top of that range for the procedure.</p>   
 	<form action="result-jsp" method="get" class="form-inline"> 
 		<label for="proc_code" class="form-group"> Procedure Code </label> 		
 		<input id="proc_code"  name="proc_code" type="text" class="form-control" required/>

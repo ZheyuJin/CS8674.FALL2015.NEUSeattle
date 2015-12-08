@@ -163,6 +163,7 @@ public class SolrProviderSource {
         // Query looks something like this:
         // http://localhost:8983/solr/csvtest/select?q=HCPCS_DESCRIPTION:knee&facet=true&rows=0&facet.pivot=HCPCS_CODE,hcpcs_description_exact&wt=json&indent=true&facet.sort=count&facet.limit=50
         query.set("facet.pivot", "HCPCS_CODE,hcpcs_description_exact");
+        // Return "top" facets, sorted by count
         query.set("facet.sort", "count");
         query.set("facet.limit", numRows);
         query.setFacet(true);
@@ -310,7 +311,10 @@ public class SolrProviderSource {
         if (!facetProperty.isEmpty()) {
             query.set("facet.field", facetProperty);
             query.setFacet(true);
-            query.set("facet.sort", "index");
+            query.set("facet.sort", "count");
+            // Only return facets that had at least one hit for our query
+            query.set("facet.mincount", 1);
+
         }
 
         SolrProviderSource solrData = getQueryResponse(query);
