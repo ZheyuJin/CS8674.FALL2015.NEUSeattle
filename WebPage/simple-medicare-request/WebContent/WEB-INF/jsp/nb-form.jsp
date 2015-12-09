@@ -25,11 +25,12 @@
 	<h6></h6>
 	<input value="" id="user_input" type="text" name="state_request"
 		width="100%" required/> <br>
+		<!-- 
 	<input type="checkbox" name="descr_box" value="Anesthesia for lens surgery" />Anesthesia for lens surgery<br>
 	<input type="checkbox" name="descr_box" value="Anesthesia surgery" />Anesthesia surgery<br>
 	<input type="checkbox" name="descr_box" value="Surgery, Xray of hip minimum 2 views" />Surgery, Xray of hip minimum 2 views<br>
 	<input type="checkbox" name="descr_box" value="Xray of hip" />Xray of hip<br>
-
+ -->
 	<input id="request_button" type="submit" value="Search" class="btn btn-success">
 
 	<div id="result_area"></div>
