@@ -59,7 +59,8 @@ $(document).on('click', '#submitSearch', function() {
 				}).fail(function() {
 			window.location = "../../error.html";
 		});
-	});*/
+	});
+	*/
 });
 
 function responseHandler(URL, data){

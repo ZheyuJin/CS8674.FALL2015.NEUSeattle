@@ -16,6 +16,8 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.querybuilder.Clause;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
 
 public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
@@ -108,6 +110,62 @@ public class CassandraQueryResponse {
                     + limit + ";";
 
             ResultSet results = session.execute(query);
+            for (Row row : results) {
+                Provider provider = new Provider(row);
+                providers.add(provider);
+            }
+        } catch (Exception e) {
+            // TODO seperate out exceptions
+            System.out.println("An error occured:  " + e);
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (cluster != null) {
+                cluster.close();
+            }
+            System.out.println("session closed");
+        }
+        return providers;
+    }
+
+    /**
+     * 
+     * Returns a List of Providers which have an average_submitted_chrg_amt
+     * either above or below the given cost
+     * 
+     * @param code
+     *            hcpcs_code
+     * @param cost
+     *            average_submitted_chrg_amt used for comparison
+     * @param below
+     *            when true returns the Providers that charge below cost, when
+     *            false returns Providers charging above cost
+     * @return List<Provider> where Provider only contains certain relevant
+     *         fields
+     */
+    public static List<Provider> getProvidersOverCostThreshold(String code, double cost,
+            boolean below) {
+        List<Provider> providers = new ArrayList<Provider>();
+        Cluster cluster = null;
+        Session session = null;
+
+        try {
+
+            cluster = Cluster.builder().addContactPoint(host).build();
+            session = cluster.connect(keyspaceMain);
+
+            Clause inequality = QueryBuilder.gt("average_submitted_chrg_amt", cost);
+            if (below) {
+                inequality = QueryBuilder.lt("average_submitted_chrg_amt", cost);
+            }
+            Statement selectStmt = QueryBuilder.select().all().from("mv_providers_cost_national")
+                    .where(QueryBuilder.eq("year", 2012)).and(QueryBuilder.eq("hcpcs_code", code))
+                    .and(inequality);
+
+            ResultSet results = session.execute(selectStmt);
             for (Row row : results) {
                 Provider provider = new Provider(row);
                 providers.add(provider);

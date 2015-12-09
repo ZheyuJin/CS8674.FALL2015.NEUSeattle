@@ -7,8 +7,17 @@
 <script src="http://d3js.org/queue.v1.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 
-<script type="text/javascript"
-  src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
+<script src="/simple-medicare-request/js/common.js"></script>
+<script src="/simple-medicare-request/js/original.js"></script>
+
+<link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
 
 <style>
 
@@ -39,19 +48,30 @@
 
 </style>
 </head>
-<body>
-
-
+<body class="container">
+<h2> Urban and Rural Mapping </h2>
+<div class="map"></div>
+<h6></h6>
 <script>
-
-
 
 var width = 960,
     height = 500;
 
+//Min:  Max: 
+	//Min: -0.4123699698032442 Max: 2.0826857739844256
+
+	/*Value: -33 - Count: 125
+Value: -35 - Count: 145
+Value: -36 - Count: 123
+Value: -37 - Count: 140
+Value: -38 - Count: 138
+Value: -39 - Count: 128*/
 var color = d3.scale.threshold()
-    .domain([1, 9])
-    .range(["#f2f0f7", "#54278f"]);
+    .domain([-0.42, -.36, -.31, -.2, 0, 2.1])
+    //.range(["#f2f0f7", "#54278f"]);
+    .range(["#f2f0f7", "#dadaeb", "#bcbddc", "#9e9ac8", "#756bb1", "#54278f"]);
+    //.range(["#f2f0f7", "#bcbddc", "#756bb1", "#54278f"]);
+    //.range(["#f2f0f7", "#54278f"]);
 
 var path = d3.geo.path();
 
@@ -63,9 +83,6 @@ queue()
     .defer(d3.json, "../../us.json")
     .defer(d3.tsv, "../../norm_dist.tsv")
     .await(ready);
-
-
-var formatTime = d3.time.format("%e %B");
 
 var div = d3.select("body").append("div") 
     .style("opacity", 0);
@@ -85,19 +102,20 @@ function ready(error, us, urbanrural) {
       .attr("class", "zip")
       .attr("d", path)
       .style("fill", function(d) { return color(rateById[d.id]); })
+      .on("mouseover", function(d) {
+				div.transition().duration(200).style("opacity", .9);
+				div.html("County Code: " + d.id + " - Urban/Rural Value: " + rateById[d.id])
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 28) + "px");})
+		.on("mouseout", function(d) {
+				div.transition().duration(500).style("opacity", 0);});
 
-      .append("svg:title")
-      //.text(function(d) { return "Hello World"; });
-      //;
 
   svg.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a.id !== b.id; }))
       .attr("class", "states")
       .attr("d", path);
-
 }
-
-
 
 </script>
 

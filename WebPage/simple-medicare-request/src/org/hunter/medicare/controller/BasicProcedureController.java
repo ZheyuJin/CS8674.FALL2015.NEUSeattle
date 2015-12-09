@@ -42,13 +42,13 @@ public class BasicProcedureController {
             throws Exception {
         logger.debug("Received query request for a procedure code");
 
-
         List<Provider> list = new ArrayList<Provider>();
         int numRows = 1000;
 
         try {
-                list = CassandraQueryResponse.getMostExpensive(numRows, state, proc_code);
-                Collections.sort(list, new TopChargeSComp());
+            //throw new Exception("whatever");
+            list = CassandraQueryResponse.getMostExpensive(numRows, state, proc_code);
+            Collections.sort(list, new TopChargeSComp());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -127,6 +127,7 @@ public class BasicProcedureController {
         throw new Exception("This is an error");
     }
 
+    /*
     @ExceptionHandler({ Exception.class })
     public String genericError() {
         // Returns the logical view name of an error page, passed to
@@ -136,6 +137,7 @@ public class BasicProcedureController {
         // for more options.
         return "genericError";
     }
+    */
 }
 
 /**

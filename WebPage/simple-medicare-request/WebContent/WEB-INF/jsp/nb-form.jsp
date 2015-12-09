@@ -11,12 +11,12 @@
 	
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-	<script src="/simple-medicare-request/js/common.js"></script>
-	<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
+	<script src="../../js/common.js"></script>
+	<link rel="stylesheet" href="../../css/common.css">
 <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 <title>This is a Temporary Page for Brian</title>
-<link href="/simple-medicare-request/favicon.ico" rel="icon"
+<link href="../../favicon.ico" rel="icon"
 	type="image/x-icon">
 
 </head>
@@ -25,11 +25,12 @@
 	<h6></h6>
 	<input value="" id="user_input" type="text" name="state_request"
 		width="100%" required/> <br>
-	<input type="checkbox" name="descr_box" value=" Anesthesia for lens surgery" />Anesthesia for lens surgery<br>
-	<input type="checkbox" name="descr_box" value=" Anesthesia surgery" />Anesthesia surgery<br>
-	<input type="checkbox" name="descr_box" value=" Surgery, Xray of hip minimum 2 views" />Surgery, Xray of hip minimum 2 views<br>
-	<input type="checkbox" name="descr_box" value=" Xray of hip" />Xray of hip<br>
-
+		<!-- 
+	<input type="checkbox" name="descr_box" value="Anesthesia for lens surgery" />Anesthesia for lens surgery<br>
+	<input type="checkbox" name="descr_box" value="Anesthesia surgery" />Anesthesia surgery<br>
+	<input type="checkbox" name="descr_box" value="Surgery, Xray of hip minimum 2 views" />Surgery, Xray of hip minimum 2 views<br>
+	<input type="checkbox" name="descr_box" value="Xray of hip" />Xray of hip<br>
+ -->
 	<input id="request_button" type="submit" value="Search" class="btn btn-success">
 
 	<div id="result_area"></div>
@@ -41,7 +42,11 @@
 		var input_query = "";
 		
 		$(document).on('click', '#request_button', function() {
-			input_query = $('#user_input').val();
+			clearResultArea();
+			input_query = "";
+			if($('#user_input').val().length > 0){
+				input_query = $('#user_input').val() + "; ";
+			}
 			gatherAllInputs();
 			if(input_query.length == 0){
 				alert("Please enter input.")
@@ -72,9 +77,14 @@
 
 		function responseHandler(data) {
 			$("#result_area").replaceWith(
-					'<div id="result_area">' + JSON.stringify(data) + '</div>');
+					'<h3 id="result_area">' + JSON.stringify(data) + '</h3>');
 		}
 
+		function formatResponse(data){
+			var response = "The most likely provider to match this input is " + JSON.stringify(data);
+			
+		}
+		
 		function FormatResults(list) {
 			var output = "";
 			
@@ -82,6 +92,10 @@
 				output += '<div class="result">' + list[i] + '</div>';
 			}
 			return output;
+		}
+		
+		function clearResultArea(){
+			$("#result_area").replaceWith('<div id="result_area"></div>');
 		}
 	</script>
 </body>
