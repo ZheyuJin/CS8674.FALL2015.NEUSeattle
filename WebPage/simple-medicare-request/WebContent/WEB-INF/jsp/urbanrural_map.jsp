@@ -60,8 +60,14 @@ var width = 960,
 //Min:  Max: 
 	//Min: -0.4123699698032442 Max: 2.0826857739844256
 
+	/*Value: -33 - Count: 125
+Value: -35 - Count: 145
+Value: -36 - Count: 123
+Value: -37 - Count: 140
+Value: -38 - Count: 138
+Value: -39 - Count: 128*/
 var color = d3.scale.threshold()
-    .domain([-0.42, -.35, -.10, .11, 2.1])
+    .domain([-0.42, -.36, -.31, -.2, 0, 2.1])
     //.range(["#f2f0f7", "#54278f"]);
     .range(["#f2f0f7", "#dadaeb", "#bcbddc", "#9e9ac8", "#756bb1", "#54278f"]);
     //.range(["#f2f0f7", "#bcbddc", "#756bb1", "#54278f"]);
