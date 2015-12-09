@@ -2,63 +2,55 @@ package org.hunter.medicare.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 //import org.apache.log4j.BasicConfigurator;
 import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.ColumnDefinitions.Definition;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.Clause;
+import com.datastax.driver.core.querybuilder.Ordering;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 
+/**
+ * 
+ * Handles all Cassandra Queries
+ * 
+ * @author Tim, Josh, Doyle (others?)
+ *
+ */
 public class CassandraQueryResponse {
     // Set to true for mock data, false if you want to connect to Cassandra
     private static boolean mock = false;
 
-    private static String host = "52.32.209.104"; // Tim's
-    // private static String host = "127.0.0.1"; // If mock=false and run local
-    // private static String host = "54.200.138.99"; // mock=false and EC2 brian
-    // private static String host = "54.191.107.167"; // ec2 josh
-    private static String keyspace = "demo";
-    private static String keyspaceMain = "main";
-    private static String mvTable = "mv";
-    private static String USERNAME = "cassandra";
-    private static String PASSWORD = "cassandra";
+    private static String host = "52.32.209.104"; // EC2 Tim
+    // private static String host = "127.0.0.1"; // Local
+    // private static String host = "54.200.138.99"; // EC2 Brian
+    // private static String host = "54.191.107.167"; // EC2 Josh
+    private static String KEYSPACE = "main";
+    // private static String USERNAME = "cassandra";
+    // private static String PASSWORD = "cassandra";
 
     private static CassandraQueryResponse instance = null;
 
-    public static final String STRINGIFIER = "x";
-    public static final String LEAST = "least";
-    public static final String MOST = "most";
+    // tables
+    private static final String PATIENT_RESPONSIBILITY = "mv_patient_responsibility";
+    private static final String CHARGED_MEDICARE_GAP = "mv_charged_medicare_payment_gap";
+    private static final String PROVIDERS_COST_STATE = "mv_providers_cost";
+    private static final String PROVIDERS_COST_NATIONAL = "mv_providers_cost_national";
+    private static final String PROVIDERS = "providers";
+    private static final String PROCEDURES_STATS = "proceduresstats";
+    private static final String PROCEDURES_INFO = "proceduresinfo";
 
-    // cql constants
-    public static final String SPACE = " ";
-    public static final String COMMA = ",";
-    public static final String LEFT = "(";
-    public static final String RIGHT = ")";
-    public static final String OPEN_STRING = "'";
-    public static final String CLOSE_STRING = "'";
-    public static final String TEXT = "text";
-    public static final String PRIMARY_KEY = "primary key";
-    public static final String INSERT_INTO = "insert into";
-    public static final String VALUES = "values";
-    public static final String SELECT = "select";
-    public static final String WILDCARD = "*";
-    public static final String FROM = "from";
-    public static final String WHERE = "where";
-    public static final String STATE = "nppes_provider_state";
-    public static final String EQUALS = "=";
-    public static final String CREATE_TABLE = "create table";
-    public static final String LIMIT = "limit";
-
+    /**
+     * Get Instance
+     * 
+     * @return CassandraQueryResponse
+     */
     public static CassandraQueryResponse getInstance() {
         if (instance == null) {
             instance = new CassandraQueryResponse();
@@ -66,6 +58,24 @@ public class CassandraQueryResponse {
         return instance;
     }
 
+    /**
+     * OLD USECASE #1 Returns the N most expensive providers in terms of average
+     * submitted charge for the given procedure and the given state.
+     * 
+     * @author Tim and others
+     * 
+     * @param numRows
+     *            The number of Providers returned
+     * @param state
+     *            A US State given as the standard all-caps 2-letter
+     *            abbreviation
+     * @param procedure
+     *            hcpcs_code
+     * @return List<Provider> where each Provider only contains select fields,
+     *         returns null if there are no results or if query fails, returns
+     *         mock data when mock = true,
+     * @throws Exception
+     */
     public static List<Provider> getMostExpensive(Integer numRows, String state, String procedure)
             throws Exception {
         List<Provider> providers = new ArrayList<Provider>();
@@ -85,40 +95,60 @@ public class CassandraQueryResponse {
                 charge++;
             }
         } else {
-            // List<String> ids = getProviders(state, procedure, MOST, numRows);
-            // for (String id : ids) {
-            // Provider p = getProviderById(id);
-            // providers.add(p);
             providers = getMostExpensiveByState(state, procedure, "DESC", numRows);
         }
         return providers;
     }
 
+    /**
+     * OLD USECASE #3 Returns the N most/least expensive providers in terms of
+     * average submitted charge for the given procedure and the given state.
+     * 
+     * @param state
+     *            A US State given as the standard all-caps 2-letter
+     *            abbreviation
+     * @param code
+     *            hcpcs_code
+     * @param order
+     *            either "ACS" for least expensive providers or "DESC" for most
+     *            expensive providers
+     * @param limit
+     *            The number of Providers returned
+     * @return List<Providers> where each Provider only contains select fields
+     */
     public static List<Provider> getMostExpensiveByState(String state, String code, String order,
             int limit) {
+
         List<Provider> providers = new ArrayList<Provider>();
         Cluster cluster = null;
         Session session = null;
 
         try {
             cluster = Cluster.builder().addContactPoint(host).build();
-            session = cluster.connect(keyspaceMain);
+            session = cluster.connect(KEYSPACE);
 
-            String query = "SELECT * FROM mv_providers_cost WHERE hcpcs_code = '" + code
-                    + "' AND nppes_provider_state = '" + state
-                    + "' AND year = 2012 ORDER BY average_submitted_chrg_amt " + order + " LIMIT "
-                    + limit + ";";
+            Ordering queryOrder = QueryBuilder.desc("average_submitted_chrg_amt");
+            if (order.equals("ASC")) {
+                queryOrder = QueryBuilder.asc("average_submitted_chrg_amt");
+            }
 
-            ResultSet results = session.execute(query);
+            Statement selectStmt = QueryBuilder.select().all().from(PROVIDERS_COST_STATE)
+                    .where(QueryBuilder.eq("hcpcs_code", code))
+                    .and(QueryBuilder.eq("nppes_provider_state", state))
+                    .and(QueryBuilder.eq("year", 2012)).orderBy(queryOrder).limit(limit);
+
+            ResultSet results = session.execute(selectStmt);
             for (Row row : results) {
                 Provider provider = new Provider(row);
                 providers.add(provider);
             }
+
         } catch (Exception e) {
             // TODO seperate out exceptions
             System.out.println("An error occured:  " + e);
             e.printStackTrace();
             throw e;
+
         } finally {
             if (session != null) {
                 session.close();
@@ -128,21 +158,23 @@ public class CassandraQueryResponse {
             }
             System.out.println("session closed");
         }
+
         return providers;
     }
 
     /**
+     * ML USECASE
      * 
-     * Returns a List of Providers which have an average_submitted_chrg_amt
+     * Returns a List of Providers which have an average submitted charge amount
      * either above or below the given cost
      * 
      * @param code
      *            hcpcs_code
      * @param cost
-     *            average_submitted_chrg_amt used for comparison
+     *            average submitted charge amount used for comparison
      * @param below
      *            when true returns the Providers that charge below cost, when
-     *            false returns Providers charging above cost
+     *            false returns Providers that charge above cost
      * @return List<Provider> where Provider only contains certain relevant
      *         fields
      */
@@ -155,13 +187,13 @@ public class CassandraQueryResponse {
         try {
 
             cluster = Cluster.builder().addContactPoint(host).build();
-            session = cluster.connect(keyspaceMain);
+            session = cluster.connect(KEYSPACE);
 
             Clause inequality = QueryBuilder.gt("average_submitted_chrg_amt", cost);
             if (below) {
                 inequality = QueryBuilder.lt("average_submitted_chrg_amt", cost);
             }
-            Statement selectStmt = QueryBuilder.select().all().from("mv_providers_cost_national")
+            Statement selectStmt = QueryBuilder.select().all().from(PROVIDERS_COST_NATIONAL)
                     .where(QueryBuilder.eq("year", 2012)).and(QueryBuilder.eq("hcpcs_code", code))
                     .and(inequality);
 
@@ -187,98 +219,6 @@ public class CassandraQueryResponse {
         return providers;
     }
 
-    public static ArrayList<String> getProviders(String state, String code, String order,
-            int limit) {
-
-        // incremented until $limit or EOF
-        int numberOfInstances = 0;
-        ArrayList<String> orderedIds = new ArrayList<String>();
-
-        Cluster cluster = null;
-        Session session = null;
-
-        try {
-            cluster = Cluster.builder().addContactPoint(host).build();
-            session = cluster.connect(keyspace);
-
-            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
-                    + state + CLOSE_STRING;
-
-            System.out.println("zzz selectCostsByStateQuery \t" + selectCostsByStateQuery);
-
-            ResultSet resultSet = session.execute(selectCostsByStateQuery);
-            Row row;
-            if ((row = resultSet.one()) != null) {
-
-                ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
-                List<Definition> columns = columnDefinitions.asList();
-
-                if (order.equals(LEAST)) {
-                    // columnsIndex starts at 1 because 0 is the index for
-                    // 'nppes_provider_state'
-                    for (int columnsIndex = 1; columnsIndex < columns.size(); columnsIndex++) {
-                        Definition column = columns.get(columnsIndex);
-                        String columnName = column.getName();
-                        String ids = row.getString(columnName);
-                        if (ids != null) {
-                            String[] idsArray = ids.split(",");
-                            for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
-                                String id = idsArray[idsIndex];
-                                int idLength = id.length();
-                                // start at 11 because 10 for npi, 1 for
-                                // office/faculty. subtract 4 to peel the year.
-                                String idCode = id.substring(11, idLength - 4);
-                                if (idCode.equals(code) && numberOfInstances < limit) {
-                                    orderedIds.add(id);
-                                    numberOfInstances++;
-                                }
-                            }
-                        }
-                    }
-                } else if (order.equals(MOST)) {
-                    // columnsIndex ends at 1 because 0 is the index for
-                    // 'nppes_provider_state'
-                    for (int columnsIndex = columns.size() - 1; columnsIndex > 0; columnsIndex--) {
-                        Definition column = columns.get(columnsIndex);
-                        String columnName = column.getName();
-                        String ids = row.getString(columnName);
-                        if (ids != null) {
-                            String[] idsArray = ids.split(",");
-                            for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
-                                String id = idsArray[idsIndex];
-                                int idLength = id.length();
-                                // start at 11 because 10 for npi, 1 for
-                                // place_of_service
-                                // subtract 4 from the end to peel the year.
-                                String idCode = id.substring(11, idLength - 4);
-                                if (idCode.equals(code) && numberOfInstances < limit) {
-                                    orderedIds.add(id);
-                                    numberOfInstances++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // TODO seperate out exceptions
-            System.out.println("An error occured:  " + e);
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (session != null) {
-                session.close();
-            }
-            if (cluster != null) {
-                cluster.close();
-            }
-            System.out.println("session closed");
-        }
-
-        return orderedIds;
-    }
-
     public static Double getAverage(String state, String code) {
 
         Double average = 0.0;
@@ -287,14 +227,17 @@ public class CassandraQueryResponse {
 
         try {
             cluster = Cluster.builder().addContactPoint(host).build();
-            session = cluster.connect(keyspaceMain);
+            session = cluster.connect(KEYSPACE);
 
-            String selectCostsByStateQuery = "SELECT average_submitted_chrg_amt FROM mv_providers_cost WHERE nppes_provider_state = '"
-                    + state + "' AND hcpcs_code = '" + code + "' AND year = 2012;";
-            ResultSet resultSet = session.execute(selectCostsByStateQuery);
+            Statement selectStmt = QueryBuilder.select("average_submitted_chrg_amt")
+                    .from(PROVIDERS_COST_STATE)
+                    .where(QueryBuilder.eq("nppes_provider_state", state))
+                    .and(QueryBuilder.eq("hcpcs_code", code)).and(QueryBuilder.eq("year", 2012));
+
+            ResultSet results = session.execute(selectStmt);
             Double sumOfCosts = 0.0;
             Double numberOfInstances = 0.0;
-            for (Row row : resultSet) {
+            for (Row row : results) {
                 float cost = row.getFloat("average_submitted_chrg_amt");
                 sumOfCosts += cost;
                 numberOfInstances++;
@@ -303,79 +246,6 @@ public class CassandraQueryResponse {
                 average = -1.0;
             } else {
                 average = sumOfCosts / numberOfInstances;
-            }
-        } catch (Exception e) {
-            // TODO seperate out exceptions
-            System.out.println("An error occured:  " + e);
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (session != null) {
-                session.close();
-            }
-            if (cluster != null) {
-                cluster.close();
-            }
-            System.out.println("session closed");
-        }
-
-        return average;
-    }
-
-    // FIXME changed name from getAverage to getAverageOld, this is the old
-    // implementation. Will remove after
-    // new implementation is fully tested
-    public static Double getAverageOld(String state, String code) {
-
-        Double average = 0.0;
-        Cluster cluster = null;
-        Session session = null;
-
-        try {
-            cluster = Cluster.builder().addContactPoint(host).build();
-            session = cluster.connect(keyspace);
-
-            String selectCostsByStateQuery = SELECT + SPACE + WILDCARD + SPACE + FROM + SPACE
-                    + mvTable + SPACE + WHERE + SPACE + STATE + SPACE + EQUALS + SPACE + OPEN_STRING
-                    + state + CLOSE_STRING;
-            ResultSet resultSet = session.execute(selectCostsByStateQuery);
-            Row row;
-            Double sumOfCosts = 0.0;
-            Double numberOfInstances = 0.0;
-
-            if ((row = resultSet.one()) != null) {
-                ColumnDefinitions columnDefinitions = row.getColumnDefinitions();
-                List<Definition> columns = columnDefinitions.asList();
-
-                // columnsIndex starts at 1 because 0 is the index for
-                // 'nppes_provider_state'
-                for (int columnsIndex = 1; columnsIndex < columns.size(); columnsIndex++) {
-                    Definition column = columns.get(columnsIndex);
-                    String columnName = column.getName();
-                    String ids = row.getString(columnName);
-                    if (ids != null) {
-                        String[] idsArray = ids.split(",");
-                        for (int idsIndex = 0; idsIndex < idsArray.length; idsIndex++) {
-                            String id = idsArray[idsIndex];
-                            int idLength = id.length();
-                            // start at 11 because 10 for npi, 1 for
-                            // office/faculty.
-                            // subtract 4 to peel the year.
-                            String idCode = id.substring(11, idLength - 4);
-                            if (idCode.equals(code)) {
-                                double cost = Double.parseDouble(columnName.substring(1));
-                                sumOfCosts += cost;
-                                numberOfInstances++;
-                            }
-                        }
-                    }
-                }
-
-                if (numberOfInstances == 0.0) {
-                    return -1.0;
-                }
-                average = sumOfCosts / numberOfInstances;
-
             }
         } catch (Exception e) {
             // TODO seperate out exceptions
@@ -409,7 +279,7 @@ public class CassandraQueryResponse {
     }
 
     /**
-     * Returns the Provider when given the corresponding Id
+     * Returns the Provider with all fields when given the corresponding Id
      * 
      * @param id
      * @return Provider, if no matching ID or bad connection, will return null
@@ -433,10 +303,12 @@ public class CassandraQueryResponse {
         cluster = Cluster.builder().addContactPoint(host).build();
         // pick KEYSPACE
         try {
-            session = cluster.connect(keyspace);
+            session = cluster.connect(KEYSPACE);
             System.out.println("connecting to cassandra");
             // compose query
-            String query1 = "SELECT * FROM proceduresstats" + " WHERE id = '" + id + "';";
+            Statement query1 = QueryBuilder.select().all().from(PROCEDURES_STATS)
+                    .where(QueryBuilder.eq("id", id));
+
             System.out.println("zzz query: " + query1);
             ResultSet procedureResult = session.execute(query1);
             Row procedureRow = procedureResult.one();
@@ -447,13 +319,14 @@ public class CassandraQueryResponse {
             String npi = procedureRow.getString("npi");
             String hcpcs_code = procedureRow.getString("hcpcs_code");
 
-            String query2 = "SELECT * FROM proceduresinfo" + " WHERE hcpcs_code = '" + hcpcs_code
-                    + "';";
+            Statement query2 = QueryBuilder.select().all().from(PROCEDURES_INFO)
+                    .where(QueryBuilder.eq("hcpcs_code", hcpcs_code));
 
             ResultSet procedureInfoResult = session.execute(query2);
             Row procedureInfoRow = procedureInfoResult.one();
 
-            String query3 = "SELECT * FROM providers " + " WHERE npi = '" + npi + "';";
+            Statement query3 = QueryBuilder.select().all().from(PROVIDERS)
+                    .where(QueryBuilder.eq("npi", npi));
 
             ResultSet providerResult = session.execute(query3);
             Row providerRow = providerResult.one();
@@ -479,13 +352,13 @@ public class CassandraQueryResponse {
 
     /**
      * NEW USE CASE #2 Provides the Top N treatments that have the
-     * largest/smallest gap between cost of treatment and what medicare pays
+     * largest/smallest gap between cost of treatment and what Medicare pays
      * 
      * @param largest
      *            true to return in descending order from largest to smallest
      * @param numReturn
      *            the top N to return
-     * @return
+     * @return List<ProcedureDetails>
      */
     public static List<ProcedureDetails> getChargedMedicarePayGap(boolean largest, int numReturn) {
         return getChargedMedicarePayGap(largest, 0, numReturn);
@@ -539,22 +412,19 @@ public class CassandraQueryResponse {
             List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
             try {
                 cluster = Cluster.builder().addContactPoint(host)
-                        .withCredentials(USERNAME, PASSWORD).build();
-                session = cluster.connect(keyspaceMain);
+                        // .withCredentials(USERNAME, PASSWORD)
+                        .build();
+                session = cluster.connect(KEYSPACE);
 
-                String ordering = "ASC";
+                Ordering ordering = QueryBuilder.asc("charge_medicare_pay_gap");
+                // String ordering = "ASC";
                 if (largest) {
-                    ordering = "DESC";
+                    ordering = QueryBuilder.desc("charge_medicare_pay_gap");
+                    // ordering = "DESC";
                 }
-                String query = "SELECT * FROM mv_charged_medicare_payment_gap "
-                        + "WHERE mv_id = 2 ORDER BY charge_medicare_pay_gap " + ordering;
-                        // + " LIMIT " + numReturn + ";";
+                Statement stmt = QueryBuilder.select().all().from(CHARGED_MEDICARE_GAP)
+                        .where(QueryBuilder.eq("mv_id", 2)).orderBy(ordering);
 
-                // ResultSet result = session.execute(query);
-                // See
-                // https://datastax.github.io/java-driver/2.0.10/features/paging/
-                // for java driver + paging/iteration
-                Statement stmt = new SimpleStatement(query);
                 stmt.setFetchSize(100);
                 ResultSet result = session.execute(stmt);
                 int i = -1;
@@ -599,7 +469,7 @@ public class CassandraQueryResponse {
 
     /**
      * NEW USE CASE #3 Provide the Top N treatments that have the
-     * largest/smallest gap between cost of treatment and what medicare pays in
+     * largest/smallest gap between cost of treatment and what Medicare pays in
      * terms of percentage (the percent the patient is responsible for)
      * 
      * @param largest
@@ -607,7 +477,7 @@ public class CassandraQueryResponse {
      *            percentage to least, when false it is in ascending order
      * @param numReturn
      *            the top N returns
-     * @return
+     * @return List<ProcedureDetails>
      */
     public static List<ProcedureDetails> getPatientResponsibility(boolean largest, int numReturn) {
         return getPatientResponsibility(largest, 0, numReturn);
@@ -661,23 +531,17 @@ public class CassandraQueryResponse {
             List<ProcedureDetails> procedureList = new ArrayList<ProcedureDetails>();
             try {
                 cluster = Cluster.builder().addContactPoint(host)
-                        .withCredentials(USERNAME, PASSWORD).build();
-                session = cluster.connect(keyspaceMain);
+                        // .withCredentials(USERNAME, PASSWORD)
+                        .build();
+                session = cluster.connect(KEYSPACE);
 
-                String ordering = "ASC";
+                Ordering ordering = QueryBuilder.asc("fraction_responsible");
                 if (largest) {
-                    ordering = "DESC";
+                    ordering = QueryBuilder.desc("fraction_responsible");
                 }
-                String query = "SELECT * FROM mv_patient_responsibility "
-                        + "WHERE mv_id = 1 ORDER BY fraction_responsible " + ordering;
-                        // + " LIMIT "
-                        // + numReturn + ";";
+                Statement stmt = QueryBuilder.select().all().from(PATIENT_RESPONSIBILITY)
+                        .where(QueryBuilder.eq("mv_id", 1)).orderBy(ordering);
 
-                // ResultSet result = session.execute(query);
-                // See
-                // https://datastax.github.io/java-driver/2.0.10/features/paging/
-                // for java driver + paging/iteration
-                Statement stmt = new SimpleStatement(query);
                 stmt.setFetchSize(100);
                 ResultSet result = session.execute(stmt);
                 int i = -1;
@@ -740,22 +604,7 @@ public class CassandraQueryResponse {
             e.printStackTrace();
             throw e;
         }
-
         return providers;
-    }
-
-    // for testing
-    public static void main(String[] args) {
-        ArrayList<String> x = getProviders("CA", "99223", LEAST, 10);
-        System.out.println(x);
-        getProviderById(x.get(0));
-
-        HashSet<String> asdf = new HashSet<String>();
-        asdf.add("99238");
-        asdf.add("99204");
-        asdf.add("99223");
-        System.out.println(getCodeToAvgCostMappingForState(asdf, "CA"));
-
     }
 
 }
