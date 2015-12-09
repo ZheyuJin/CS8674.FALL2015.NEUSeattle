@@ -2,6 +2,7 @@ package org.hunter.medicare.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -131,6 +132,8 @@ public class OutlierController {
     private List<Provider> filterByPrice(String procCode, double price) throws IOException {
         List<Provider> ret = CassandraQueryResponse.getProvidersOverCostThreshold(procCode, price,
                 false);
+        if (ret != null)
+            Collections.sort(ret, new TopChargeSComp());
 
         return ret != null ? ret : new ArrayList<>();
     }
