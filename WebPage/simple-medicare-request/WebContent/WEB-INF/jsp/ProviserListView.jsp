@@ -4,13 +4,13 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <title>Provider results</title>
-<link href="/simple-medicare-request/favicon.ico" rel="icon"
+<link href="../../favicon.ico" rel="icon"
 	type="image/x-icon">
 <link
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
 	rel="stylesheet">
-	<script src="/simple-medicare-request/js/common.js"></script>
-	<link href="/simple-medicare-request/favicon.ico" rel="icon"
+	<script src="../../js/common.js"></script>
+	<link href="../../favicon.ico" rel="icon"
 	type="image/x-icon">
 </head>
 <body class="container main">
@@ -29,7 +29,7 @@
 	</c:if>
 
 <!--  
-	<a href="/simple-medicare-request/index.html">Home</a>
+	<a href="../../index.html">Home</a>
  -->
 </body>
 </html>
