@@ -28,7 +28,7 @@
 		<input id="proc_code"  name="proc_code" type="text" class="form-control" required/>
 		&nbsp;&nbsp;
 		<label for="percentage" class="form-group"> Percentage: </label> 		
-		<input id="percentage" type="number" min="0" max="100" step="0.01" name="percentage" class="form-control" required/> 
+		<input id="percentage" type="number" min="0" max="20" step="0.01" name="percentage" class="form-control" required/> 
 		 <br />
 		<button type="submit" class="btn btn-success">Submit</button>
 			
