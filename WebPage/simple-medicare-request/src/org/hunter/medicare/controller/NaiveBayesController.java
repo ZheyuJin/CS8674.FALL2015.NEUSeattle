@@ -35,7 +35,7 @@ public class NaiveBayesController {
     @ResponseBody
     public String[] getPrecentageByPrice_ResultJson(
             @RequestParam(value = "request", required = true) String request) throws Exception {
-	String[] res = {SpecializationClassifier.predictDocs(request)};
+	String[] res = {SpecializationClassifier.predictDocs(request.toLowerCase().trim())};
 	return res;
         //return request.split(" ");
     }
