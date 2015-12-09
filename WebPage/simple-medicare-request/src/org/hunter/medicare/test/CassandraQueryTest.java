@@ -14,9 +14,13 @@ public class CassandraQueryTest {
     public static void main(String[] args) throws Exception {
         System.out.println("gonna print test result");
 
-        for (Provider p : CassandraQueryResponse.getInstance().getMostExpensive(10, "*", "*")) {
-            System.out.println(p.providerDetails.averageSubmittedChargeAmount);
-        }
+        getProvidersOverCostThresholdTest();
+    }
+
+    static void getProvidersOverCostThresholdTest() {
+        for (Provider p : CassandraQueryResponse.getProvidersOverCostThreshold("22524", 1500,
+                false))
+            System.out.println(p);
     }
 
 }

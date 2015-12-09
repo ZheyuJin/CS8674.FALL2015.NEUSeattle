@@ -1,15 +1,14 @@
 package org.hunter.medicare.controller;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.log4j.Logger;
+import org.hunter.medicare.data.CassandraQueryResponse;
 import org.hunter.medicare.data.Provider;
 import org.hunter.medicare.gaussian.GMM;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Using Normal distribution to detect outlier. Loading trained model form local
@@ -102,25 +99,25 @@ public class OutlierController {
     /**
      * Filter outliers by percentage.
      * 
-     * @param proc_code
+     * @param procCode
      * @param topPercentage
      * @return
      * @throws Exception
      */
-    private List<Provider> getGaussianOutliers(String proc_code, double topPercentage)
+    private List<Provider> getGaussianOutliers(String procCode, double topPercentage)
             throws Exception {
 
         /* load GMM from file */
         GMM gmm = new GMM(null);
         gmm.load();
-        NormalDistribution nd = gmm.getIndividualModel(proc_code);
+        NormalDistribution nd = gmm.getIndividualModel(procCode);
 
         double cuttingPrice = nd.inverseCumulativeProbability(1 - topPercentage / 100);
 
         log.info(String.format("mu: %f, stddev: %f cutting price: %f\n", nd.getMean(),
                 nd.getStandardDeviation(), cuttingPrice));
 
-        return filterByPrice(cuttingPrice);
+        return filterByPrice(procCode, cuttingPrice);
     }
 
     /**
@@ -131,22 +128,11 @@ public class OutlierController {
      * @return
      * @throws Exception
      */
-    private List<Provider> filterByPrice(double price) throws IOException {
-        List<Provider> ret = new ArrayList<>();
-        // TODO will feed input read from Cassandra in the future.
-        try (CSVReader stream = new CSVReader(new InputStreamReader(
-                new ClassPathResource("resources/22524.txt").getInputStream()), '\t');) {
-            String[] ss = null;
+    private List<Provider> filterByPrice(String procCode, double price) throws IOException {
+        List<Provider> ret = CassandraQueryResponse.getProvidersOverCostThreshold(procCode, price,
+                false);
 
-            while (null != (ss = stream.readNext())) {
-                Provider p = parseProvider(ss);
-                if (p.providerDetails.averageSubmittedChargeAmount >= price) {
-                    ret.add(p);
-                }
-            }
-        }
-
-        return ret;
+        return ret != null ? ret : new ArrayList<>();
     }
 
     /**
