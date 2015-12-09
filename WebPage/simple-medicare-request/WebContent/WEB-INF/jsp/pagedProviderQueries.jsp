@@ -46,7 +46,7 @@ html, body {
 </head>
 <body class ="container main">
 
-	<h3>Explore providers and procedures via state, zip and specialty</h3>
+	<h2>Explore providers and procedures via state, zip and specialty</h2>
 	<div id="side-bar" class="container">
 
 		<select id="stateSelect" class="selectpicker">

@@ -21,10 +21,10 @@
 
 </head>
 <body class="container main center">
-	<h2>Predict a provider specialty based on procedures</h2>
+	<h2>Predict a provider specialty</h2>
 	<h6></h6>
 	<p>
-	View predicted provider specialties - type in a keyword and press submit.
+	Submit a procedure keyword to see the most likely provider specialty.
 	</p>
 	<p></p>
 	<input value="" id="user_input" type="text" name="state_request"
@@ -37,7 +37,7 @@
 	<input type="checkbox" name="descr_box" value="Xray of hip" />Xray of hip<br>
  -->
     <br />
-	<input id="request_button" type="submit" value="Search" class="btn btn-success">
+	<input id="request_button" type="submit" value="Submit" class="btn btn-success">
 
 	<div id="result_area"></div>
 

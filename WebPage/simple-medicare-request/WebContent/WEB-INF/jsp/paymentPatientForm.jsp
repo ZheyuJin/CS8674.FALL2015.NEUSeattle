@@ -21,8 +21,8 @@
 	<body class="container">
 			
 		<div class="container">
-		<h3 id="hello">Treatment payment gap: Patient payment
-			responsibility</h3>
+		<h2 id="hello">Treatment payment gap: Patient payment
+			responsibility</h2>
 			<div class="form-inline">
 				<label forid="numRows">Number of treatments:</label>
 				<input value="5" id="numRows" type="number" step="1" min = "0" name="numRows"  class = "form-control">
@@ -41,7 +41,7 @@
 			<br>
             <br>
 
-			<input id="request_button" type="submit" value="Search" class="btn-success">
+			<input id="request_button" type="submit" value="Submit" class="btn btn-success">
 			<div id="graph_area"></div>
 			<div id="result_area"></div>
 			<br>

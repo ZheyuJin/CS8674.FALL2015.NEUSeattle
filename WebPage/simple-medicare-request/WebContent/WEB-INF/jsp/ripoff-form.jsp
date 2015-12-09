@@ -73,7 +73,7 @@
 	</script>
 </head>
 <body class="container main center">
-	<h1>Is this price a ripoff?</h1>
+	<h2>Is this price a ripoff?</h2>
 	<p>By providing a procedure code and price in USD, you can see how many others paid less than this.</p>  
 	<!-- <form action="result-json" method="get" class="form-inline"> -->
 	<!-- <form method="get" class="form-inline">  -->

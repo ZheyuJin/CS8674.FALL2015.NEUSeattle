@@ -25,9 +25,9 @@
 </head>
 
 <body class="container main center" ng-controller="OutlierController as con">
-	<h1>Outlier Detection</h1>
-	<p>Outliers are providers whose charge among top K% for the given procedure.</p>   
-    <p>Enter a procedure code and percentage K to see providers whose charge is among top K %.</p>   
+	<h2>Outlier Detection</h2>
+	<p>Outliers are providers whose charge is within the top <i>n</i> % for the given procedure.</p>   
+    <p>Enter a procedure code and percentage cutoff <i>n</i> to see providers whose charge is among top <i>n</i> %.</p>   
 	
 	<form class="form-inline" role="form">
 	 
