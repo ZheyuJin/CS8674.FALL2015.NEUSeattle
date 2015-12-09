@@ -11,12 +11,12 @@
 	
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-	<script src="/simple-medicare-request/js/common.js"></script>
-	<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
+	<script src="../../js/common.js"></script>
+	<link rel="stylesheet" href="../../css/common.css">
 <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 <title>This is a Temporary Page for Brian</title>
-<link href="/simple-medicare-request/favicon.ico" rel="icon"
+<link href="../../favicon.ico" rel="icon"
 	type="image/x-icon">
 
 </head>

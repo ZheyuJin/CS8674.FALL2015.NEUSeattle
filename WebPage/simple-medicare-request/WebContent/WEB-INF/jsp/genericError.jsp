@@ -16,7 +16,7 @@
 
 <title>Medicare Data - Error</title>
 
-<link href="/simple-medicare-request/favicon.ico" rel="icon"
+<link href="../../favicon.ico" rel="icon"
     type="image/x-icon">
 
 </head>

@@ -15,11 +15,13 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="/simple-medicare-request/css/common.css">
-<script src="/simple-medicare-request/js/common.js"></script>
-<script src="/simple-medicare-request/js/original.js"></script>
+<link rel="stylesheet" href="../../css/common.css">
+<script src="../../js/common.js"></script>
+<script src="../../js/original.js"></script>
 
-<link href="/simple-medicare-request/favicon.ico" rel="icon" type="image/x-icon">
+<link href="../../favicon.ico" rel="icon"
+	type="image/x-icon">
+
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
   
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>

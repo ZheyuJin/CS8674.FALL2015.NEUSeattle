@@ -50,7 +50,7 @@
 	      	$.ajax({
 	      		
 	            /* url: "http://localhost:8080/simple-medicare-request/assessment/ripoff/result-json?proc_code="+ proc_code+"&price="+price, */
-	            url: "/simple-medicare-request/assessment/ripoff/result-json?proc_code="+ proc_code+"&price="+price,
+	            url: "result-json?proc_code="+ proc_code+"&price="+price,
 	            dataType: "json",
 	            success: function(response)
 	            {

@@ -1,6 +1,6 @@
 $(document).ready(function() {
 					$('body').append(
-							'<div id="ajaxBusy"><p><img src="/simple-medicare-request/loading.gif">'
+							'<div id="ajaxBusy"><p><img src="../../loading.gif">'
 							+ '</p></div>');
 					$('#ajaxBusy').hide();
 
@@ -11,7 +11,7 @@ $(document).ready(function() {
   + '<div class="container-fluid">'
   + '<div class="navbar-header">'
   + '<a class="navbar-brand">'
-  + '<img alt="Simple Medicare Request" src="/simple-medicare-request/gorty.gif" width="30" height="30" >'
+  + '<img alt="Simple Medicare Request" src="../../gorty.gif" width="30" height="30" >'
   + '</a>'
   + '</div>'
   + '<div>'
