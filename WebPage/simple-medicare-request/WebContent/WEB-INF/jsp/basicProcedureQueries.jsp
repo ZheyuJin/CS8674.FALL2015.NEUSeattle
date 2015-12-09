@@ -21,6 +21,7 @@
 
 <link href="../../favicon.ico" rel="icon"
 	type="image/x-icon">
+
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.css">
   
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.js"></script>
@@ -55,7 +56,7 @@
 			id="avgProcedureCost" class="request-select">Find
 			procedures using a keyword, show average cost in a state<br>
 		</form>
-			<input id="submitSearch" type="submit" value="Submit" class="btn btn-default" />
+			<input id="submitSearch" type="submit" value="Submit" class="btn btn-success" />
 			
 	</div> 
 	

@@ -141,9 +141,14 @@ public class Provider {
     /**
      * Cassandra Constructor
      * 
-     * Author Tim
+     * For when only the npi, full name, zipcode, charge amount, procedure code,
+     * amount charged, stdev, year, and place of service are needed.
+     * 
+     * @author Tim
      * 
      * @param mvRow
+     *            full row from mv_providers_cost or mv_providers_cost_national
+     *            table
      */
     public Provider(Row mvRow) {
         providerDetails = new ExtendedInfo();
@@ -184,14 +189,20 @@ public class Provider {
         }
     }
 
-    // FIXME will either remove this older version or refactor it if still
-    // needed
     /**
-     * Cassandra Constructor Author Tim
+     * Cassandra Constructor
+     * 
+     * @author Tim
+     * 
+     *         Used for when all fields are required (corresponds to one row in
+     *         Physician and Other Supplier Data Set)
      * 
      * @param providerRow
+     *            full row from provider table
      * @param procedureRow
+     *            full row from proceduresstats table
      * @param procedureInfoRow
+     *            full row from proceduresinfo table
      */
     public Provider(Row providerRow, Row procedureRow, Row procedureInfoRow) {
         providerDetails = new ExtendedInfo();

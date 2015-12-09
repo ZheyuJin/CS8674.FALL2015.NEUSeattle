@@ -39,6 +39,8 @@
 				id="percentBox" class="box" />
 			Return gap as percentage of the overall charge?
 			<br>
+            <br>
+
 			<input id="request_button" type="submit" value="Search" class="btn-success">
 			<div id="graph_area"></div>
 			<div id="result_area"></div>

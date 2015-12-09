@@ -21,10 +21,6 @@
 	<script>
 	$(init);
 	
-	function init(){
-		
-	}
-	
 	 function init()
 	  {
 	    $("#button").click(function(){
@@ -32,7 +28,7 @@
 	      	var proc_code = $("#proc_code").val();
 	      	var price = $("#price").val();
 	    	/* alert(""+ price + ":" + proc_code); */
-	      	var content = " % other patients paid more than this price for the procedure.";
+	      	var content = " % of others paid more than you.";
 	      	
     		if (!proc_code.match(new RegExp(/^[A-Za-z0-9]{3,5}$/))) {
     			alert("A valid Procedure Code must be input.");
