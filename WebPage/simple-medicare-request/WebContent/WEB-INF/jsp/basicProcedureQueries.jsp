@@ -55,7 +55,7 @@
 			id="avgProcedureCost" class="request-select">Find
 			procedures using a keyword, show average cost in a state<br>
 		</form>
-			<input id="submitSearch" type="submit" value="Submit" class="btn btn-default" />
+			<input id="submitSearch" type="submit" value="Submit" class="btn btn-success" />
 			
 	</div> 
 	
