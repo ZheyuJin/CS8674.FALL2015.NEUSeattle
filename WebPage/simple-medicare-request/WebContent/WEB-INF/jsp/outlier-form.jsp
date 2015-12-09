@@ -26,17 +26,17 @@
 
 <body class="container main center" ng-controller="OutlierController as con">
 	<h1>Outlier Detection</h1>
-	<p>Outliers are providers or institutions whose charge is in the top percentage for the given procedure code.</p>   
-    <p>Enter a procedure code and a percentage cutoff to see providers who charged at the top of that range for the procedure.</p>   
+	<p>Outliers are providers whose charge among top K% for the given procedure.</p>   
+    <p>Enter a procedure code and percentage K to see providers whose charge is among top K %.</p>   
 	
-	<form class="form-inline">
+	<form class="form-inline" role="form">
 	 
 		<label for="proc_code" class="form-group"> Procedure Code: </label> 		
-		<input id="proc_code"  name="proc_code" type="text" class="form-control" ng-model="con.proc_code" required/>
+		<input id="proc_code"  name="proc_code" type="text" class="form-control"  ng-model="con.proc_code" required/>
 		&nbsp;&nbsp;
 		<label for="percentage" class="form-group" > Percentage: </label> 		
-		<input id="percentage" type="number" min="0" max="20" step="0.01" name="percentage" class="form-control" ng-model="con.percentage" required/> 
-		 <br />
+		<input id="percentage" type="number" min="0" max="20" step="0.01" name="percentage" class="form-control" ng-model="con.percentage" required/>
+		<br/> 
 		<button type="submit" class="btn btn-success" ng-click="con.loadContent()">Submit</button>
 			
 	
