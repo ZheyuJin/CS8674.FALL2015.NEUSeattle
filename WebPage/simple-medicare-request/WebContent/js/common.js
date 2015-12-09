@@ -23,7 +23,7 @@ $(document).ready(function() {
   + '<li><a href="../map/usa">Urban/Rural</a></li>'
   + '<li><a href="../procedure/form">Procedures</a></li>'
   + '<li><a href="../ripoff/form">Ripoff</a></li>'
-  + '<li><a href="../nb/form">Naive Bayes</a></li>'
+  + '<li><a href="../nb/form">Specialty Predictor</a></li>'
   + '</ul>'
   + '</div>'
   + '</div>'

@@ -15,21 +15,25 @@
 	<link rel="stylesheet" href="../../css/common.css">
 <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-<title>This is a Temporary Page for Brian</title>
+<title>Specialty predictor</title>
 <link href="../../favicon.ico" rel="icon"
 	type="image/x-icon">
 
 </head>
 <body class="container main center">
-	<h2>Brian's Test Page</h2>
+	<h2>Predict a provider specialty based on procedures</h2>
 	<h6></h6>
+	<p>
+	View the predicted specialty by entering a keyword in the text box, or check one of the example procedures.
+	</p>
+	<p></p>
 	<input value="" id="user_input" type="text" name="state_request"
 		width="100%" required/> <br>
 	<input type="checkbox" name="descr_box" value=" Anesthesia for lens surgery" />Anesthesia for lens surgery<br>
 	<input type="checkbox" name="descr_box" value=" Anesthesia surgery" />Anesthesia surgery<br>
 	<input type="checkbox" name="descr_box" value=" Surgery, Xray of hip minimum 2 views" />Surgery, Xray of hip minimum 2 views<br>
 	<input type="checkbox" name="descr_box" value=" Xray of hip" />Xray of hip<br>
-
+    <br />
 	<input id="request_button" type="submit" value="Search" class="btn btn-success">
 
 	<div id="result_area"></div>

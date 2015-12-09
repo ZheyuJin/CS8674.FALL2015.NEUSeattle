@@ -39,9 +39,4 @@ public class NaiveBayesController {
 	return res;
         //return request.split(" ");
     }
-
-    @ExceptionHandler({ Exception.class })
-    public String genericError() {
-        return "genericError";
-    }
 }
