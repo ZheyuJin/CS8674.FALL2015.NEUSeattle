@@ -127,6 +127,7 @@ public class BasicProcedureController {
         throw new Exception("This is an error");
     }
 
+    /*
     @ExceptionHandler({ Exception.class })
     public String genericError() {
         // Returns the logical view name of an error page, passed to
@@ -136,6 +137,7 @@ public class BasicProcedureController {
         // for more options.
         return "genericError";
     }
+    */
 }
 
 /**
