@@ -1,0 +1,124 @@
+#MAIN TABLES
+###providers table 
+* can be downloaded here: <https://www.dropbox.com/s/lva4xf39fy6vwdg/providers.tar.gz?dl=0>
+* contains all the avaliable information related to a provider
+
+    CREATE TABLE providers ( 
+	npi text PRIMARY KEY, 
+	medicare_participation_indicator text,
+	nppes_credentials text, 
+	nppes_entity_code text, 
+	nppes_provider_city text,
+	nppes_provider_country text, 	
+	nppes_provider_first_name text,
+	nppes_provider_gender text,  
+	nppes_provider_last_org_name text,
+	nppes_provider_mi text, 
+	nppes_provider_state text, 
+	nppes_provider_street1 text, 
+	nppes_provider_street2 text, 
+	nppes_provider_zip text, 
+	procedures list<text>,
+	provider_type text 
+    );
+
+* npi is a unique identifier for the provider
+* medicare participation indicator is either Y or N, and indicates if the provider participates in the medicare program, participants
+are reimbursed by medicare at a higher rate, but have a lower allowed amount.
+* credentials are the degree or qualification (e.g. MD)
+* entity code ?????
+* last org name either refers to the individial provider's last name or the organizations name
+* state is the two letter postal abreviations and includes all 50 states as well as territories 
+* zip includes 5 digit and extended US zipcodes as well as foreign zip codes
+* procedures is a list of procedures performed by that provider in 2012 for which medicare was charged
+* provider type indicates the speciality (e.g. Neurology)
+
+
+###proceduresstats
+* can be downloaded here: <https://www.dropbox.com/s/pcvej5u9yy5einc/proceduresstats.tar.gz?dl=0>
+* contains the available information for a particular procedure performed by a particular provider at either office or facility
+
+    CREATE TABLE proceduresStats (
+	id text PRIMARY KEY, 
+	average_Medicare_allowed_amt float, 
+	average_Medicare_payment_amt float, 
+	average_submitted_chrg_amt float,
+ 	bene_day_srvc_cnt float,
+	bene_unique_cnt float, 
+	hcpcs_code text,  
+	line_srvc_cnt float, 
+	npi text, 
+	place_of_service text, 
+	stdev_Medicare_allowed_amt float, 
+	stdev_Medicare_payment_amt float, 
+	stdev_submitted_chrg_amt float,
+	year int	
+    );
+
+* id is a unique key representing a concatination of npi, place_of_service, hcpcs_code, and year
+* average medicare allowed amt is the average medicare allowed this provider to charge for this procedure. That is, this
+is what the physician recieves for the procedure. This amount is capped by Medicare and it represents what Medicare pays
+plus what the patient is responsible for (including what the patient's suplimental insurance pays). 
+* average medicare payment amt is the average amount medicare reimbursed for this procedure. This is how much Medicare
+pays, which is usually only part of the total cost of the procedure. 
+* average submitted chrg amt is the average amount this provider submitted for this procedure. This is usually
+the standard amount the provider charges for the procedure, but is not what the physican actually recieves 
+because medicare caps how much a provider can recieve for a procedure. This number gives an indication of the provider's
+pricing, but is generally much higher than what the provider recieves. 
+* bene_day_srvc_cnt : this number is determined by taking the unique patients who recieved the procedure in a day and suming 
+them for the year. If the same patient revieves multiple of the same procedure in the same day that patient is only counted once,
+but if the procedures are spaced over multiple days, the count increases for each day the patient visits. It is an approximation for the number of patient visits. 
+bene_unique_cnt : this is the number of unique patients who recieved the procedure for that provider in the year. It doesn't matter how many
+times the patient recieved the procedure or if the patient had the same procedure on multiple days of the year, the patient is only counted once. 
+* hcpcs_code is a unique identifier for the procedure 
+* line_srvc_cnt : this is the number fo times a procedure is performed. If the same procedure is performed on the same patient multiple times it is counted
+that same number of times, even if done during the same visit, it gets counted each time. 
+* npi is a unique identifier for the provider
+* place_of_service : is either O for office or F for facility. Reimbursment rates are slightly different for Office and Facility visits. Also facilities often
+have additional charges not included in this table which may or may not be covered by medicare
+* stdev_Medicare_allowed_amt - standard deviation of allowed amount
+* stdev_Medicare_payment_amt - standard deviation of payment amount
+* stdev_submitted_chrg_amt - standard deviation of submitted amount
+
+###proceduresinfo
+* can be downloaded here: <https://www.dropbox.com/s/l36dl23jt4plsp1/proceduresinfo?dl=0>
+* contains information relevant to a procedure type
+
+    CREATE TABLE proceduresInfo ( 
+	hcpcs_code text PRIMARY KEY, 
+	hcpcs_description text,
+	hcpcs_drug_indicator text 
+    );
+
+* hcpcs_code is a unique identifier for a procedure
+* hcpcs_description describes the procedure
+* hcpcs_drug_indicator Y/N, indicates if the procedure is the administration of a drug
+
+
+
+#ACCESORY TABLES
+
+###mv_providers_cost
+* can be downloaded here: <https://www.dropbox.com/s/uj2gkqridr0kino/mv_providers_cost.tar.gz?dl=0>
+* The cost of a procedure for a provider in a given state in order of cost
+* missing some values, see DrNull below
+
+###mv_providers_cost_national
+* can be downloaded here: <https://www.dropbox.com/s/x8777paqh1aadzw/mv_providers_cost_national.tar.gz?dl=0>
+* the cost of a procedure for a provider in order of cost (independent of state)
+* Note that though our implementation uses two tables, a better strategy would be to add a secondary index for the 
+states in this table and replace "mv_providers_cost" with this table
+* missing some values, see DrNull below
+
+###mv_procedures_state_cost_2012
+* can be downloaded here: <https://www.dropbox.com/s/htc412mpbild57o/mv_procedures_state_cost_2012.tar.gz?dl=0>
+* the average cost of a procedure in a state
+* believe this table has values with extra whitespace, may need to be regenerated if choose to use it
+
+###DrNull additional data for mv_providers_cost and mv_providers_cost_national
+* can be downloaded here: <https://www.dropbox.com/s/3ui4rsedqtttnzu/DrNull?dl=0>
+* mv_providers_cost_national and mv_providers_cost do not allow nppes_provider_last_org_name to be NULL, but some
+providers have a last name which is literally the string "NULL", but are missread as being null values when we 
+attempt to use copy table. There are likely better ways of handling this, but as a quick fix, these names were 
+removed from the table and inserted back in from this list via insertion statements.
+* Run insert into statements from this table to complete the mv_providers_cost_national or mv_providers_cost tables. 
